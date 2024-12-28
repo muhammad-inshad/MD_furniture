@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link href="/admin/prodectmenagement.css" rel="stylesheet"> 
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Product Management</h2>
+        <h2>Admin Dashboard</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">product Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+    <div class="content">
+        <div class="centered-container">
+            <h1 class="heading">Product Management</h1>
+            <div class="search-bar">
+                <input type="text" id="searchBAR" placeholder="Search products..." class="search-input">
+                <button class="add-button" id="searchBTN">Search</button>
+                <form action="/admin/addproduct">
+                    <button type="submit" class="add-button">Add Product</button>
+                </form>
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="product-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Brand</th>
+                        <th>category</th>
+                        <th>Sale Price</th>
+                        <th>Product Offer</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (ProductDetiles && ProductDetiles.length > 0) { %>
+                        <% ProductDetiles.forEach(product => { %>
+                            <tr>
+                                <td><%= product.productName %></td>
+                                <td><%= product.description %></td>
+                                <td><%= product.brand %></td>
+                                <td><%= product.category %></td>
+                                <td><%= product.salePrice %></td>
+                                <td><%= product.productOffer || "No Offer" %></td>
+                                <td><%= product.quantity %></td>
+                                <td><%= product.status %></td>
+                                <td>
+                                    <form action="/admin/updateProduct/<%= product._id %>" method="post">
+                                        <button type="submit" class="ubtn">Update</button>
+                                    </form>
+                                    <form action="/admin/deleteProduct/<%= product._id %>" method="post">
+                                        <button type="submit" class="ubtn">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="8">No products found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+
+function displayUsers(products) {
+    console.log(products);
+    const tableBody = document.getElementById("product-table").querySelector("tbody");;
+    tableBody.innerHTML = ""; // Clear existing rows
+    
+    products.forEach(product => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${product.productName}</td>
+            <td>${product.description}</td>
+            <td>${product.brand}</td>
+            <td>${product.category}</td>
+            <td>${product.salePrice}</td>
+            <td>${product.productOffer || "No Offer"}</td>
+            <td>${product.quantity}</td>
+            <td>${product.status}</td>
+               <td>
+                <form action="/admin/updateProduct/${product._id}" method="post">
+                    <button type="submit" class="ubtn">Update</button>
+                </form>
+                <form action="/admin/deleteProduct/${product._id}" method="post">
+                    <button type="submit" class="ubtn">Delete</button>
+                </form>
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+}
+
+document.getElementById("searchBTN").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const inputValue = document.getElementById("searchBAR").value.trim();
+
+    if (!inputValue) {
+        console.warn("Search input is empty!");
+        window.location.href ="/admin/productManagement"
+        return;
+    }
+
+    try {
+        const response = await fetch("/admin/search-product", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ searchKey: inputValue })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            displayUsers(data.result); // Display fetched products
+        } else {
+            console.error("Search failed:", data.message);
+        }
+    } catch (error) {
+        console.log("Error:", error);
+    }
+});
+
+    </script>
+</body>
+</html>

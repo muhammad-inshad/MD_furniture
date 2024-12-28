@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            background: #f4f4f9;
+            border-radius: 10px;
+            overflow: hidden;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .form-section {
+            padding: 20px 30px;
+            flex: 1;
+        }
+
+        .form-section h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 78%;
+            padding: 10px 40px 10px 40px; /* Add padding for the icon */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .form-group i {
+            position: absolute;
+            top: 70%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+
+        .login-btn {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .login-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .image-section {
+            background: url('/user/assets/userLogin.jpg') center center/cover no-repeat;
+            flex: 1;
+            border-radius: 0px 0 0 44px;
+        }
+
+        .a-tag {
+            font-size: 10px;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .a-tag:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="form-section">
+            <h1>User Login</h1>
+            <form id="logonForm"  >
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <i class="bi bi-envelope"></i>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <i class="bi bi-key"></i>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button type="submit" class="login-btn">Login</button>
+                <a href="/user/signup" class="a-tag">Signup</a>
+            </form>
+        </div>
+        <div class="image-section"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+     $('#logonForm').submit(function(e) {
+    e.preventDefault(); // Prevent form from submitting the traditional way
+
+    const emailInput = $('#email').val(); // Get the email value
+    const passwordInput = $('#password').val(); // Get the password value
+    
+    $.ajax({
+        url: '/user/login',  // Your login endpoint
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            email: emailInput,
+            password: passwordInput
+        }),
+        success: function(data) {
+            console.log(data)
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Success',
+                    text: 'Login successfully completed',
+                }).then(() => {
+                    if (data.isLogin) {
+                        localStorage.setItem('isLogin', true);
+                        window.location.href = '/user/home'; // Redirect to home
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Failed',
+                    text: data.message || 'Login failed',
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Server Error',
+                text: 'Login failed',
+            });
+        }
+    });
+});
+
+       
+    </script>
+</body>
+</html>

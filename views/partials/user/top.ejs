@@ -1,0 +1,111 @@
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="favicon.png">
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+		<!-- Bootstrap CSS -->
+		 
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="/css/tiny-slider.css" >
+		<link rel="stylesheet" href="/css/style.css" >
+		<link rel="stylesheet" href="/css/error.css">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+		<title>MD-frniture </title>
+	</head>
+
+	<body>
+      <!-- Bootstrap JS -->
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+
+		<!-- Start Header/Navigation -->
+		<nav class="custom-navbar navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furni navigation bar">
+
+			<div class="container">
+				<a class="navbar-brand" href="index.html">MD-FURNITURE<span>.</span></a>
+
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse" id="navbarsFurni">
+					<ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+						<li class="nav-item">
+						  <a class="nav-link" href="/user/home">Home</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="/user/shop">Shop</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="about.html">About us</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="services.html">Sofa</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="/user/chair">Chair</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="contact.html">Contact us</a>
+						</li>
+					  </ul>
+					<ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<img src="/images/user.svg" alt="User Icon">
+							</a>
+							<% if(!isLogin) { %>
+							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+								<li><a class="dropdown-item" href="/user/login">Login</a></li>
+								<li><a class="dropdown-item" href="/user/signup">Signup</a></li>
+							</ul>
+							<% } %>
+							<% if(isLogin) { %>
+								<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+									<h6>hello user</h6>
+									<li><a class="dropdown-item" href="/user/logout">Logout</a></li>
+								</ul>
+								
+							<% } %>
+						</li>
+						<li><a class="nav-link" href="cart.html"><img src="/images/cart.svg" alt="Cart Icon"></a></li>
+					</ul>
+					
+					
+				</div>
+			</div>
+				
+		</nav>
+		<script>
+			// Get the current pathname
+			const currentPath = window.location.pathname;
+		  
+			// Select all nav links
+			const navLinks = document.querySelectorAll('.nav-link');
+		  
+			// Loop through the links
+			navLinks.forEach(link => {
+			  // Check if the href matches the current path
+			  if (link.getAttribute('href') === currentPath) {
+				// Add the active class to the parent li
+				link.parentElement.classList.add('active');
+			  } else {
+				// Remove the active class from others (if needed)
+				link.parentElement.classList.remove('active');
+			  }
+			});
+		  </script>
+		<!-- End Header/Navigation -->

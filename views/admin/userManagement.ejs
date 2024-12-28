@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link href="/admin/userManagement.css" rel="stylesheet"> 
+</head>
+<body>
+    <div class="sidebar">
+        <h2>DASHBOARD</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">product Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+    <div class="content">
+        <h1 class="heading">USER MANAGEMENT</h1>
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <div><input type="text" id="search" placeholder="Search users by name, email, or phone..."><button  id="btnsearch" type="submit" class="searchbtn">search</button></div>
+        </div>
+        
+        <!-- User Table -->
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Join Date & Time</time></th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody  id="user-table-body">
+                <% if (userfind.length > 0) { %>
+                    <% userfind.forEach(user => { %>
+                        <tr>
+                            <td><%= user.username %></td>
+                            <td><%= user.phone || "N/A" %></td>
+                            <td><%= user.email %></td>
+                            <!-- Format createdOn to DD/MM/YYYY HH:mm:ss -->
+                            <td>
+                                <%
+                                    const createdDate = new Date(user.createdOn);
+                                    const day = String(createdDate.getDate()).padStart(2, '0');
+                                    const month = String(createdDate.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                                    const year = createdDate.getFullYear();
+                                    const hours = String(createdDate.getHours()).padStart(2, '0');
+                                    const minutes = String(createdDate.getMinutes()).padStart(2, '0');
+                                   
+                                    const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+                                %>
+                                <%= formattedDate %>
+                            </td>
+                            <td>
+                                <% if (user.isBlocked) { %>
+                                    <form action="/admin/blockUser/<%= user._id %>" method="POST" style="display: inline;">
+                                        <button type="submit" class="unblock-btn">Block</button>
+                                    </form>
+                                <% } else { %>
+                                    <form action="/admin/blockUser/<%= user._id %>" method="POST" style="display: inline;">
+                                        <button type="submit" class="block-btn">Unblock</button>
+                                    </form>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5">No users found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+<script>
+   function displayUsers(users) {
+    console.log("Users to display:", users); // Debugging log
+    const tableBody = document.getElementById("user-table-body");
+    tableBody.innerHTML = ""; // Clear the table before appending new rows
+
+    users.forEach(user => {
+        const row = document.createElement("tr");
+
+        // Format createdOn date
+        const createdDate = new Date(user.createdOn);
+        const formattedDate = createdDate.toLocaleString();
+
+        // Determine block/unblock button
+        const actionButton = user.isBlocked
+            ? `<form action="/admin/blockUser/${user._id}" method="POST" style="display: inline;">
+                    <button type="submit" class="unblock-btn">Unblock</button>
+               </form>`
+            : `<form action="/admin/blockUser/${user._id}" method="POST" style="display: inline;">
+                    <button type="submit" class="block-btn">Block</button>
+               </form>`;
+
+        // Populate row
+        row.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.phone || "N/A"}</td>
+            <td>${user.email}</td>
+            <td>${formattedDate}</td>
+            <td>${actionButton}</td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+}
+
+    document.getElementById("btnsearch").addEventListener("click", () => {
+        const inputValue = document.getElementById("search").value;
+       
+        fetch("/admin/search", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ searchKey: inputValue }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched Data:", data); // Debugging
+                if (data.success) {
+                    displayUsers(data.result);
+                } else {
+                    console.error("Search failed:", data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    });
+</script> 
+</body>
+</html>
