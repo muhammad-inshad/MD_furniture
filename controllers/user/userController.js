@@ -32,11 +32,17 @@ const loginpost=async(req,res)=>{
     if (!isPasswordValid) {
         return res.status(401).json({ success: false, message: "Invalid email or password." });
     }
+    if(findemail.isBlocked===false){
+
+       return  res.json({ success: false, message: "you are in block", isLogin: false });
+    }
         req.session.user ={
-            id: findemail._id, // Store only necessary details
+            id: findemail._id, 
             email:findemail .email,
         }
-        res.json({ success: true, message: "Login successful", isLogin: true });
+        return res.json({ success: true, message: "Login successful", isLogin: true });
+    
+    
     }
  catch (error) {
     console.error("Error during login process:", error);
@@ -46,6 +52,8 @@ const loginpost=async(req,res)=>{
 
 const loadHomepage=async (req,res)=>{
     try{
+      
+        
         const isLogin = req.session.user? true:false
      return await res.render('home',{isLogin})
     }
@@ -101,7 +109,11 @@ const singupPOst=async(req,res)=>{
     
     try{
       const {email,password,Cpassword,username,phone}=req.body
-
+      const Checkit = await User.findOne({ email: email });
+         if(Checkit){
+            return res.render('userSingup',{message:"user alredy existed try another one"})
+            
+         }
       
       if(password!=Cpassword){
         return res.render('userSingup',{message:"password not match"})
@@ -176,7 +188,7 @@ const verifyotp = async (req, res) => {
             });
 
             await saveUserData.save();
-            console.log('New user registered:', saveUserData);
+         
  
             req.session.user = saveUserData._id; 
             const isLogin=true

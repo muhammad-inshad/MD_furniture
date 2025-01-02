@@ -1,0 +1,128 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #007BFF;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    margin: 0;
+    color: #007BFF;
+}
+
+.back-button {
+    text-decoration: none;
+    color: white;
+    background-color: #007BFF;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+.product-images {
+    margin-bottom: 20px;
+}
+
+.images-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.product-image {
+    width: 30%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.product-info h2 {
+    margin-top: 0;
+    color: #000000;
+}
+
+.product-info p {
+    margin: 10px 0;
+}
+
+.product-info strong {
+    color: #000000;
+}
+#product-description {
+    max-width: 600px; /* Set the desired width for the block */
+    word-wrap: break-word; /* Ensure long words break to fit within the container */
+    overflow-wrap: break-word; /* Adds extra support for breaking long words */
+    line-height: 1.6; /* Adjust line height for readability */
+    margin-top: 10px; /* Optional spacing */
+}
+.product-images {
+    margin: 20px 0;
+}
+
+.images-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.product-image {
+    width: 200px; /* Adjust width as needed */
+    height: auto; /* Maintain aspect ratio */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.image-grid {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping of images */
+    gap: 10px; /* Adds spacing between images */
+}
+
+.image-item {
+    width: 150px; /* Set the width for the image container */
+    height: 150px; /* Set the height for the image container */
+    overflow: hidden; /* Ensures images don't overflow the container */
+    border: 1px solid #ddd; /* Optional: Adds a border around the images */
+    border-radius: 5px; /* Optional: Adds rounded corners */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9; /* Optional: Sets a background color */
+}
+
+.photos {
+    width: 100%; /* Ensure the image fits the container width */
+    height: 100%; /* Ensure the image fits the container height */
+    object-fit: cover; /* Crop the image to maintain aspect ratio */
+    border-radius: 5px; /* Optional: Matches the border radius of the container */
+}

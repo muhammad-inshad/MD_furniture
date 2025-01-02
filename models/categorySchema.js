@@ -23,6 +23,7 @@ const categorySchema=new mongoose.Schema({
         type:Date,
         defult:Date.now
     }
+    
 })
 
 const Category=mongoose.model("Category",categorySchema)

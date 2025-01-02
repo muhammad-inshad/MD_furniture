@@ -3,35 +3,44 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
+    min-height: 100vh; /* Ensures the body takes up the full height of the viewport */
 }
 
 .sidebar {
-    width: 250px;
-    height: 100vh;
-    background-color: #2c3e50;
-    color: white;
-    padding: 15px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
+    width: 250px; /* Fixed width for the sidebar */
+    height: 100vh; /* Full height of the viewport */
+    background-color: #2c3e50; /* Sidebar background color */
+    color: white; /* Text color for sidebar */
+    padding: 15px; /* Spacing inside the sidebar */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for a 3D effect */
+    position: fixed; /* Fix the sidebar in place */
+    top: 0; /* Align to the top of the viewport */
+    left: 0; /* Align to the left of the viewport */
+    overflow-y: auto; /* Add scrolling to the sidebar if content overflows */
 }
 
 .sidebar a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 10px 0;
-    transition: background-color 0.3s;
+    color: white; /* Link color */
+    text-decoration: none; /* Remove underline from links */
+    display: block; /* Stack links vertically */
+    padding: 10px; /* Spacing around links */
+    margin-bottom: 10px; /* Space between links */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth hover effect */
 }
 
 .sidebar a:hover {
-    background-color: #34495e;
+    background-color: #34495e; /* Darker background on hover */
+    transform: translateX(10px); /* Slight slide effect on hover */
 }
 
 .content {
-    flex-grow: 1;
-    padding: 20px;
-    background-color: #ffffff;
+    margin-left: 281px; /* Add margin to the left to account for the fixed sidebar */
+    padding: 20px; /* Add padding for content area */
+    background-color: #ffffff; /* Content background color */
+    flex-grow: 1; /* Allow content to expand */
 }
+
 
 .heading {
     margin-bottom: 20px;
@@ -48,7 +57,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
-    font-size: 18px;
+    font-size: 11px;
     text-align: left;
 }
 
@@ -86,15 +95,15 @@ table tbody tr:hover {
 
 .search-input {
     padding: 10px;
-    font-size: 16px;
+    font-size: 8px;
     width: 300px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
 .add-button {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 4px 20px;
+    font-size: 11px;
     color: white;
     background-color: #007BFF;
     border: none;
@@ -189,4 +198,17 @@ td {
 }
  
 
+.ubtn {
+    background-color: blue;
+    color: white;
+    border: none;
+    padding:  1px 12px;
+    cursor: pointer;
+    margin-right: 5px;
+    font-size: 11px;
+}
+
+.ubtn:hover {
+    background-color: darkblue;
+}
 

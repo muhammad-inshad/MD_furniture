@@ -36,7 +36,6 @@ const loginpost = async (req, res) => {
             id: admin._id,
             username: admin.username,
         };
-
         return res.json({ success: true, message: "Admin successfully logged in" });
     } catch (error) {
         console.error("Error during admin login:", error);

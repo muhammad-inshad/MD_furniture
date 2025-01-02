@@ -7,8 +7,14 @@ const session=require("express-session")
 const userRouter=require("./router/userRouter")
 const adminRouter=require("./router/adminRouter")
 const Swal = require('sweetalert2');
+const nocache = require("nocache");
+const passport=require("./config/passport")
+
+
 
 db()
+
+app.use(nocache());
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
@@ -23,6 +29,11 @@ app.use(session({
         maxAge:72*60*60*100
     }
 }))
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.set("view engine","ejs")
 app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])

@@ -9,7 +9,7 @@
 <body>
     <div class="sidebar">
         <h2>Product Management</h2>
-        <h2>Admin Dashboard</h2>
+       
         <a href="/admin/dashboard">Dashboard</a>
         <a href="/admin/userManagement">Manage Users</a>
         <a href="/admin/CategoryManagement">Category Management</a>
@@ -49,18 +49,24 @@
                                 <td><%= product.productName %></td>
                                 <td><%= product.description %></td>
                                 <td><%= product.brand %></td>
-                                <td><%= product.category %></td>
+                                <td><%=  product.category.name || "No Category"%></td>
                                 <td><%= product.salePrice %></td>
                                 <td><%= product.productOffer || "No Offer" %></td>
                                 <td><%= product.quantity %></td>
                                 <td><%= product.status %></td>
                                 <td>
-                                    <form action="/admin/updateProduct/<%= product._id %>" method="post">
+                                    <form action="/admin/viewOfProduct/<%= product._id %>" method="get">
+                                        <button type="submit" class="ubtn">view</button>
+                                    </form><br>
+                                    <form action="/admin/updateProduct/<%= product._id %>" method="get">
                                         <button type="submit" class="ubtn">Update</button>
-                                    </form>
+                                    </form><br>
                                     <form action="/admin/deleteProduct/<%= product._id %>" method="post">
-                                        <button type="submit" class="ubtn">Delete</button>
+                                        <button type="submit" class="ubtn">
+                                            <%= product.isDeleted ? 'Delete' : 'Restore' %>
+                                        </button>
                                     </form>
+                                    
                                 </td>
                             </tr>
                         <% }) %>
@@ -88,12 +94,15 @@ function displayUsers(products) {
             <td>${product.productName}</td>
             <td>${product.description}</td>
             <td>${product.brand}</td>
-            <td>${product.category}</td>
+            <td>${product.category.name}</td>
             <td>${product.salePrice}</td>
             <td>${product.productOffer || "No Offer"}</td>
             <td>${product.quantity}</td>
             <td>${product.status}</td>
                <td>
+                 <form action="/admin/viewOfProduct${product._id}" method="get">
+                 <button type="submit" class="ubtn">view</button>
+                 </form>
                 <form action="/admin/updateProduct/${product._id}" method="post">
                     <button type="submit" class="ubtn">Update</button>
                 </form>

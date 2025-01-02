@@ -88,13 +88,37 @@
             font-size: 0.76rem;
             display: none;
         }
+        .google-btn{
+            display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+    text-decoration: none;
+    width: -2%;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+        }
+        a.google-btn:hover{
+            background-color: #f0f0f0;
+            border-color: #ccc;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="form-section">
             <h1>User Sign-up</h1>
+            
+
             <form action="/user/signup" method="POST" id="signform">
+                <% if (typeof message !== 'undefined') { %>
+                    <p style="color: red; font-family:fantasy;"><%= message %></p>
+                <% } %>
                 <div class="form-group">
                     <label for="username">Name</label>
                     <i class="bi bi-person-circle"></i>
@@ -127,10 +151,18 @@
                 </div>
                 <button type="submit" class="login-btn">Sign Up</button>
             </form>
+            
+            <div>
+             <center><a href="/user/auth/google" class="google-btn">
+                    <img src="/user/assets/google.png" alt="google logo" style="width: 24px; height: 24px; margin-right: 10px;">
+                </a></center>   
+            </div>
         </div>
         <div class="image-section"></div>
     </div>
-    <script>
+   
+       
+        <script>
         const nameid = document.getElementById("username");
         const emailid = document.getElementById("email");
         const phoneid = document.getElementById("phone");
@@ -215,8 +247,12 @@
                     error5.style.display === "block") {
                     e.preventDefault();
                 }
+                
             });
         });
+    
+
     </script>
+   
 </body>
 </html>

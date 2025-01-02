@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product</title>
+   
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+    #imagePreview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 8px;
+    }
+
+    .image-container {
+        position: relative;
+    }
+
+    .preview-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgb(30, 255, 1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, select, textarea, button {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Update Product</h1>
+        <form id="updateProduct" enctype="multipart/form-data" method="POST">
+
+            <!-- Name -->
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" value="<%= findUPproduct.productName %>" required>
+
+            <!-- Description -->
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" required><%= findUPproduct.description %></textarea>
+
+            <!-- Brand -->
+            <label for="brand">Brand</label>
+            <input type="text" id="brand" name="brand" value="<%= findUPproduct.brand %>" required>
+
+            <!-- Category -->
+            <label for="category">Category</label>
+            <input type="text" id="category" name="category" value="<%= findUPproduct.category._id %>" hidden>
+            <input type="text" id="categoryDisplay" name="categoryDisplay" value="<%= findUPproduct.category.name %>" readonly>
+
+            <!-- Sale Price -->
+            <label for="salePrice">Sale Price</label>
+            <input type="number" id="salePrice" name="salePrice" value="<%= findUPproduct.salePrice %>" required>
+
+            <!-- Product Offer -->
+            <label for="productOffer">Product Offer</label>
+            <input type="text" id="productOffer" name="productOffer" value="<%= findUPproduct.productOffer %>">
+
+            <!-- Stock -->
+            <label for="stock">Stock</label>
+            <input type="number" id="stock" name="stock" value="<%= findUPproduct.quantity %>" required>
+
+            <!-- Product Images -->
+            <label for="productImages">Upload Images (Select at least 3):</label>
+            <div id="imagePreview">                            
+                <% if (findUPproduct.productImages.length > 0) { %>
+                    <% findUPproduct.productImages.forEach(image=> { %>
+                        <div class="image-container">
+                            <img src="/uploads/<%= image %>" alt="Product Image" class="preview-image ">
+                        </div>
+                        <script>
+                            console.log("image :","<%= image %>")
+                        </script>
+                    <% }); %> 
+                <% } else { %>
+                    <p>No images available for this product.</p>
+                <% } %>
+            </div>    
+            <input type="file" id="productImages" name="productImages[]" multiple>
+
+            <!-- Status -->
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="Available" <%= findUPproduct.status === 'Available' ? 'selected' : '' %>>Available</option>
+                <option value="out of stock" <%= findUPproduct.status === 'out of stock' ? 'selected' : '' %>>Out of Stock</option>
+                <option value="Discontinued" <%= findUPproduct.status === 'Discontinued' ? 'selected' : '' %>>Discontinued</option>
+            </select>
+
+            <!-- Submit Button -->
+            <button type="submit">Update Product</button>
+        </form>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+          
+            document.getElementById("updateProduct").addEventListener("submit", (e) => {
+                e.preventDefault(); // Prevent default form submission
+
+                // Get form field values
+                const name = document.getElementById("name").value;
+                const description = document.getElementById("description").value;
+                const brand = document.getElementById("brand").value;
+                const category = document.getElementById("categoryDisplay").value;
+                const salePrice = document.getElementById("salePrice").value;
+                const productOffer = document.getElementById("productOffer").value;
+                const stock = document.getElementById("stock").value;
+                const status = document.getElementById("status").value;
+                const imageFiles = document.getElementById("productImages").files;
+
+                // Create FormData object
+                const formData = new FormData();
+                formData.append("name", name);
+                formData.append("description", description);
+                formData.append("brand", brand);
+                formData.append("category", category);
+                formData.append("salePrice", salePrice);
+                formData.append("productOffer", productOffer);
+                formData.append("stock", stock);
+                formData.append("status", status);
+
+                // Append image files
+                for (let i = 0; i < imageFiles.length; i++) {
+                    formData.append("productImages", imageFiles[i]); // Backend field name must match
+                }
+
+                // Send the POST request
+                fetch("/admin/updateProduct/<%= findUPproduct._id %>", {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+    Swal.fire({
+      title: 'Success!',
+      text: 'Product added successfully!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+    }).then(() => {
+      window.location.href = '/admin/productManagement';
+    });
+  })
+  .catch(error => {
+    Swal.fire({
+      title: 'Error!',
+      text: 'Something went wrong. Please try again.',
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+    console.error('Error:', error);
+  });
+            });
+        </script>
+    </div>
+</body>
+</html>

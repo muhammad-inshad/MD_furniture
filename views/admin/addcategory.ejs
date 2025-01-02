@@ -90,9 +90,31 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
+      function validateForm() {
+      const name = document.getElementById("name").value
+      const description = document.getElementById("description").value
+      const offerPrice = document.getElementById('offerPrice').value
+            
+      if (!/^[a-zA-Z]+$/.test(name)) {
+        alert('Name should not contain spaces or numbers.');
+        return false;
+    }
+      if (/\s/.test(description)) {
+        alert('Description should not contain spaces.');
+        return false;
+      }
+      if (offerPrice <= 0) {
+        alert('Offer Price should be a positive number.');
+        return false;
+      }
+      return true;
+    }
+    
     document.getElementById('updateForm').addEventListener('submit', function(event) {
       event.preventDefault(); // Prevent the default form submission
-      
+      if (!validateForm()) {
+        return; // Stop form submission if validation fails
+      }
       // Collect form data
       const formData = {
         name: document.getElementById('name').value,

@@ -1,0 +1,28 @@
+<%-include("../../views/partials/user/top")%>
+
+	
+
+					
+								<center><h1>SOFA</h1></center>
+		
+								<div class="untree_co-section product-section before-footer-section">
+									<div class="container">
+									  <div class="row">
+										<% findProduct.forEach(product => { %>
+										  <div class="col-12 col-md-4 col-lg-3 mb-5">
+											<a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
+											  <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+											  <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
+											  <strong class="product-price">$<%= product.salePrice %></strong>
+											  <span class="icon-cross">
+												<img src="/images/cross.svg" class="img-fluid">
+											  </span>
+											</a>
+										  </div>
+										<% }); %>
+									  </div>
+									</div>
+								  </div>
+								  
+								  
+		<%-include("../../views/partials/user/footer")%>
