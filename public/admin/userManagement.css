@@ -140,4 +140,45 @@
         transition: background-color 0.3s, color 0.3s;
         margin-left: 5px; /* Add gap from the search bar */
     }
-    
+    .table-container {
+    max-height: 500px; /* Adjust height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ddd; /* Optional: Add a border for better visuals */
+    margin-top: 20px; /* Optional: Add some space above the table */
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th, .user-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.user-table th {
+    background-color: #f4f4f4;
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Ensure headers stay on top while scrolling */
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th, .user-table td {
+    border: 1px solid #5f1010;
+    padding: 8px;
+    text-align: left;
+}
+
+.user-table th {
+    background-color: #078596;
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Ensure headers stay on top while scrolling */
+}

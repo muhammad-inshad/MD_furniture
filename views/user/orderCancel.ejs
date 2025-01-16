@@ -1,0 +1,85 @@
+<%- include("../../views/partials/user/top") %>
+
+<!-- Bootstrap CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+
+<title>Order Success - MD-furniture</title>
+<style>
+    /* Cancel Order Link Styling */
+.cancel-order-link {
+    font-size: 16px;
+    color: #e74c3c;  /* Red color to indicate cancellation */
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px;
+    display: inline-block;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-order-link:hover {
+    background-color: #f2dede;
+    color: #c0392b;
+}
+/* Input Field Styling */
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+input[type="text"]:focus {
+    border-color: #3498db;
+    outline: none;
+}
+/* Increase the size of the icon */
+.icon-large {
+    font-size: 50px;  /* Increase the size */
+    width: 60px;      /* Increase the width */
+    height: 60px;     /* Increase the height */
+    display: inline-block; /* Ensures the icon is treated as a block element */
+}
+
+
+</style>
+<body>
+    <form action="/user/orderCancel" method="post">
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="text-center">
+        
+
+            <div class="mb-4">
+                <i class="bi bi-patch-question icon-large"></i>
+              </div>
+              
+
+              <h4>Your reason, please:</h4>
+          <input type="text" value="<%=id%>" name="id" hidden>
+        
+          <input type="text" name="orderDetails" id="orderDetails" class="form-control mb-3" placeholder="Enter your reason">
+            <button class="btn bg-danger">Cancel the order</button>
+</form>
+          <div class="mt-4">
+            <a href="/user/myorders" class="btn btn-primary">View My Orders</a>
+            <a href="/user/shop" class="btn btn-secondary">Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/tiny-slider.js"></script>
+  <script src="js/custom.js"></script>
+
+  <%- include("../../views/partials/user/footer") %>
+</body>

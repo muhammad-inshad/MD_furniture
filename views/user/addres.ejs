@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .delete-button {
+    background-color: #ff4d4d; /* Red background to signify delete action */
+    color: #fff; /* White text for contrast */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 8px 16px; /* Adequate padding for clickable area */
+    font-size: 14px; /* Clear and readable font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for hover and active states */
+    text-transform: uppercase; /* Uppercase text for prominence */
+}
+
+.delete-button:hover {
+    background-color: #e60000; /* Darker red background on hover */
+    transform: translateY(-3px); /* Lift effect on hover */
+}
+
+.delete-button:active {
+    transform: translateY(1px); /* Subtle push effect when clicked */
+    background-color: #cc0000; /* Even darker red on click */
+}
+
+.delete-button:focus {
+    outline: none; /* Remove focus outline for a cleaner look */
+}
+
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #007BFF;
+            color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin: 0 0 20px;
+            text-align: center;
+        }
+
+        .sidebar a {
+            display: block;
+            text-decoration: none;
+            color: #fff;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #0056b3;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .content .section {
+            display: none;
+        }
+
+        .content .section.active {
+            display: block;
+        }
+
+    
+
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            background: #f9f9f9;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .logout button {
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout button:hover {
+            background-color: #e60000;
+        }
+        .add_address {
+    background-color: #f9f9f9;
+    max-height: 500px;
+    height: 100%;
+    max-width: 200px;
+    width: 100%;
+    padding: 20px; /* Add padding for content spacing */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth hover effect */
+    display: flex; /* Center content */
+    align-items: center;
+    justify-content: center;
+    text-align: center; /* Center align text */
+    font-family: 'Arial', sans-serif; /* Set a clean font */
+    color: #333; /* Default text color */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.add_address:hover {
+    background-color: #60bd52; /* Hover background color */
+    color: #fff; /* Change text color on hover */
+    transform: translateY(-7px); /* Add lift effect on hover */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+}
+
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>PROFILE</h2>
+            <a href="/user/profile">Profile</a>
+            <a href="/user/myorders" >My Orders</a>
+            <a href="/user/address">Address</a>
+            <a href="#wishlist" onclick="showSection('wishlist', this)">Wishlist</a>
+            <a href="/user/home">back</a>
+        </div> 
+           <div id="address" class="section">
+            <div style="
+            max-width: 700px; /* Increase this value to widen the maximum width */
+            width: 700px; /* Optional: Ensures responsiveness by setting width as a percentage */
+            margin: 20px auto; 
+            padding: 20px; 
+            background-color: #f9f9f9; 
+            border-radius: 40px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Address</h2>
+              
+                <% addresses.forEach((address,index) => { %>
+                    <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: #fff;">
+                      <p><strong>Name:</strong> <%= address.name %></p>
+                      <p><strong>City:</strong> <%= address.City %></p>
+                      <p><strong>Landmark:</strong> <%= address.landMark %></p>
+                      <p><strong>State:</strong> <%= address.state %></p>
+                      <p><strong>Pincode:</strong> <%= address.pincode %></p>
+                      <p><strong>Phone:</strong> <%= address.phone %></p>
+                      <button class="delete-button" data-id="<%= address._id %>">Delete</button>
+                    </div>
+                    <% }); %>
+                    
+              </div>
+              
+                  <center>   <a href="/user/add_address" style="text-decoration: none; color: #333;">
+                    <div class="add_address">
+                 <h3>add address</h3>
+                </div>
+            </div></a>  </center> 
+
+           
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.5/dist/sweetalert2.min.css" rel="stylesheet">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.5/dist/sweetalert2.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('address').addEventListener('click', function (event) {
+          if (event.target.classList.contains('delete-button')) {
+            const addressId = event.target.getAttribute('data-id');
+      
+            fetch(`/user/deleteAddress/${addressId}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json", 
+              },
+            })
+              .then((response) => response.json())
+              .then((result) => {
+                if (result.success) {
+                  Swal.fire({
+                    title: "Success!",
+                    text: "Address deleted successfully!",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                  }).then(() => {
+                    window.location.href = "/user/address"; // Redirect after success
+                  });
+                } else {
+                  Swal.fire({
+                    title: "Error!",
+                    text: result.message || "Failed to delete the address.",
+                    icon: "error",
+                    confirmButtonText: "Try Again",
+                  });
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                Swal.fire({
+                  title: "Error!",
+                  text: "An error occurred while deleting the address.",
+                  icon: "error",
+                  confirmButtonText: "Close",
+                });
+              });
+          }
+        });
+      });
+      
+   
+   
+</script>
+</body>
+</html>

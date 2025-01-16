@@ -13,7 +13,11 @@
 											<a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
 											  <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
 											  <h3 class="product-title"style="font-size:13px;"><%= product.productName %></h3>
-											  <strong class="product-price" >$<%= product.salePrice %></strong>
+											  <% if (product.quantity < 1) { %>
+												<strong class="product-price" style="color: red;">Out of Stock</strong>
+											  <% } else { %>
+												<strong class="product-price">$<%= product.salePrice %></strong>
+											  <% } %>
 											  <span class="icon-cross">
 												<img src="/images/cross.svg" class="img-fluid">
 											  </span>

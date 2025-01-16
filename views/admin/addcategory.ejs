@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ADD Category</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="/admin/addcategory.css" rel="stylesheet"> 
+    
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,6 +24,7 @@
       background: #ffffff;
       border-radius: 20px;
       box-shadow: 0 2px 10px rgb(176, 0, 0);
+      margin-left: inherit;
     }
     .form-group {
       margin-bottom: 15px;
@@ -53,6 +56,20 @@
   </style>
 </head>
 <body>
+  <div class="sidebar">
+    <h2>Admin Dashboard</h2>
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/userManagement">Manage Users</a>
+    <a href="/admin/CategoryManagement">Category Management</a>
+    <a href="/admin/productManagement">product Management</a>
+    <a href="/admin/logout">Logout</a>
+</div>
+<div class="content">
+   <div>
+       <h1 class="heading">
+           addProduct
+       </h1>
+   </div>
   <div class="form-container">
     <h2>ADD</h2>
     <form id="updateForm">

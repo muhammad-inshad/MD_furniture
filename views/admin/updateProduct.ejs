@@ -14,15 +14,10 @@
             background-color: #f4f4f4;
         }
         
-    #imagePreview {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        margin-bottom: 8px;
-    }
-
+        
     .image-container {
         position: relative;
+        display: inline-block;
     }
 
     .preview-image {
@@ -32,6 +27,30 @@
         border-radius: 8px;
         border: 1px solid #ddd;
     }
+
+    .delete-button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .delete-button:hover {
+        background-color: #e60000;
+    }
+
+
 
         .container {
             max-width: 600px;
@@ -97,7 +116,7 @@
 
             <!-- Category -->
             <label for="category">Category</label>
-            <input type="text" id="category" name="category" value="<%= findUPproduct.category._id %>" hidden>
+            
             <input type="text" id="categoryDisplay" name="categoryDisplay" value="<%= findUPproduct.category.name %>" readonly>
 
             <!-- Sale Price -->
@@ -114,20 +133,20 @@
 
             <!-- Product Images -->
             <label for="productImages">Upload Images (Select at least 3):</label>
-            <div id="imagePreview">                            
+            <div id="imagePreview">
                 <% if (findUPproduct.productImages.length > 0) { %>
-                    <% findUPproduct.productImages.forEach(image=> { %>
-                        <div class="image-container">
-                            <img src="/uploads/<%= image %>" alt="Product Image" class="preview-image ">
-                        </div>
-                        <script>
-                            console.log("image :","<%= image %>")
-                        </script>
-                    <% }); %> 
+                    <% findUPproduct.productImages.forEach(image => { %>
+                     
+                            <div class="image-container">
+                                <img src="/uploads/<%= image %>" alt="Product Image" class="preview-image">
+                                <button class="delete-button" onclick="deleteImage('<%= findUPproduct._id %>', '<%= image %>')">Delete</button>
+                            </div>
+                      
+                    <% }); %>
                 <% } else { %>
                     <p>No images available for this product.</p>
                 <% } %>
-            </div>    
+            </div>
             <input type="file" id="productImages" name="productImages[]" multiple>
 
             <!-- Status -->
@@ -139,10 +158,42 @@
             </select>
 
             <!-- Submit Button -->
-            <button type="submit">Update Product</button>
+            <button type="submit" id="updateProduct">Update Product</button>
         </form>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
+            
+            function deleteImage(productId, imageName) {
+    fetch(`/admin/deleteImage/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageName })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to delete image');
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            title: 'Deleted!',
+            text: 'Image deleted successfully.',
+            icon: 'success',
+        }).then(() => {
+            // Optionally, refresh the page or remove the image from the DOM
+            window.location.reload();
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to delete image.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
           
             document.getElementById("updateProduct").addEventListener("submit", (e) => {
                 e.preventDefault(); // Prevent default form submission

@@ -210,11 +210,18 @@
         </div>
         
         
-       <center><a href="/user/" class="buy-button">BUY</a><br><a href="/user/" class="buy-button">ADD TO CART</a></center> 
-      </div>
+       
+        <form action="/user/cart" method="POST">
+          <input type="hidden" name="productId" value="<%= findProduct._id %>">
+          <input type="hidden" name="quantity" value="1"> <!-- You can dynamically set the quantity if needed -->
+          <center>
+            <button type="submit" class="buy-button">ADD TO CART</button>
+          </center>
+        </form>
+           </div>
     </div>
 
-    <a href="/user/chair" class="back-button">Back to Products</a>
+    <a href="/user/shop" class="back-button">Back to Products</a>
   </div>
 
   <script>
@@ -258,4 +265,6 @@
     });
   });
   </script>
+
+ 
 <%-include("../../views/partials/user/footer")%>

@@ -36,10 +36,10 @@ const addressSchema=new Schema({
             type:String,
             required:true
         },
-        altphone:{
-            type:String,
-            required:true
-        }
+        // altphone:{
+        //     type:String,
+        //     required:true
+        // }
     }]
 })
 

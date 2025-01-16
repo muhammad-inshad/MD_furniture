@@ -5,6 +5,8 @@ const customerController=require('../controllers/admin/customerContollr')
 const {uploadFields}=require("../middlewares/multer")
 const {isAdmin}=require("../middlewares/auth")
 
+
+
 router.get("/login",adminController.login)
 router.post("/login",adminController.loginpost)
 router.get("/dashboard",isAdmin,adminController.dashboard)
@@ -19,7 +21,7 @@ router.post("/updateCategory/:id",customerController.updatecategory)
 router.put("/updateForm",customerController.updateFormcategory)
 router.get("/addcategory",customerController.addcategory)
 router.post("/addPost",customerController.addPost)
-router.delete("/deleteCategory",customerController.deleteCategory)
+router.post("/deleteCategory",customerController.deleteCategory)
 
 router.get("/productManagement",customerController.productManagement)
 router.get("/addproduct",customerController.addproduct)
@@ -29,6 +31,11 @@ router.post("/deleteProduct/:id",customerController.DeleteProduct)
 router.get("/viewOfProduct/:id",customerController.viewOfProduct)
 router.get("/updateProduct/:id",customerController.updateProduct)
 router.post("/updateProduct/:id",uploadFields,customerController.postupdateProduct)
+router.delete("/deleteImage/:id",uploadFields,customerController.deleteImage)
+
+
+router.get("/ordermanagment",isAdmin,customerController.ordermanagment)
+router.post("/order/update/:id",customerController.orderupdate)
 
 
 module.exports=router

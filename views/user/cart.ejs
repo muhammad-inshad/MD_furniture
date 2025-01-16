@@ -1,0 +1,229 @@
+<%-include("../../views/partials/user/top")%>
+
+		<!-- Bootstrap CSS -->
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+		<link href="css/tiny-slider.css" rel="stylesheet">
+		<link href="/public/css/bootstrap.min.css" rel="stylesheet">
+		<title>Furni Free Bootstrap 5 Template for Furniture and Interior Design Websites by Untree.co </title>
+	</head>
+	<style>
+		.product-name h2 {
+    white-space: nowrap; /* Prevent wrapping to the next line */
+    overflow: hidden;    /* Hide the overflow */
+    text-overflow: ellipsis; /* Show "..." for truncated text */
+    max-width: 200px; /* Adjust the max width as needed */
+	
+}
+.site-blocks-table thead th{
+	padding: 60px;
+    text-align:justify;
+    border-width: 0px !important;
+    vertical-align: middle;
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 18px;
+}
+@media (min-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 auto;
+        width: 50%;
+        padding-left: 19px;
+    }
+}
+
+	</style>
+
+	<body>
+		<div class="row mb-5">
+			<form class="col-md-12" method="post">
+			  <div class="site-blocks-table">
+				<table class="table">
+				  <thead>
+					<tr>
+					  <th class="product-thumbnail">Image</th>
+					  <th class="product-name">Product</th>
+					  <th class="product-price">Price</th>
+					  <th class="product-quantity">Quantity</th>
+					  <th class="product-total">Total</th>
+					  <th class="product-remove">Remove</th>
+					</tr>
+				  </thead>
+          <tbody>
+            <% if (cartData.length === 0) { %>
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <h2>Your cart is empty</h2>
+                    </td>
+                </tr>
+            <% } else { %>
+                <% cartData.forEach(item => { %>
+                    <tr>
+                        <td class="product-thumbnail">
+                            <img src="/uploads/<%= (item?.productDetails?.productImages && item?.productDetails?.productImages.length > 0) ? item?.productDetails?.productImages[0] : 'default-image.jpg' %>" 
+                                 alt="<%= item?.productDetails?.productName || 'No product name available' %>" 
+                                 class="img-fluid">
+                        </td>
+                        
+                        <td class="product-name">
+                            <h2 class="h5 text-black"><%= item?.productDetails?.productName || 'No name' %></h2>
+                        </td>
+                        
+                        <td>$<%= item?.productDetails?.salePrice || 'N/A' %></td>
+                        
+                        <td>
+                          <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
+                              <div class="input-group-prepend">
+                                  <button class="btn btn-outline-black decrease qBTN" data-action="-1" data-product-id="<%= item?.items?.productId %>" type="button">&minus;</button>
+                              </div>
+                              <input type="text" class="form-control text-center quantity-amount" 
+                                     value="<%= item?.items?.quantity || 1 %>" 
+                                     aria-label="Quantity" readonly>
+                              <div class="input-group-append">
+                                  <button class="btn btn-outline-black increase qBTN" data-action="1" data-product-id="<%= item?.items?.productId %>" type="button">&plus;</button>
+                              </div>
+                          </div>
+                      </td>
+                      
+                        <td>$<%= item?.items?.quantity * item?.productDetails?.salePrice || 'N/A' %></td>
+                        <td> 
+                        <form style="display:inline;">
+                          <input type="hidden" name="productId" id="productId" value="<%= item?.items?.productId %>">
+                          <button type="submit" id="removebtn"  class="btn btn-black btn-sm">X</button>
+                      </form>
+                      </td>
+                    </tr>
+                <% }); %>
+            <% } %>
+        </tbody>
+        
+				</table>
+			  </div>
+			</form>
+		  </div> <!-- Close the row mb-5 div -->
+		  
+        <br><br>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="row mb-5">
+                    <div class="col-md-6">
+                      <button class="btn btn-outline-black btn-sm btn-block">Continue Shopping</button>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label class="text-black h4" for="coupon">Coupon</label>
+                      <p>Enter your coupon code if you have one.</p>
+                    </div>
+                    <div class="col-md-8 mb-3 mb-md-0">
+                      <input type="text" class="form-control py-3" id="coupon" placeholder="Coupon Code">
+                    </div>
+                    <div class="col-md-4">
+                      <button class="btn btn-black">Apply Coupon</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 pl-5">
+                  <div class="row justify-content-end">
+                    <div class="col-md-7">
+                      <div class="row">
+                        <div class="col-md-12 text-right border-bottom mb-5">
+                          <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <div class="col-md-6">
+                          <span class="text-black">Subtotal</span>
+                        </div>
+                        <div class="col-md-6 text-right">
+                          <strong class="text-black">$<%= subtotal.toFixed(2) %></strong>
+                        </div>
+                      </div>
+                      <div class="row mb-5">
+                        <div class="col-md-6">
+                          <span class="text-black">Total</span>
+                        </div>
+                        <div class="col-md-6 text-right">
+                          <strong class="text-black">$<%= total.toFixed(2) %></strong>
+                        </div>
+                      </div>
+        
+                      <div class="row">
+                        <div class="col-md-12">
+                          <form action="/user/checkout">
+                          <button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location='checkout.html'" >Proceed To Checkout</button>
+                        </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+		
+
+
+		<!-- End Footer Section -->	
+    <script>
+      document.getElementById("removebtn").addEventListener("click", (e) => {
+        e.preventDefault(); // Prevent the default form submission behavior
+    
+        const productId = document.getElementById("productId").value;
+    
+        fetch("/user/cartremove", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productId }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              // Remove the row or refresh the cart items
+              e.target.closest("tr").remove();
+           
+            } else {
+              console.error("Failed to remove item");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      });
+    </script>
+
+<script>
+
+document.querySelectorAll(".qBTN").forEach(button => {
+    button.addEventListener("click", (e) => {
+        const action = e.target.getAttribute("data-action"); // Get +1 or -1
+        const productId = e.target.getAttribute("data-product-id"); // Get the productId
+
+        fetch('/user/incORdec', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ productId, action }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+               
+              window.location.href = '/user/cart';
+            } else {
+                console.error("Failed to update quantity:", data.message);
+            }
+        })
+        .catch(err => console.error("Error:", err));
+    });
+});
+
+</script> 
+
+		<script src="js/bootstrap.bundle.min.js"></script>
+		<script src="js/tiny-slider.js"></script>
+		<script src="js/custom.js"></script><br><br><br><br><br>
+        <%-include("../../views/partials/user/footer")%>
+
+  

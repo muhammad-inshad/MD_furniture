@@ -22,8 +22,11 @@ const categorySchema=new mongoose.Schema({
     createdAt:{
         type:Date,
         defult:Date.now
-    }
-    
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+      },
 })
 
 const Category=mongoose.model("Category",categorySchema)

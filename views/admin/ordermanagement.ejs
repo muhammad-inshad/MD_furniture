@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="/admin/dashbord.css" rel="stylesheet"> 
+    <style>
+        /* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.sidebar a {
+    display: block;
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 10px 0;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.sidebar a:hover {
+    background-color: #34495e;
+    border-radius: 5px;
+}
+
+/* Content Styling */
+.content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #ecf0f1;
+}
+
+.heading {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+/* Search Box Styling */
+input[type="search"] {
+    padding: 10px;
+    font-size: 16px;
+    width: 200px;
+    margin-right: 10px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+/* Table Styling */
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd; /* Border between columns */
+}
+
+th {
+    background-color: #3498db;
+    color: #fff;
+    font-weight: bold;
+}
+
+td {
+    color: #2c3e50;
+}
+
+/* Add line to <tr> */
+tr {
+    border-bottom: 2px solid #ddd; /* Adds line to each row */
+}
+
+tr:hover {
+    background-color: #687277;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">product Management</a>
+        <a href="/admin/ordermanagment">order Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+    <div class="content">
+        <div>
+            <h1 class="heading">
+                order Management
+            </h1>
+        </div>
+         <div>
+            <input type="search" placeholder="Enter the data" id="search">
+         </div>
+        <div>
+            <table>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Email</th>
+                    <th>Date</th>
+                    <th>No of Items</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                   
+                </tr>
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <td><%= order.customerDetails ? order.customerDetails.username : 'N/A' %></td>
+                        <td><%= order.customerDetails ? order.customerDetails.email : 'N/A' %></td>
+                        <td><%= order.invoiceDate ? order.invoiceDate.toISOString().slice(0, 10) : 'N/A' %></td>
+                        <td><%= order.orderedItems.length %></td>
+                        <td>    <form action="/admin/order/update/<%= order._id %>" method="POST">
+                            <label for="status">Order Status:</label>
+                            <select name="status" id="status">
+                                <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                                <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                <option value="Returnd" <%= order.status === 'Returnd' ? 'selected' : '' %>>Returnd</option>
+                               
+                            </select>
+                            <button type="submit">Update Status</button>
+                        </form></td>
+                        <td><%= order.finalAmount %></td>
+                        <td><%= order.paymentType %></td>
+                       
+                    </tr>
+                <% }) %>
+                
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('search').addEventListener('input', function() {
+            const searchQuery = this.value.toLowerCase();
+            const rows = document.querySelectorAll('table tbody tr');
+    
+            rows.forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                if (rowText.includes(searchQuery)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    
+
+
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        .back-link a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Profile</h1>
+        <form  id="editProfile">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<%=findUser.username%>">
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email"  value="<%=findUser.email%>">
+
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone"  value="<%=findUser.phone%>">
+
+            <label for="password">New Password</label>
+            <input type="password" id="password" name="password" value="<%=findUser.password%>">
+
+            <input type="submit" value="Save Changes">
+        </form>
+        <div class="back-link">
+            <a href="/user/profile">Back </a>
+        </div>
+    </div>
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.5/dist/sweetalert2.min.css" rel="stylesheet">
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.5/dist/sweetalert2.min.js"></script>
+
+
+    <script>
+        document.getElementById("editProfile").addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent the default form submission behavior
+      
+          const formData = {};
+          // Use the `this` keyword to reference the form being submitted
+          new FormData(this).forEach((value, key) => {
+            formData[key] = value; // Populate formData object
+          });
+      
+          fetch("/user/editeprofile/<%=findUser._id%>", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json", // Specify JSON content type
+            },
+            body: JSON.stringify(formData), // Convert form data to JSON string
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              if (result.success) {
+                Swal.fire({
+                  title: "Success!",
+                  text: "Profile updated successfully!",
+                  icon: "success",
+                  confirmButtonText: "OK",
+                }).then(() => {
+                  window.location.href = "/user/profile"; // Redirect after success
+                });
+              } else {
+                Swal.fire({
+                  title: "Error!",
+                  text: result.message || "Failed to update profile.",
+                  icon: "error",
+                  confirmButtonText: "Try Again",
+                });
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              Swal.fire({
+                title: "Error!",
+                text: "An error occurred while updating the profile.",
+                icon: "error",
+                confirmButtonText: "Close",
+              });
+            });
+        });
+      </script>
+      
+</body>
+</html>

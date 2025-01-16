@@ -9,6 +9,12 @@ const orderSchema=new Schema({
         default:()=>uuidv4(),
         unique:true
     },
+
+    userId: {
+        type:mongoose.Types.ObjectId,
+        required:true,
+    },
+
     orderedItems:[{
         product:{
             type:Schema.Types.ObjectId,
@@ -57,6 +63,12 @@ const orderSchema=new Schema({
     couponApplied:{
         type:Boolean,
         default:false
+    },
+    paymentType:{
+       type:String,
+    },
+    orderExpectedDate:{
+        type:Date
     }
 })
 

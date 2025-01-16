@@ -30,7 +30,7 @@ body {
     padding: 10px; /* Add padding around links */
     margin-bottom: 10px; /* Space between links */
     border-radius: 5px; /* Rounded corners for links */
-    transition: background-color 0.3s, transform 0.3s; /* Smooth hover effect */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth hover effect */ 
 }
 
 .sidebar a:hover {

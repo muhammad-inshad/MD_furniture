@@ -16,6 +16,7 @@
         <a href="/admin/userManagement">Manage Users</a>
         <a href="/admin/CategoryManagement">Category Management</a>
         <a href="/admin/productManagement">product Management</a>
+        <a href="/admin/ordermanagment">order Management</a>
         <a href="/admin/logout">Logout</a>
     </div>
     <div class="content">
@@ -50,7 +51,17 @@
                                 <form action="/admin/updateCategory/<%= category._id %>" method="post">
                                     <button type="submit" class="ubtn">Update</button>
                                 </form>
-                                <button type="button" class="Dbtn delete-btn" data-id="<%= category._id %>">Delete</button>
+                                <form action="/admin/deleteCategory" method="post">
+                                    <input type="hidden" name="id" value="<%= category._id %>">
+                                    
+                                    <% if (category.isDeleted) { %>
+                                        <button type="submit" class="Dbtn">Restore</button>
+                                    <% } else { %>
+                                        <button type="submit" class="Dbtn">Delete</button>
+                                    <% } %>
+                                </form>
+                                
+                                
                             </td>       
                         </tr>
                     <% }) %>
@@ -63,56 +74,7 @@
             
         </table>
     </div>
-    <script>
-        // Select all delete buttons
-document.querySelectorAll(".delete-btn").forEach((btn) => {
-    btn.addEventListener("click", (event) => {
-        const id = event.target.getAttribute("data-id"); // Get the ID from data-id attribute
-
-        // Confirm deletion
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Perform fetch request
-                fetch("/admin/deleteCategory", {
-                    method: "DELETE",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id }),
-                })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error("Failed to delete the category");
-                    }
-                })
-                .then((data) => {
-                    console.log(data);
-                    Swal.fire(
-                        'Deleted!',
-                        'The category has been deleted.',
-                        'success'
-                    ).then(() => {
-                        window.location.reload(); // Reload the page after confirmation
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                    Swal.fire("Error", "An error occurred while deleting the category.", "error");
-                });
-            }
-        });
-    });
-});
-
-    </script>
+  
     
 </body>
 </html>

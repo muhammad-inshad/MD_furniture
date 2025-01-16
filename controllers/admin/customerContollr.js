@@ -2,6 +2,7 @@
 const User=require('../../models/userSchema')
 const Category=require('../../models/categorySchema')
 const Product = require('../../models/productSchema');
+const Order=require("../../models/orderSchema")
 const { search } = require('../../app');
 const fs=require("fs")
 const path=require("path")
@@ -56,7 +57,8 @@ const CategoryManagement=async(req,res)=>{
     try {
         if( req.session.admin){
         const category = await Category.find({});
-        res.render("categoryM", {category})}
+        res.render("categoryM", {category})
+        }
         else{
             res.redirect("/user/home")
         }
@@ -143,19 +145,21 @@ res.status(200).json({ success:true, message: 'Category updated successfully'});
     }
 };
 const deleteCategory = async (req, res) => {
-    const { id } = req.body; // Retrieve ID from the request body
-
+    const { id } = req.body; 
     try {
-        const deletedItem = await Category.findByIdAndDelete(id);
-        if (!deletedItem) {
+        const category = await Category.findById(id);
+        if (!category) {
             return res.status(404).json({ message: "Category not found" });
         }
-        res.json({ success: true, message: "Category deleted successfully" });
+        category.isDeleted = !category.isDeleted;
+        await category.save();
+        res.redirect("/admin/CategoryManagement");
     } catch (error) {
-        console.error("Error deleting category:", error);
+        console.error("Error deleting/restoring category:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 
 
@@ -163,6 +167,7 @@ const productManagement=async (req,res)=>{
     try {
         if(req.session.admin){
         const ProductDetiles = await Product.find().populate('category');
+
         res.render("prodectmenagement",{ProductDetiles})
         }
         else{
@@ -198,11 +203,11 @@ const addproductPOst = async (req, res) => {
         if (existingProduct) {
             return res.status(400).json({ message: "Product already exists" });
         }
-        const findcategory = await Category.findOne({name:category})
-        if(!findcategory){
+        const findcategory = await Category.findOne({ name: category });
+        if (!findcategory) {
             return res.status(400).json({ message: "category not found" });
-
         }
+        
 
         const productImages = req.files.productImages.map(file => file.filename); 
         // Prepare the product data to be passed to the schema
@@ -229,6 +234,7 @@ const addproductPOst = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 
 
 const searchProduct = async (req, res) => {
@@ -287,8 +293,6 @@ const updateProduct=async (req,res)=>{
     try {
         const {id}=req.params
     const findUPproduct=await Product.findById(id).populate("category")
-    
-    
     res.render("updateProduct",{findUPproduct})
     } catch (error) {
         console.error("Error fetching product:", error);
@@ -296,53 +300,129 @@ const updateProduct=async (req,res)=>{
     }
 } 
 
-const postupdateProduct = async (req, res) => {
-    try {
-        const { id } = req.params;  // Get product ID from URL params
-        const productImages = req.files?.productImages?.map(file => file.filename); // Extract image filenames
-        const { name, description, brand, category, salePrice, productOffer, stock, status } = req.body;
-        // Find the category by ID
-        const findCategory = await Category.find({category}); // Fetch category by ID
-        if (!findCategory) {
-            return res.status(400).json({ message: "Category not found" });
-        }
 
-        const oldProducts = await Product.findById(id);
-
-
-        // Product data to update
-        const productData = {
-            productName: name,
-            description: description,
-            brand: brand,
-            category: findCategory._id, // Use the found category
-            salePrice: parseFloat(salePrice), // Ensure salePrice is a number
-            productOffer: productOffer,
-            quantity: parseInt(stock), // Ensure stock is an integer
-            status: status,
-            productImages: productImages || oldProducts?.productImages // Include image filenames
-        };
-
+    const postupdateProduct = async (req, res) => {
+        try {
+            const { id } = req.params; // Get product ID from URL params
+            const newImages = req.files?.productImages?.map(file => file.filename); // Extract new image filenames
+            const { name, description, brand, category, salePrice, productOffer, stock, status } = req.body;
     
-        // Update the product in the database
-        const updatedProduct = await Product.findByIdAndUpdate(
-            id,
-            { $set: productData }, // Apply the updates
-            { new: true, runValidators: true, omitUndefined: true } // Return the updated product, run validation
-        );
-        
-        if (!updatedProduct) {
-            return res.status(404).json({ message: 'Product not found' });
+            // Find the category by name
+            const findCategory = await Category.findOne({ name: category }); // Fetch category by name
+            if (!findCategory) {
+                return res.status(400).json({ message: "Category not found" });
+            }
+    
+            // Find the existing product
+            const oldProduct = await Product.findById(id);
+            if (!oldProduct) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+    
+            // Append new images to existing productImages array
+            const updatedImages = oldProduct.productImages;
+            if (newImages && newImages.length > 0) {
+                updatedImages.push(...newImages); // Append new images
+            }
+    
+            // Product data to update
+            const productData = {
+                productName: name,
+                description: description,
+                brand: brand,
+                category: findCategory._id, // Use the found category ID
+                salePrice: parseFloat(salePrice), // Ensure salePrice is a number
+                productOffer: productOffer,
+                quantity: parseInt(stock), // Ensure stock is an integer
+                status: status,
+                productImages: updatedImages, // Use the updated images array
+            };
+    
+            // Update the product in the database
+            const updatedProduct = await Product.findByIdAndUpdate(
+                id,
+                { $set: productData }, // Apply the updates
+                { new: true, runValidators: true, omitUndefined: true } // Return the updated product, run validation
+            );
+    
+            if (!updatedProduct) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+    
+            res.status(200).json({
+                message: "Product updated successfully!",
+                product: updatedProduct,
+                updatedImages: updatedImages, // Return updated images to the frontend
+            });
+        } catch (error) {
+            console.error("Error updating product:", error);
+            res.status(500).send("An error occurred while updating the product.");
         }
+    };
+    
 
-        res.status(200).json({ message: 'Product updated successfully!', product: updatedProduct });
+const deleteImage=async (req,res)=>{
+    
+        const { id } = req.params;
+        const { image } = req.body;
+    
+        try {
+            const product = await Product.findById(id);
+            if (!product) {
+                return res.status(404).json({ success: false, message: 'Product not found' });
+            }
+    
+            const imageIndex = product.productImages.indexOf(image);
+            if (imageIndex > -1) {
+                product.productImages.splice(imageIndex, 1);
+            }
+    
+            await product.save();
+            res.json({ success: true, message: 'Image deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            res.status(500).json({ success: false, message: 'Failed to delete image' });
+        }
+    };
+    
+// Example route handler in customerController.js
+const ordermanagment = async (req, res) => {
+    try {
+        const orders = await Order.aggregate([
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'customerDetails',
+                },
+            },
+            {
+                $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true },
+            },
+        ]);
+        res.render('ordermanagement', { orders });
     } catch (error) {
-        console.error('Error updating product:', error);
-        res.status(500).send('An error occurred while updating the product.');
+        console.error('Error in order management:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch orders' });
     }
 };
 
-
+const orderupdate=async (req,res)=>{
+    try {
+        const {id}=req.params
+        const {status}=req.body
+        const order=await Order.findById(id)
+        order.status = status;
+        await order.save();
+  
+        return res.redirect("/admin/ordermanagment")
+       
+    } catch (error) {
+        console.error('Error in orderupdate:', error);
+        res.status(500).json({ success: false, message: 'Failed to orderupdate' });
+    }
+}
 
 
 
@@ -363,5 +443,8 @@ module.exports={
     DeleteProduct,
     viewOfProduct,
     updateProduct,
-    postupdateProduct
+    postupdateProduct,
+    deleteImage,
+    ordermanagment,
+    orderupdate,
 }

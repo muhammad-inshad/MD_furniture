@@ -1,0 +1,290 @@
+<%-include("../../views/partials/user/top")%>
+
+	
+    
+    <title>User Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+     /* General Body Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: #007BFF;
+    color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h2 {
+    margin: 0 0 20px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.sidebar a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    transition: background-color 0.3s, padding-left 0.3s;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: #0056b3;
+    padding-left: 20px;
+}
+
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Content Area */
+.content {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    border-left: 1px solid #ddd;
+}
+
+/* Order Section Styles */
+.order-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 1143px;
+    margin: 20px auto;
+}
+
+.order-section h2 {
+    text-align: center;
+    color: #007BFF;
+    font-size: 26px;
+    margin-bottom: 25px;
+}
+
+.order-details {
+    background-color: #f9f9f9;
+    padding: 18px;
+    border-radius: 10px;
+}
+
+/* Order Item Styles */
+.order-items {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 19px;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.product-image-container {
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f3f3f3;
+    margin-right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.product-image {
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-image {
+    color: #888;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.order-item .product-name {
+    font-size: 18px;
+    color: #333;
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Order Summary Styles */
+.order-summary {
+    font-size: 16px;
+    color: #333;
+    margin-left: 120px;
+}
+
+.order-summary p {
+    margin-bottom: 10px;
+}
+
+.order-summary p strong {
+    color: #007BFF;
+}
+
+/* Date and Status Styles */
+.order-summary p,
+.order-item span {
+    font-size: 16px;
+}
+
+.order-summary p strong {
+    color: #007BFF;
+}
+
+.order-status {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.order-status.pending {
+    color: orange;
+}
+
+.order-status.processing {
+    color: #007BFF;
+}
+
+.order-status.shipped {
+    color: green;
+}
+
+.order-status.delivered {
+    color: #28a745;
+}
+
+.order-status.cancelled {
+    color: red;
+}
+
+.order-status.returned {
+    color: purple;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .dashboard {
+        flex-direction: column;
+    }
+
+    .content {
+        padding: 15px;
+    }
+
+    .order-section {
+        padding: 20px;
+    }
+
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .order-summary {
+        margin-left: 0;
+    }
+
+    .order-item .product-name {
+        font-size: 14px;
+    }
+
+    .product-image-container {
+        margin-bottom: 15px;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>PROFILE</h2>
+            <a href="/user/profile">Profile</a>
+            <a href="/user/myorders" >My Orders</a>
+            <a href="/user/address" >Address</a>
+            <a href="#wishlist" >Wishlist</a>
+            <a href="/user/home">Back</a>
+        </div>
+        <div class="content">
+            <i class="bi bi-person-circle"></i>
+            <div class="order-section">
+                <h2>My Orders</h2>
+                <div class="order-details">
+                    <ul class="order-items">
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.forEach(order => { %>
+                                <li class="order-item">
+                                    <div class="product-image-container">
+                                        <a href="/user/showDetailProduct/<%= order.productDetails[0]._id %>">
+                                        <% if (order.productDetails[0]?.productImages && order.productDetails[0].productImages.length > 0) { %>
+                                            <img src="/uploads/<%= order.productDetails[0].productImages[0] %>" alt="Product Image" class="product-image">
+                                        <% } else { %>
+                                            <p class="no-image">No image available</p>
+                                        <% } %>
+                                    </a>
+                                    </div>
+                                    <div>
+                                        <span class="product-name"><strong>Product:</strong> <%= order.productDetails[0]?.productName %></span><br>
+                                        <span><strong>Quantity:</strong> <%= order?.orderedItems?.quantity %></span>
+                                    </div>
+                                    <div class="order-summary">
+                                        <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
+                                        <p><strong>Final Amount:</strong> $<%= order.finalAmount %></p>
+                                        <p><strong>purchased Date:</strong> <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
+                                        <p><strong>Coupon Applied:</strong> <%= order.couponApplied ? 'Yes' : 'No' %></p>
+                                        <p><strong>Status:</strong> <%= order.status %></p>
+                                        <p><strong>Expected On:</strong> <%= order.orderExpectedDate ? order.orderExpectedDate.toISOString().slice(0, 10) : 'N/A' %></p>
+                                        <% if (order.status !== "Cancelled") { %> 
+                                        
+                                            <form action="/user/orderCancel/<%=order._id%>">
+                                                <div class="container">
+                                                    <button class="btn btn-danger" id="cancelOrderButton">Cancel Order</button>
+                                                </div>
+                                        </form>
+     
+                                        <% } %>
+                                    </div>
+                                </li>
+                                
+                            <% }); %>
+                        <% } else { %>
+                            <p>No orders found</p>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <%-include("../../views/partials/user/footer")%>
