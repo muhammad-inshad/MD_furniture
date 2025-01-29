@@ -78,9 +78,42 @@
                     <% } %>
                 </tbody>
             </table>
+
+            <center>
+                <form id="pagination-form" method="get" action="/admin/productManagement">
+                    <input type="hidden" name="page" id="page-input"> <!-- Hidden input to store the page number -->
+                    
+                    <!-- Pagination Buttons -->
+                    <button type="button" onclick="setPage(1)">First</button>
+                    <button type="button" onclick="setPage(currentPage - 1)">Previous</button>
+                    <span id="page-number"><%= currentPage %></span> <!-- Initial page number from the backend -->
+                    <button type="button" onclick="setPage(currentPage + 1)">Next</button>
+                    <button type="button" onclick="setPage(totalPages)">Last</button>
+                </form>
+            </center>
+            
+                  
         </div>
     </div>
+    
     <script>
+let currentPage = <%= currentPage %>; // Initial current page from backend
+const totalPages = <%= totalPages %>; // Total pages from backend
+
+function setPage(page) {
+    // Prevent invalid page numbers
+    if (page < 1 || page > totalPages) return;
+
+    // Update currentPage and display it
+    currentPage = page;
+    document.getElementById("page-number").innerText = currentPage;
+
+    // Set the hidden input value for the form
+    document.getElementById("page-input").value = currentPage;
+
+    // Submit the form to reload the page with updated data
+    document.getElementById("pagination-form").submit();
+}
 
 function displayUsers(products) {
     console.log(products);
@@ -117,6 +150,8 @@ function displayUsers(products) {
     });
 }
 
+
+
 document.getElementById("searchBTN").addEventListener("click", async (e) => {
     e.preventDefault();
     const inputValue = document.getElementById("searchBAR").value.trim();
@@ -146,5 +181,7 @@ document.getElementById("searchBTN").addEventListener("click", async (e) => {
 });
 
     </script>
+
+   
 </body>
 </html>

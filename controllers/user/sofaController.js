@@ -82,10 +82,14 @@ const shop=async (req,res)=>{
 const profile=async (req,res)=>{
     try {
         const id= req.session.user.id
+        if(id){
+
+        
         const findUser=await user.findById(id)
         const userAddresses = await Address.findOne({userId: id });
         const addresses = userAddresses ? userAddresses.address : [];
-        return res.render("userProfile",{findUser,addresses})
+        return res.render("userProfile",{findUser,addresses,isLogin:true})
+        }
     } catch (error) {
         res.render("pageNotFound")
         console.log("form  profile get error---------------",error)
@@ -96,10 +100,11 @@ const address=async (req,res)=>{
     try {
         
         const id= req.session.user.id
+        if(id){
         const findUser=await user.findById(id)
         const userAddresses = await Address.findOne({userId: id });
         const addresses = userAddresses ? userAddresses.address : [];
-        return res.render("addres",{findUser,addresses})
+        return res.render("addres",{findUser,addresses,isLogin:true})}
     } catch (error) {
         res.render("pageNotFound")
         console.log("form  address get error---------------",error)
@@ -173,6 +178,78 @@ const editeprofile=async (req,res)=>{
       }
 }
 
+const edit_address = async (req, res) => {
+    try {
+      const userId = req.session.user?.id; 
+      const addressId = req.params.id; 
+  
+      if (userId) {
+        const userAddress = await Address.findOne({ userId });
+  
+        if (!userAddress) {
+          return res.status(404).render("pageNotFound");
+        }
+  
+        const address = userAddress.address.find(addr => addr._id.toString() === addressId);
+  
+        if (!address) {
+          return res.status(404).render("pageNotFound");
+        }
+        res.render("edit_address", { address, addressId });
+      } else {
+        res.redirect("/user/home");
+      }
+    } catch (error) {
+      res.render("pageNotFound");
+      console.log("Error in edit_address handler:", error);
+    }
+  };
+  
+  const postedit_address = async (req, res) => {
+    try {
+      const { name,City, addressType, landmark, state, pincode, phone, addressId } = req.body;
+      const userId = req.session.user.id;
+  
+      
+      if (!City || !addressType) {
+        return res.status(400).json({ success: false, message: "City and addressType are required." });
+      }
+  
+      // Find the user and their addresses
+      const userAddress = await Address.findOne({ userId });
+      if (!userAddress) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+  
+      const addressIndex = userAddress.address.findIndex(addr => addr._id.toString() === addressId);
+      if (addressIndex === -1) {
+        return res.status(404).json({ success: false, message: "Address not found" });
+      }
+  
+      userAddress.address[addressIndex] = {
+        ...userAddress.address[addressIndex], // Retain existing values
+        name,
+        City,
+        addressType,
+        landMark: landmark,
+        state,
+        pincode,
+        phone,
+      };
+  
+      // Save the updated address
+      await userAddress.save();
+      res.json({ success: true, message: "Address updated successfully" });
+    } catch (error) {
+      console.log("Error in postedit_address handler:", error);
+      res.status(500).json({ success: false, message: "An error occurred while updating the address" });
+    }
+  };
+  
+  
+
+
+
 const PostEditeprofile=async(req,res)=>{
     const userId= req.params.id
     const { username, email, phone, password } = req.body;
@@ -234,7 +311,9 @@ const cart = async (req, res) => {
     try {
         const id = req.body.productId;
         const userId = req.session.user.id; 
-
+        if(!userId) {
+            return res.redirect('/user/login');
+        }
         const trimmedId = id.trim(); // Ensure ID is properly trimmed
         const product = await Product.findById(trimmedId); // Find the product
 
@@ -303,8 +382,9 @@ const getCartData = async(req,res) => {
             userId,
             items:[],
         })
+       
+        return res.render('cart', { cartData: newCart });
 
-        return res.render('cart',{cartData: newCart})
     }
 
     const userCart = await Cart.aggregate([
@@ -408,134 +488,191 @@ const getCartData = async(req,res) => {
         }
     };
     
-    const checkout= async (req, res) => {
+    const checkout = async (req, res) => {
         try {
-            const userId=req.session.user.id
+            const userId = req.session.user.id;
             if (!mongoose.Types.ObjectId.isValid(userId)) {
                 throw new Error('Invalid User ID');
             }
-
+    
             const findAddress = await Address.findOne({ userId });
             if (!findAddress) {
                 console.log('No address found for the given userId');
-                return res.render("checkout", { isLogin: true, address: null });
+                return res.render("checkout", { isLogin: true, address: null, detailedCart: null });
             }
-          
-            const address= findAddress.address
-
-            const findproduct=await Cart.findOne({userId})
-            if(findproduct&&findproduct.items.length>0){
-                
-                const detailedCart = await Cart.aggregate([{
-                    $match:{userId: new mongoose.Types.ObjectId(userId)} 
-                },{
-                    $unwind:"$items"
-                },{
-                    $lookup:{
-                        from:"products",
-                        localField:"items.productId",
-                        foreignField:"_id",
-                        as:"productDetails"
-                    }
-                },
-            {
-                $unwind: "$productDetails"   
-            },
-        {
-
-            $group:{
-                _id:"$_id",
-                userId:{$first:"$userId"},
-                items:{
-                    $push:{
-                        product: "$productDetails", 
-                    quantity: "$items.quantity"
-                    }
-                }
+    
+            const address = findAddress.address;
+    
+            let detailedCart = null;  // Ensure detailedCart is initialized
+    
+            const findproduct = await Cart.findOne({ userId });
+            if (findproduct && findproduct.items.length > 0) {
+                // Only perform the aggregation if the cart has items
+                detailedCart = await Cart.aggregate([
+                    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+                    { $unwind: "$items" },
+                    {
+                        $lookup: {
+                            from: "products",
+                            localField: "items.productId",
+                            foreignField: "_id",
+                            as: "productDetails",
+                        },
+                    },
+                    { $unwind: "$productDetails" },
+                    {
+                        $group: {
+                            _id: "$_id",
+                            userId: { $first: "$userId" },
+                            items: {
+                                $push: {
+                                    product: "$productDetails",
+                                    quantity: "$items.quantity",
+                                },
+                            },
+                        },
+                    },
+                ]);
             }
-        }])
-        const subtotal = detailedCart[0].items.reduce((sum, item) => {
-            const price = item.product.salePrice || item.product.price; // Fallback to regular price if salePrice is not available
-            return sum + price * item.quantity;
-        }, 0);
-        const tax = 0.1 * subtotal; 
-        const total = subtotal + tax;
-          
-        const newOrder= new Order({
-            orderedItems:detailedCart[0].items.map((item) => ({
-                product: item.product._id,
-                quantity: item.quantity,
-                price: item.product.salePrice || item.product.price
-            })),
-            totalPrice: subtotal,
-            finalAmount: total,
-            address: findAddress._id,
-            invoiceDate: new Date(),
-            status: 'pending',
-            couponApplied: false ,
-            userId:userId
-        })
-        const proID = newOrder.orderedItems;
-        for (const item of proID) {
-            const productId = item.product;
-            const quantity = item.quantity; 
-            const currentProduct = await Product.findById(productId);
-            
-            if(quantity>currentProduct.quantity || currentProduct === 0){
-                return res.redirect("/user/shop")
+    
+            let subtotal = 0;
+            let total = 0;
+    
+            if (detailedCart && detailedCart.length > 0) {
+                subtotal = detailedCart[0].items.reduce((sum, item) => {
+                    const price = item.product.salePrice || item.product.price;
+                    return sum + price * item.quantity;
+                }, 0);
+                const tax = 0.1 * subtotal;
+                total = subtotal + tax;
             }
-            currentProduct.quantity -= quantity;
-            
-            await currentProduct.save();
-        }
-        await newOrder.save();
-        
-        await Cart.deleteOne({ userId });
-
-        const isLogin = req.session.user ? true : false;
-       return res.render("checkout", { isLogin, address, detailedCart,subtotal,total});
-            }
-
+    
+            const isLogin = req.session.user ? true : false;
+            return res.render("checkout", { isLogin, address, detailedCart, subtotal, total });
+    
         } catch (error) {
-            console.error("Error in cart remove:", error);
+            console.error("Error in checkout:", error);
             res.status(500).render("pageNotFound");
         }
-    }
+    };
+    
+    
      
     const postCkeckout = async (req, res) => {
         try {
-          if (!req.session || !req.session.user) {
-            return res.status(401).send("User not logged in");
-          }
-          const { paymentMethod } = req.body;
-          const userId = req.session.user.id;
-          const order = await Order.findOne({ userId, status: 'pending' });
+            
+            if (!req.session || !req.session.user) {
+                return res.status(401).send("User not logged in");
+            }
+    
+            const { paymentMethod } = req.body;
+           
+            const userWantAddress=req.body.address
+           
+            const userId = req.session.user.id;
+    
+            const findCart = await Cart.aggregate([
+                { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+                { $unwind: "$items" },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "items.productId",
+                        foreignField: "_id",
+                        as: "productDetails",
+                    },
+                },
+                { $unwind: "$productDetails" },
+                {
+                    $group: {
+                        _id: "$_id",
+                        items: {
+                            $push: {
+                                product: "$productDetails",
+                                quantity: "$items.quantity",
+                            },
+                        },
+                    },
+                },
+            ]);
+    
+            if (!findCart || findCart.length === 0) {
+                return res.status(404).send("Cart is empty. Please add items to the cart.");
+            }
+    
+            const detailedCart = findCart[0];
+            const subtotal = detailedCart.items.reduce((sum, item) => {
+                const price = item.product.salePrice || item.product.price;
+                return sum + price * item.quantity;
+            }, 0);
+            const tax = 0.1 * subtotal;
+            const total = subtotal + tax;
+    
+            const findAddress = await Address.findOne({ userId,  });
+            if (!findAddress) {
+                return res.status(404).send("No address found for the user.");
+            }
 
-          if (!order) {
-            return res.status(404).render("orderNotFound", { message: "No pending order found for this user." });
-          }
-          console.log()
-          const orderdDate=order.createdOn
-          const expectedDate = new Date(orderdDate);
-          expectedDate.setDate(expectedDate.getDate() + 5);
-          const formattedExpectedDate = expectedDate.toDateString();
-          order.orderExpectedDate=formattedExpectedDate
-          order.paymentType = paymentMethod;
-          await order.save();
-
-          res.render("placeOrder", { paymentMethod , formattedExpectedDate});
+            console.log(findAddress, 'findAddressfindAddress')
+    
+            const newOrder = new Order({
+                orderedItems: detailedCart.items.map((item) => ({
+                    product: item.product._id,
+                    quantity: item.quantity,
+                    price: item.product.salePrice || item.product.price,
+                })),
+                totalPrice: subtotal,
+                finalAmount: total,
+                address: findAddress._id,
+                invoiceDate: new Date(),
+                status: "pending",
+                couponApplied: false,
+                userId: userId,
+            });
+    
+            for (const item of newOrder.orderedItems) {
+                const productId = item.product;
+                const quantity = item.quantity;
+                const currentProduct = await Product.findById(productId);
+               let op=  await Product.findByIdAndUpdate(productId)
+               op.salesCount=quantity  
+                 await op.save()
+    
+                if (quantity > currentProduct.quantity || currentProduct.quantity === 0) {
+                    return res.status(400).send("One or more items are out of stock.");
+                }
+    
+                currentProduct.quantity -= quantity;
+                await currentProduct.save();
+            }
+    
+            await newOrder.save();
+    
+            const orderDate = newOrder.invoiceDate;
+            const expectedDate = new Date(orderDate);
+            expectedDate.setDate(expectedDate.getDate() + 5);
+            const formattedExpectedDate = expectedDate.toDateString();
+    
+            newOrder.orderExpectedDate = formattedExpectedDate;
+            newOrder.paymentType = paymentMethod;
+            newOrder.address=userWantAddress;
+            await newOrder.save();
+    
+            await Cart.deleteOne({ userId });
+    
+            res.render("placeOrder", { paymentMethod, formattedExpectedDate });
         } catch (error) {
-          console.error("Error in postCheckout:", error);
-          res.status(500).render("pageNotFound");
+            console.error("Error in postCheckout:", error);
+            res.status(500).render("pageNotFound");
         }
-      };
-      
-
+    };
+    
 
 
     const myorders = async (req, res) => {
         try {
             let userId=req.session.user.id; 
+            if(userId){
             const userObjectId = new mongoose.Types.ObjectId(userId)
             const orders = await Order.aggregate([
                 {
@@ -555,7 +692,7 @@ const getCartData = async(req,res) => {
                     }
                 },
             ]);
-            res.render("myorders", { orders });
+            res.render("myorders", { orders ,isLogin:true});}
         } catch (error) {
             res.status(500).send("Error fetching orders");
         }
@@ -583,6 +720,19 @@ const getCartData = async(req,res) => {
         }
     }
 
+    const rating=async (req,res)=>{
+      try {
+         const {rating ,orderId}=req.body
+        const product=await Product.findById(orderId)
+         product.rating=rating
+         await product.save();
+
+         return res.json({success:true});
+      } catch (error) {
+        res.status(500).send("Error rating");
+      }
+    }
+
 
 module.exports={
     chair,
@@ -604,5 +754,9 @@ module.exports={
     postCkeckout,
     myorders,
     orderCancel,
-    postorderCancel
+    postorderCancel,
+    rating,
+    edit_address,
+    postedit_address
+    
 }

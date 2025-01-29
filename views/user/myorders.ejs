@@ -222,7 +222,14 @@ body {
         margin-bottom: 15px;
     }
 }
+.star {
+    font-size: 20px;
+    color: #dcdcdc;  /* Light gray for empty stars */
+}
 
+.star.filled {
+    color: gold;  /* Gold color for filled stars */
+}
 
     </style>
 </head>
@@ -244,6 +251,7 @@ body {
                     <ul class="order-items">
                         <% if (orders && orders.length > 0) { %>
                             <% orders.forEach(order => { %>
+                               
                                 <li class="order-item">
                                     <div class="product-image-container">
                                         <a href="/user/showDetailProduct/<%= order.productDetails[0]._id %>">
@@ -265,7 +273,25 @@ body {
                                         <p><strong>Coupon Applied:</strong> <%= order.couponApplied ? 'Yes' : 'No' %></p>
                                         <p><strong>Status:</strong> <%= order.status %></p>
                                         <p><strong>Expected On:</strong> <%= order.orderExpectedDate ? order.orderExpectedDate.toISOString().slice(0, 10) : 'N/A' %></p>
-                                        <% if (order.status !== "Cancelled") { %> 
+                                        <p><strong> Rating:</strong></p>
+                                        <% if ( order.productDetails[0]?.rating &&  order.productDetails[0]?.rating  !== undefined) { %>
+                                            <div class="rating">
+                                                <% for (let i = 1; i <= 5; i++) { %>
+                                                    <% if (i <=  order.productDetails[0]?.rating) { %>
+                                                        <span class="star filled">★</span> <!-- Filled star for rating -->
+                                                    <% } else { %>
+                                                        <span class="star">☆</span> <!-- Empty star for remaining rating -->
+                                                    <% } %>
+                                                <% } %>
+                                            
+                                        <% } else { %>
+                                            <p>No rating available</p>
+                                            <% console.log("Rating not available for this product."); %>
+                                        </div>
+                                        <% } %>
+                                        
+                                        
+                                        <% if (order.status !== "Cancelled" && order.status!=="Delivered") { %> 
                                         
                                             <form action="/user/orderCancel/<%=order._id%>">
                                                 <div class="container">
@@ -276,15 +302,86 @@ body {
                                         <% } %>
                                     </div>
                                 </li>
+                                <div>
+                                    <% if (order.status === "Delivered" && !order.ratingGiven) { %> 
+                                        <form id="rating">
+                                          <div class="rating">
+                                            <input type="text" value="<%= order?.orderedItems?.product?._id %>" hidden>
+                                            <label for="rating">Rate this product:</label>
+                                            <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
+                                            <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
+                                            <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
+                                            <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
+                                            <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
+                                          </div>
+                                          <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                        </form>
+                                      <% } else if (order.ratingGiven) { %>
+                                        <p><strong>Your Rating:</strong> <%= order.rating %> ★</p>
+                                      <% } %>
+            
+                                </div>
                                 
                             <% }); %>
                         <% } else { %>
                             <p>No orders found</p>
                         <% } %>
                     </ul>
+                  
                 </div>
             </div>
             
         </div>
     </div>
+<!-- Add this to your HTML file in the <head> section -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.getElementById("rating").addEventListener("submit", function(event) {
+            event.preventDefault();  // Prevent form from submitting normally
+    
+            const selectedRating = document.querySelector('input[name="rating"]:checked');  // Get the checked radio button
+    
+            if (selectedRating) {
+                const ratingValue = selectedRating.value;  // Get the value of the selected radio button
+                const orderId = document.querySelector('input[type="text"]').value;  // Get the order ID from the hidden input
+    
+                fetch("/user/rating", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ rating: ratingValue, orderId: orderId }),  // Send both rating and order ID
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Rating submitted successfully!',
+                            text: 'Thank you for your feedback!',
+                            confirmButtonText: 'Okay',
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error submitting rating!',
+                            text: 'Something went wrong. Please try again later.',
+                            confirmButtonText: 'Okay',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong. Please try again later.',
+                        confirmButtonText: 'Okay',
+                    });
+                });
+            }
+        });
+    </script>
+    
     <%-include("../../views/partials/user/footer")%>

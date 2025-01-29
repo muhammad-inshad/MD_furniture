@@ -20,47 +20,67 @@
             </tr>
           </thead>
           <tbody>
-            <% if (detailedCart.length > 0) { %>
+            <% if (detailedCart && detailedCart.length > 0) { %>
               <% let totalAmount = 0; %>
               <% detailedCart[0].items.forEach(item => { %>
-                <tr>
-                  <td><%= item.product.productName %></td>
-                  <td>$<%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
-                </tr>
-                <% totalAmount += (item.product.price * item.quantity); %>
+                  <tr>
+                      <td><%= item.product.productName %></td>
+                      <td>$<%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
+                  </tr>
+                  <% totalAmount += (item.product.price * item.quantity); %>
               <% }) %>
               <tr>
-                <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
-                <td class="text-black">$<%= subtotal %></td>
+                  <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
+                  <td class="text-black">$<%= subtotal %></td>
               </tr>
               <tr>
-                <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
-                <td class="text-black font-weight-bold"><strong>$<%= total %></strong></td>
+                  <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
+                  <td class="text-black font-weight-bold"><strong>$<%= total %></strong></td>
               </tr>
-            <% } else { %>
+          <% } else { %>
               <p>No items in the cart.</p>
-            <% } %>
+          <% } %>
+          
           </tbody>
         </table>
 
-        <form>
+        <form action="/user/checkout" method="post">
           <label for="address">Select Address</label>
-          <select id="address" name="address">
-            <% if (address && address.length > 0) { %>
+          <% if (address && address.length > 0) { %>
               <% address.forEach((addr, index) => { %>
-                <option value="<%= addr._id %>">
-                  <%= addr.name %>, <%= addr.City %>, <%= addr.state %> - <%= addr.pincode %>
-                </option>
+                  <div>
+                      <input type="radio" id="address<%= index %>" name="address" value="<%= addr._id %>" required>
+                      <label for="address<%= index %>">
+                          <%= addr.name %>, <%= addr.City %>, <%= addr.state %> - <%= addr.pincode %>
+                      </label>
+                  </div>
               <% }) %>
-            <% } else { %>
-              <option value="" disabled>No addresses available</option>
-            <% } %>
-          </select>
-        </form>
+          <% } else { %>
+              <p>No addresses available</p>
+          <% } %>
+      
+          <a href="/user/address" style="text-decoration: none; color: #beaa4f; cursor: pointer;">
+              <h4>Edit Address</h4>
+          </a>
+      
+      
+      
+        
+      
+        <div class="add_address">
+          <a href="/user/add_address" style="text-decoration: none; color: #753131;">
+            <h4>add address</h4>
+          </a>
+         
+        </div>
+        
+  </div>
+  
+ 
 
         <div class="border p-3 mb-3">
           <h3 class="h6 mb-0">Select Payment Method</h3>
-          <form action="/user/checkout" method="post">
+          
             <!-- Cash on Delivery -->
             <div class="form-check">
               <input class="form-check-input" type="radio" name="paymentMethod" id="COD" value="COD">

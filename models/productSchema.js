@@ -33,7 +33,6 @@
         type: Number,
         default: 0,
       },
-    
       productImages: {
         type: [String],
         required: true,
@@ -48,6 +47,13 @@
         required: true, // Fixed typo
         default: "Available",
       },
+      rating: {
+        type:Number,
+        default: 1
+      },
+      salesCount: 
+      { type: Number, 
+        default: 0 },
     },
     { timestamps: true }
   );

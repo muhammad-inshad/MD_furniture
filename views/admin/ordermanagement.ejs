@@ -117,6 +117,20 @@ tr:hover {
 tbody tr:last-child td {
     border-bottom: none;
 }
+/* Styling for the product image */
+td img {
+    width: 80px; /* Set a fixed width */
+    height: 80px; /* Set a fixed height */
+    object-fit: cover; /* Ensure the image covers the area without distorting */
+    border-radius: 8px; /* Optional: Round corners for the image */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow around the image */
+    transition: transform 0.3s ease; /* Optional: Add smooth zoom effect on hover */
+}
+
+td img:hover {
+    transform: scale(1.1); /* Zoom in the image on hover */
+}
+
 
     </style>
 </head>
@@ -144,6 +158,8 @@ tbody tr:last-child td {
                 <tr>
                     <th>Customer Name</th>
                     <th>Email</th>
+                    <th>product</th>
+                    <th>address</th>
                     <th>Date</th>
                     <th>No of Items</th>
                     <th>Status</th>
@@ -151,27 +167,36 @@ tbody tr:last-child td {
                     <th>Payment</th>
                    
                 </tr>
+                
                 <% orders.forEach(order => { %>
                     <tr>
-                        <td><%= order.customerDetails ? order.customerDetails.username : 'N/A' %></td>
-                        <td><%= order.customerDetails ? order.customerDetails.email : 'N/A' %></td>
+                        <td><%= order.userDetails ? order.userDetails.username : 'N/A' %></td>
+                        <td><%= order.userDetails ? order.userDetails.email : 'N/A' %></td>
+                
+                            <td><%= order.productDetails.productName %>
+                            <br><div><img src="/uploads/<%=order.productDetails.productImages[0] %>" alt="img"></div></td>
+                            <td><form action="/admin/userAddress/<%=order.userDetails._id%>/<%=order.address%>"><button>viewaddress</button></form></td>
                         <td><%= order.invoiceDate ? order.invoiceDate.toISOString().slice(0, 10) : 'N/A' %></td>
-                        <td><%= order.orderedItems.length %></td>
+                        <td>
+                            <% order.orderedItems.forEach(item => { %>
+                                <div><%= item.quantity %></div> <!-- Access quantity here -->
+                            <% }) %>
+                        </td>
                         <td>    <form action="/admin/order/update/<%= order._id %>" method="POST">
                             <label for="status">Order Status:</label>
                             <select name="status" id="status">
-                                <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                                <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
-                                <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                <option value="Returnd" <%= order.status === 'Returnd' ? 'selected' : '' %>>Returnd</option>
+                                <option value="pending" <%= order?.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="Processing" <%= order?.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                <option value="shipped" <%= order?.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                                <option value="Delivered" <%= order?.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                <option value="Cancelled" <%= order?.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                <option value="Returnd" <%= order?.status === 'Returnd' ? 'selected' : '' %>>Returnd</option>
                                
                             </select>
                             <button type="submit">Update Status</button>
                         </form></td>
-                        <td><%= order.finalAmount %></td>
-                        <td><%= order.paymentType %></td>
+                        <td><%= order?.finalAmount %></td>
+                        <td><%= order?.paymentType %></td>
                        
                     </tr>
                 <% }) %>

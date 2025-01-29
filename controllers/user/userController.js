@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt")
 const { json } = require("express")
 const nodemailer = require("nodemailer")
 const { session } = require("passport")
+const Product = require("../../models/productSchema")
 
 const login = async (req, res) => {
     try {
@@ -357,6 +358,180 @@ const postChangepassword= async (req,res)=>{
         res.redirect("/user/pageNotFound")
     }
 }
+const PriceLowToHigh = async (req, res) => {
+    try {
+        const { name } = req.params; // 'name' will be the category name passed from the route
+        if(name==="shop"){
+            const findPrice=await Product.find().sort({ salePrice: 1 }); 
+            return res.render(name, { findPrice});
+          }
+          else{
+        // Fetch products and populate the 'category' field
+        const findPrice = await Product.find().populate({
+            path: 'category',
+            match: { 
+                status: 'active', 
+                isDeleted: false 
+            }
+        }).sort({ salePrice: 1 });
+
+        // Filter products based on the category name (which is dynamic)
+        const chairProducts = findPrice.filter(product => product?.category?.name === name);
+
+        // Render the view with the filtered products
+        res.render(name, { findPrice: chairProducts }); }
+    } catch (error) {
+        console.log("PriceLowToHigh", error);
+        res.redirect("/user/pageNotFound");
+    }
+};
+
+
+const PriceHighToLow = async (req, res) => {
+    try {
+        const { name } = req.params;
+          if(name==="shop"){
+            const findPrice=await Product.find().sort({ salePrice: -1 }); 
+            return res.render(name, { findPrice});
+          }
+          else{
+        const findPrice = await Product.find().populate({
+            path: 'category',
+            match: { 
+                status: 'active', 
+                isDeleted: false 
+            }
+        }).sort({ salePrice: -1 });
+
+        const chairProducts = findPrice.filter(product => product?.category?.name === name);
+        res.render(name, { findPrice: chairProducts }); 
+    }
+    } catch (error) {
+        console.log("PriceLowToHigh", error);
+        res.redirect("/user/pageNotFound");
+    }
+};
+
+const newArivels=async (req, res) => {
+    try {
+        const { name } = req.params;
+        if(name==="shop"){
+            const findPrice=await Product.find().sort({ _id: -1 }).limit(4); 
+            return res.render(name, { findPrice});
+          }
+          else{
+        const findPrice = await Product.find().populate({
+            path: 'category',
+            match: { 
+                status: 'active', 
+                isDeleted: false 
+            }
+        }).sort({ _id: -1 }).limit(4);
+
+        const chairProducts = findPrice.filter(product => product?.category?.name === name);
+        res.render(name, { findPrice: chairProducts }); 
+    }
+    } catch (error) {
+        console.log("PriceLowToHigh", error);
+        res.redirect("/user/pageNotFound");
+    }
+};
+
+const allsearch = async (req, res) => {
+    try {
+        const searchValue = req.body.search; 
+        const { id } = req.params;
+        if (!searchValue || searchValue.trim() === "") {
+            console.log("Search query is empty. Redirecting to default page.");
+            return res.redirect("/user/shop"); 
+        }
+        if(id=="shop"){
+            const products = await Product.find({ productName: { $regex: searchValue, $options: "i" } })
+            return res.render(id, { results: products, message: null });    
+        }
+        const products = await Product.find({ productName: { $regex: searchValue, $options: "i" } })
+            .populate('category');
+
+        if (products.length === 0) {
+            return res.redirect("/user/shop"); 
+        }
+        const filteredProducts = id 
+            ? products.filter(product => product?.category?.name === id) 
+            : products;
+
+        res.render(id, { results: filteredProducts, message: null }); // Render searchResults page
+    } catch (error) {
+        console.error("Error in allsearch:", error);
+        res.redirect("/user/pageNotFound");
+    }
+};
+
+
+const popularity= async (req,res)=>{
+  try {
+    const name=req.params.id
+    if(name=="shop"){
+        const products = await Product.find().sort({ salesCount: -1 });
+       return res.render(name, { findPrice: products }); 
+    }
+    const findPrice = await Product.find().populate({
+        path: 'category',
+        match: { 
+            status: 'active', 
+            isDeleted: false 
+        }
+    }).sort({ salesCount: -1 });
+    const chairProducts = findPrice.filter(product => product?.category?.name === name);
+    res.render(name, { findPrice: chairProducts }); 
+  } catch (error) {
+    console.error("popularity:", error);
+        res.redirect("/user/pageNotFound");
+  }
+}
+
+const AtoZ = async (req, res) => {
+    try {
+        const name = req.params.id; 
+        if(name=="shop"){
+            const products = await Product.find().sort({ productName: 1 });
+            return res.render(name, { findPrice: products }); 
+        }
+        const products = await Product.find()
+            .populate({
+                path: 'category',
+                match: { status: 'active', isDeleted: false }
+            })
+            .sort({ productName: 1 }); 
+        const chairProducts = products.filter(product => product?.category?.name === name);
+        res.render(name, { findPrice: chairProducts }); 
+    } catch (error) {
+        console.error("Error in AtoZ:", error);
+        res.redirect("/user/pageNotFound");
+    }
+};
+
+const ZtoA=async (req,res)=>{
+    try {
+        const name = req.params.id; 
+        if(name=="shop"){
+            const products = await Product.find().sort({ productName:-1 });
+            return res.render(name, { findPrice: products }); 
+        }
+        const products = await Product.find()
+            .populate({
+                path: 'category',
+                match: { status: 'active', isDeleted: false }
+            })
+            .sort({ productName:-1 }); 
+        const chairProducts = products.filter(product => product?.category?.name === name);
+        res.render(name, { findPrice: chairProducts });
+    } 
+     catch (error) {
+        console.error("Error in ZtoA:", error);
+        res.redirect("/user/pageNotFound");
+    }
+}
+
 
 module.exports = {
     loadHomepage,
@@ -373,5 +548,12 @@ module.exports = {
     resendForgotpasswordOTP,
     verifyOtpForgotPassword,
     changepassword,
-    postChangepassword
+    postChangepassword,
+    PriceLowToHigh,
+    PriceHighToLow,
+    newArivels,
+    allsearch,
+    popularity,
+    AtoZ,
+    ZtoA
 }

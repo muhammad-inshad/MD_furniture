@@ -171,16 +171,15 @@
                       <p><strong>Pincode:</strong> <%= address.pincode %></p>
                       <p><strong>Phone:</strong> <%= address.phone %></p>
                       <button class="delete-button" data-id="<%= address._id %>">Delete</button>
+                      <a href="/user/edit_address/<%= address._id %>" style="text-decoration: none; color: #beaa4f; cursor: grab;">
+                        <h4>edit Address</h4>
+                      </a>
                     </div>
                     <% }); %>
                     
               </div>
               
-                  <center>   <a href="/user/add_address" style="text-decoration: none; color: #333;">
-                    <div class="add_address">
-                 <h3>add address</h3>
-                </div>
-            </div></a>  </center> 
+                 
 
            
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.5/dist/sweetalert2.min.css" rel="stylesheet">

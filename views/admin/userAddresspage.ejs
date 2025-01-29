@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - User Profile</title>
+    <link href="/admin/dashbord.css" rel="stylesheet"> 
+    <style>
+        /* Add any custom styles here */
+        .profile-box {
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .profile-box h3 {
+            font-size: 22px;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .profile-box p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .edit-btn {
+            padding: 10px 20px;
+            background-color: #2980b9;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .edit-btn:hover {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">Product Management</a>
+        <a href="/admin/ordermanagment">Order Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1 class="heading">User Profile</h1>
+    
+        <% if (address) { %>
+            <div class="profile-box">
+                <h3>Profile Details:</h3>
+                <p><strong> Name      :</strong> <%= address.name %></p>
+                <p><strong>City      :</strong> <%= address.City %></p>
+                <p><strong>Landmark:</strong> <%= address.landMark %></p>
+                <p><strong>State   :</strong> <%= address.state %></p>
+                <p><strong>Phone   :</strong> <%= address.phone %></p>
+                <p><strong>Pincode :</strong> <%= address.pincode %></p>
+                <center><a href="/admin/ordermanagment" class="edit-btn">back</a> </center>
+            </div>
+        <% } else { %>
+            <p>No address found.</p>
+        <% } %>
+    </div>
+    
+    
+    
+</body>
+</html>

@@ -6,7 +6,9 @@ const Order=require("../../models/orderSchema")
 const { search } = require('../../app');
 const fs=require("fs")
 const path=require("path")
-const Sharp=require("sharp")
+const Sharp=require("sharp");
+const { constants } = require('perf_hooks');
+const Address = require('../../models/addressSchema');
 
 
 
@@ -163,21 +165,33 @@ const deleteCategory = async (req, res) => {
 
 
 
-const productManagement=async (req,res)=>{
+const productManagement = async (req, res) => {
     try {
-        if(req.session.admin){
-        const ProductDetiles = await Product.find().populate('category');
+        if (req.session.admin) {
+            const itemsPerPage = 5; 
+            const page = parseInt(req.query.page) || 1; 
+            const totalItems = await Product.countDocuments(); 
+            const totalPages = Math.ceil(totalItems / itemsPerPage); 
 
-        res.render("prodectmenagement",{ProductDetiles})
-        }
-        else{
-            res.redirect("/user/home")
+            const ProductDetiles = await Product.find()
+                .populate('category')
+                .skip((page - 1) * itemsPerPage)
+                .limit(itemsPerPage);
+
+            res.render("prodectmenagement", {
+                ProductDetiles,
+                currentPage: page,
+                totalPages,
+            });
+        } else {
+            res.redirect("/user/home");
         }
     } catch (error) {
-        console.log("error from productManagement",error)
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error("Error from productManagement", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
+
 
 const addproduct=async (req,res)=>{
            try {
@@ -190,8 +204,7 @@ const addproduct=async (req,res)=>{
 
 const addproductPOst = async (req, res) => {
     try {
-        const { name, description, brand, category, salePrice, productOffer, stock, status} = req.body;
-
+        const { name, description, brand, category, salePrice, productOffer, stock, status } = req.body;
 
         // Check if all required fields are provided
         if (!name || !description || !brand || !category || !salePrice) {
@@ -203,13 +216,22 @@ const addproductPOst = async (req, res) => {
         if (existingProduct) {
             return res.status(400).json({ message: "Product already exists" });
         }
+
         const findcategory = await Category.findOne({ name: category });
         if (!findcategory) {
-            return res.status(400).json({ message: "category not found" });
+            return res.status(400).json({ message: "Category not found" });
         }
-        
 
+        // Handle image cropping: expect cropped image files in req.files
         const productImages = req.files.productImages.map(file => file.filename); 
+
+        // Check if cropped image files are provided
+        if (req.files.croppedImages) {
+            // Process cropped images here, if needed
+            const croppedImages = req.files.croppedImages.map(file => file.filename);
+            productImages.push(...croppedImages); // Combine original and cropped images
+        }
+
         // Prepare the product data to be passed to the schema
         const productData = {
             productName: name,
@@ -220,12 +242,13 @@ const addproductPOst = async (req, res) => {
             productOffer: productOffer,
             quantity: stock,
             status: status,
-            productImages: productImages // Make sure imageFiles is handled correctly
+            productImages: productImages // Include all images (original + cropped)
         };
 
         // Create a new product instance
-        const newProduct = new Product(productData)
+        const newProduct = new Product(productData);
 
+        // Save product to database
         await newProduct.save();
         return res.json({ success: true, message: "Product saved successfully", newProduct });
 
@@ -391,22 +414,38 @@ const ordermanagment = async (req, res) => {
         const orders = await Order.aggregate([
             {
                 $lookup: {
-                    from: 'users',
+                    from: 'users', 
                     localField: 'userId',
-                    foreignField: '_id',
-                    as: 'customerDetails',
+                    foreignField: '_id', 
+                    as: 'userDetails', 
                 },
             },
             {
-                $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true },
+                $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true }, // Unwind user details
             },
+            {
+                $lookup: {
+                    from: 'products', 
+                    localField: 'orderedItems.product', 
+                    foreignField: '_id', 
+                    as: 'productDetails', 
+
+                },
+            },
+            {
+                $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true }, // Unwind product details
+            },
+            {
+                $sort: { _id: -1 } // Sorting by latest orders first
+            }
         ]);
-        res.render('ordermanagement', { orders });
+        res.render('ordermanagement', { orders }); // Pass orders to the view
     } catch (error) {
         console.error('Error in order management:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch orders' });
     }
 };
+
 
 const orderupdate=async (req,res)=>{
     try {
@@ -423,6 +462,32 @@ const orderupdate=async (req,res)=>{
         res.status(500).json({ success: false, message: 'Failed to orderupdate' });
     }
 }
+
+const userAddress = async (req, res) => {
+    try {
+        const addressMainId = req.params.id1;
+        const addressSecondId = req.params.id2;
+
+        const addressData = await Address.findOne(
+            { userId: addressMainId, "address._id": addressSecondId },
+            { "address.$": 1 } // Projection to get only the matching address
+        );
+
+        if (!addressData || !addressData.address.length) {
+            return res.status(404).json({ success: false, message: "Address not found" });
+        }
+
+        const address = addressData.address[0]; // Extract first item from array
+        console.log("Selected Address:", address);
+
+        res.render("userAddresspage", { address }); // Pass only the matched address
+
+    } catch (error) {
+        console.error("userAddress from admin side", error);
+        res.status(500).json({ success: false, message: "Error fetching user address" });
+    }
+};
+
 
 
 
@@ -447,4 +512,5 @@ module.exports={
     deleteImage,
     ordermanagment,
     orderupdate,
+    userAddress
 }

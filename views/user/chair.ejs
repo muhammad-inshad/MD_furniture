@@ -1,31 +1,192 @@
 <%-include("../../views/partials/user/top")%>
 
+<style>
+	.sidebar {
+  width: 100%;
+  background-color: #f8f8f8;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar h3 {
+  font-size: 18px;
+  margin-bottom: -26px;
+  color: #b4b0b0;
+  margin-right: 3px;
+}
+
+.sidebar a {
+  display: inline-block; /* Keeps links in one line */
+  margin-left: 104px;
+  margin-right: 163px; /* Adds horizontal space between links */
+  text-decoration: none; /* Removes the underline */
+  color: #b2a9a9; /* Link color */
+  font-size: 16px; /* Adjust font size */
+}
+
+.sidebar a:hover {
+  text-decoration: underline; /* Underline on hover */
+  color: #0056b3; /* Hover color */
+}
+.star {
+    font-size: 20px;
+    color: #dcdcdc;  /* Light gray for empty stars */
+}
+
+.star.filled {
+    color: gold;  /* Gold color for filled stars */
+}
+
+</style>  
+<form action="/user/allsearch/chair" method="POST">
+  <input type="text" name="search" placeholder="Search for products..." required>
+  <button type="submit">Search</button>
+</form>
+
+					
+								
+								<div class="sidebar">
+									<a href="/user/chair"><h3>Filters</h3></a>
+									
+									  <a href="/user/PriceLowToHigh/chair">Price: Low to High</a>
+									  <a href="/user/PriceHighToLow/chair">Price: High to Low</a>
+									  <a href="/user/newArivels/chair">New Arrivals</a>
+                    <a href="/user/popularity/chair">Popularity</a>
+                    <a href="/user/AtoZ/chair">A-Z</a>
+									  <a href="/user/ZtoA/chair">Z-A</a>
+								
+								  </div>
 <center><h1>CHAIR</h1></center>
 
-<div class="untree_co-section product-section before-footer-section">
-  <div class="container">
-    <div class="row">
-      <% findProduct.forEach(product => { %>
-        <div class="col-12 col-md-4 col-lg-3 mb-5">
-          <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
-            <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
-            
-            <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
+<% if (typeof findProduct !=='undefined'){ %>
+<% if (findProduct&& findProduct.length > 0) { %>
+  <div class="untree_co-section product-section before-footer-section">
+    <div class="container">
+      <div class="row">
+        <% findProduct.forEach(product => { %>
+          <div class="col-12 col-md-4 col-lg-3 mb-5">
+            <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
+              <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
 
-            <% if (product.quantity < 1) { %>
-              <strong class="product-price" style="color: red;">Out of Stock</strong>
-            <% } else { %>
-              <strong class="product-price">$<%= product.salePrice %></strong>
+              <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
+
+              <% if (product.quantity < 1) { %>
+                <strong class="product-price" style="color: red;">Out of Stock</strong>
+              <% } else { %>
+                <strong class="product-price">$<%= product.salePrice %></strong>
+              <% } %>
+
+              <% if (product?.rating) { %>
+                <div class="rating">
+                    <% for (let i = 1; i <= 5; i++) { %>
+                        <% if (i <= product.rating) { %>
+                            <span class="star filled">★</span>  <!-- Filled star for rating -->
+                        <% } else { %>
+                            <span class="star">☆</span>  <!-- Empty star for remaining rating -->
+                        <% } %>
+                    <% } %>
+                </div>
             <% } %>
-
-            <span class="icon-cross">
-              <img src="/images/cross.svg" class="img-fluid">
-            </span>
-          </a>
-        </div>
-      <% }); %>
+              <span class="icon-cross">
+                <img src="/images/cross.svg" class="img-fluid">
+              </span>
+            </a>
+          </div>
+        <% }); %>
+      </div>
     </div>
   </div>
-</div>
+<% } else { %>
+  <p>No products found.</p>
+<% } %>
+<% } %>
 
+<% if (typeof findPrice !=='undefined'){ %>
+<% if ( findPrice  && findPrice.length > 0) { %>
+  <div class="untree_co-section product-section before-footer-section">
+    <div class="container">
+      <div class="row">
+        <% findPrice.forEach(product => { %>
+          <div class="col-12 col-md-4 col-lg-3 mb-5">
+            <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
+              <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+
+              <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
+
+              <% if (product.quantity < 1) { %>
+                <strong class="product-price" style="color: red;">Out of Stock</strong>
+              <% } else { %>
+                <strong class="product-price">$<%= product.salePrice %></strong>
+              <% } %>
+              <% if (product?.rating) { %>
+                <div class="rating">
+                    <% for (let i = 1; i <= 5; i++) { %>
+                        <% if (i <= product.rating) { %>
+                            <span class="star filled">★</span>  <!-- Filled star for rating -->
+                        <% } else { %>
+                            <span class="star">☆</span>  <!-- Empty star for remaining rating -->
+                        <% } %>
+                    <% } %>
+                </div>
+            <% } %>
+              <span class="icon-cross">
+                <img src="/images/cross.svg" class="img-fluid">
+              </span>
+            </a>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+<% } else { %>
+  <p>No products available at the moment.</p>
+<% } %>
+
+<% } %>
+
+
+<% if (typeof results !=='undefined'){ %>
+  <% if ( results  && results.length > 0) { %>
+    <div class="untree_co-section product-section before-footer-section">
+      <div class="container">
+        <div class="row">
+          <% results.forEach(product => { %>
+            <div class="col-12 col-md-4 col-lg-3 mb-5">
+              <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
+                <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+  
+                <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
+  
+                <% if (product.quantity < 1) { %>
+                  <strong class="product-price" style="color: red;">Out of Stock</strong>
+                <% } else { %>
+                  <strong class="product-price">$<%= product.salePrice %></strong>
+                <% } %>
+                <% if (product?.rating) { %>
+                  <div class="rating">
+                      <% for (let i = 1; i <= 5; i++) { %>
+                          <% if (i <= product.rating) { %>
+                              <span class="star filled">★</span>  <!-- Filled star for rating -->
+                          <% } else { %>
+                              <span class="star">☆</span>  <!-- Empty star for remaining rating -->
+                          <% } %>
+                      <% } %>
+                  </div>
+              <% } %>
+                <span class="icon-cross">
+                  <img src="/images/cross.svg" class="img-fluid">
+                </span>
+              </a>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <p>No products available at the moment.</p>
+  <% } %>
+  
+  <% } %>
 <%-include("../../views/partials/user/footer")%>

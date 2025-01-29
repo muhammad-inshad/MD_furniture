@@ -24,6 +24,14 @@ router.post("/resendForgotpasswordOTP",userContoller.resendForgotpasswordOTP)
 router.post('/verifyOtpForgotPassword',userContoller.verifyOtpForgotPassword)
 router.get("/changepassword",userContoller.changepassword)
 router.post("/changepassword",userContoller.postChangepassword)
+router.post("/allsearch/:id",userContoller.allsearch)
+
+router.get("/PriceLowToHigh/:name",userContoller.PriceLowToHigh)
+router.get("/PriceHighToLow/:name",userContoller.PriceHighToLow)
+router.get("/newArivels/:name",userContoller.newArivels)
+router.get("/popularity/:id",userContoller.popularity)
+router.get("/AtoZ/:id",userContoller.AtoZ)
+router.get("/ZtoA/:id",userContoller.ZtoA)
 
 
 router.get("/auth/google",passport.authenticate("google",{scope:['profile','email']}))
@@ -46,7 +54,7 @@ router.get("/auth/google/callback",passport.authenticate("google",{failureRedire
 
 
 })
- 
+
 
 router.get("/chair",isUser,uploadFields,sofaController.chair)
 router.get("/showDetailProduct/:id",isUser,uploadFields,sofaController.showDetailProduct)
@@ -55,10 +63,12 @@ router.get("/sofa",isUser,uploadFields,sofaController.sofa)
 
 router.get("/shop",isUser,uploadFields,sofaController.shop)
 
-router.get("/profile",isLoginORnot,isUser,sofaController.profile)
+router.get("/profile",isUser,isLoginORnot,sofaController.profile)
 router.get("/address",isLoginORnot,isUser,sofaController.address)
 router.get("/add_address",isLoginORnot,isUser,sofaController.add_address)
 router.post("/add_address",sofaController.post_add_address)
+router.get("/edit_address/:id",sofaController.edit_address)
+router.post("/edit_address",sofaController.postedit_address)
 router.get("/editeprofile",isLoginORnot,sofaController.editeprofile)
 router.post("/editeprofile/:id",sofaController.PostEditeprofile)
 router.post("/deleteAddress/:id",sofaController.deleteAddress)
@@ -72,4 +82,8 @@ router.get("/myorders",isLoginORnot,uploadFields,sofaController.myorders)
 router.get("/orderCancel/:id",isLoginORnot,sofaController.orderCancel)
 router.post("/orderCancel",sofaController.postorderCancel)
 
+
+
+
+router.post("/rating",sofaController.rating)
 module.exports=router

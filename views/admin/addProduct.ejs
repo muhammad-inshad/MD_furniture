@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Product</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -71,7 +74,20 @@ input, textarea, select, button {
       }
     }
   </style>
+
+    <link href="/admin/dashbord.css" rel="stylesheet"> 
 </head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">product Management</a>
+        <a href="/admin/ordermanagment">order Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+
 <body>
   <div class="form-container">
     <h2>Add Product</h2>
@@ -79,7 +95,7 @@ input, textarea, select, button {
       <!-- Name -->
       <div class="form-group">
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" placeholder="Enter name" required>
+        <input  type="text" id="name" name="name" placeholder="Enter name" required>
       </div>
       
       <!-- Description -->
@@ -97,7 +113,7 @@ input, textarea, select, button {
       <!-- Category -->
       <div class="form-group">
         <label for="category">Category:</label>
-         <select id="category" name="category" required>
+         <select id="category"  name="category" required>
           <option value="sofa">sofa</option>
           <option value="chair">chair</option>
         </select>
@@ -107,7 +123,7 @@ input, textarea, select, button {
       <!-- Sale Price -->
       <div class="form-group">
         <label for="salePrice">Sale Price:</label>
-        <input type="number" id="salePrice" name="salePrice" placeholder="Enter Sale Price" required>
+        <input type="number"  id="salePrice" name="salePrice" placeholder="Enter Sale Price" required>
       </div>
 
       <!-- Product Offer -->
@@ -119,7 +135,7 @@ input, textarea, select, button {
       <!-- Stock -->
       <div class="form-group">
         <label for="stock">Stock:</label>
-        <input type="number" id="stock" name="stock" placeholder="Enter Stock" required>
+        <input type="number"  id="stock" name="stock" placeholder="Enter Stock" required>
       </div>
       
       <!-- Status -->
@@ -133,167 +149,356 @@ input, textarea, select, button {
       </div>
 
       <!-- Image Upload Section -->
-      <div class="form-group">
-        <label for="productImages">Upload Images (Select at least 3):</label>
-        <input type="file" id="productImages" name="productImages[]" multiple required>
-      </div>
-      
-      <div id="imagePreview" style="display: flex; gap: 10px; margin-top: 10px;"></div>
-      <br>
+       <!-- image claudinary -->
+       <div class="row">
+        <div class="col-lg-4">
+        <div class="mb-4">
+            <label class="form-label text-white">Choose Images</label>
+            </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="mb-4">
+            <input type="file" id="upload" multiple onchange="handleImage(event)" />
 
+            <div id="cropperContainers"></div> 
+                                 
+          
+            <div id="cropperContainer1" class="crop-container" style="display: none;">
+                <img id="cropImage1" alt="Image to crop">
+                <button type="button" id="saveButton1" class="btn btn-primary mt-2">Save Cropped Image</button>
+            </div>
+        </div>
+        </div>
+        </div>
       <!-- Submit Button -->
       <button type="submit">ADDD</button>
+
+      <!-- this is for new upploding -->
+     
+      
+          
     </form>
   </div>
+  <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    
-  
 
+<!-- new script -->
+<script>
+  const cloudName = "dwwxgavec";  // Replace with your Cloudinary cloud name
+const uploadPreset = "my_images"; // Replace with your upload preset (can be found in Cloudinary dashboard)
 
-   document.getElementById("productImages").addEventListener("change", function(event) {
-  const imagePreview = document.getElementById("imagePreview");
-  imagePreview.innerHTML = ""; // Clear any existing previews
-  
-  const files = event.target.files; // Get selected files
-  
-  if (files.length < 3) {
-    alert("Please select at least 3 images.");
-    return;
-  }
-
-  Array.from(files).forEach((file) => {
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        const img = document.createElement("img");
-        img.src = e.target.result; // Set the image source to the file data
-        img.style.width = "100px";
-        img.style.height = "100px";
-        img.style.objectFit = "cover";
-        img.style.border = "1px solid #ddd";
-        img.style.borderRadius = "5px";
-        imagePreview.appendChild(img); // Add the image to the preview container
-      };
-
-      reader.readAsDataURL(file); // Read the image file
-    } else {
-      alert("Please upload only image files.");
-    }
-  });
-});
-
-
-
-   document.getElementById("addproduct").addEventListener("submit", function(e) {
-  e.preventDefault(); // Prevent form from submitting normally
-
-    
-
-  const name = document.getElementById("name").value;
-  const description = document.getElementById("description").value;
-  const brand = document.getElementById("brand").value;
-  const category = document.getElementById("category").value;
-  const salePrice = document.getElementById("salePrice").value;
-  const productOffer = document.getElementById("productOffer").value;
-  const stock = document.getElementById("stock").value;
-  const status = document.getElementById("status").value;
-  const imageFiles = document.getElementById("productImages").files;
-
-
-      
-    if (/\s/.test(name)) {
-        alert('Name should not contain spaces.');
-        return false;
-    }
-
-    if (/\s/.test(description)) {
-        alert('Description should not contain spaces.');
-        return false;
-    }
-
-    // Brand validation
-    if (/\s/.test(brand)) {
-        alert('Brand should not contain spaces.');
-        return false;
-    }
-
-    
-    if (isNaN(salePrice) || salePrice <= 0) {
-        alert('Sale Price should be a valid positive number.');
-        return false;
-    }
-
-   
-    if (isNaN(productOffer) || productOffer < 0) {
-        alert('Product Offer should be a valid non-negative number.');
-        return false;
-    }
-
- 
-    if (isNaN(stock) || stock < 0) {
-        alert('Stock should be a valid non-negative number.');
-        return false;
-    }
-
-   
-  if (!name || !description || !brand || !category || !salePrice || !productOffer || !stock || !status || imageFiles.length < 3) {
-    Swal.fire({
-      title: 'Error!',
-      text: 'Please fill in all required fields and upload at least 3 images.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-    return;
-  }
-
+const uploadImageToCloudinary = (blob) => {
   const formData = new FormData();
-  formData.append("name", name);
-  formData.append("description", description);
-  formData.append("brand", brand);
-  formData.append("category", category);
-  formData.append("salePrice", salePrice);
-  formData.append("productOffer", productOffer);
-  formData.append("stock", stock);
-  formData.append("status", status);
+  formData.append("file", blob);  // Append the cropped blob
+  formData.append("upload_preset", uploadPreset);  // Add your upload preset (set in Cloudinary dashboard)
 
-  // Append image files
-  for (let i = 0; i < imageFiles.length; i++) {
-    formData.append("productImages", imageFiles[i]); // Note: 'productImages' should match the backend field name
+  return fetch("https://api.cloudinary.com/v1_1/${cloudName}/image/upload", {
+      method: "POST",
+      body: formData,
+  })
+      .then((response) => response.json())
+      .then((data) => {
+          const imageUrl = data.secure_url; // Cloudinary URL for the uploaded image
+          console.log("Uploaded Image URL:", imageUrl);
+          return imageUrl;
+      })
+      .catch((error) => {
+          console.error("Error uploading image:", error);
+          return null;
+      });
+};
+
+document.getElementById('productForm').onsubmit = async function (event) {
+  event.preventDefault();
+//console.log("inside addproduct")
+  // Get form data
+  const productName = document.getElementById('product_name').value;
+  const description = document.getElementById('descriptionid').value;
+  const regularPrice = document.querySelector('[name="regularPrice"]').value;
+  const salePrice = document.querySelector('[name="salePrice"]').value;
+  const stock = document.querySelector('[name="stock"]').value;
+  const color = document.querySelector('[name="color"]').value;
+  const Status = document.querySelector('[name="Available"]').value;
+  const category = document.getElementById('category').value;
+ const radios=document.getElementsByName('item');
+ let selectedValue;
+ for (const radio of radios) { 
+  if (radio.checked) {
+       selectedValue = radio.value;
+        break; } }
+  const data = {
+      productName: productName,
+      description: description,
+      regularPrice: regularPrice,
+      salePrice: salePrice,
+      stock: stock,
+      color: color,
+      category: category,
+      item:selectedValue,
+    
+  };
+
+  // Upload all cropped images to Cloudinary and get their URLs
+  const imageUrls = [];
+  for (let i = 0; i < croppedImages.length; i++) {
+      const imageUrl = await uploadImageToCloudinary(croppedImages[i]);
+      if (imageUrl) {
+          imageUrls.push(imageUrl);
+      }
   }
 
-  fetch("/admin/addproduct", {
-    method: 'POST',
-    body: formData,
+  // Add image URLs to the form data
+  data.images = imageUrls;
+
+  // Send the data to the backend
+  axios.post('/admin/addProducts', data, {
+      headers: {
+          'Content-Type': 'application/json'
+      }
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(data => {
-    Swal.fire({
-      title: 'Success!',
-      text: 'Product added successfully!',
-      icon: 'success',
-      confirmButtonText: 'OK',
-    }).then(() => {
-      window.location.href = '/admin/productManagement';
-    });
-  })
-  .catch(error => {
-    Swal.fire({
-      title: 'Error!',
-      text: 'Something went wrong. Please try again.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-    console.error('Error:', error);
-  });
+      .then(response => {
+          alert('Product added successfully');
+          window.location.href = '/admin/products';
+      })
+      .catch(error => {
+          alert(error?.response?.data?.message || error?.message || 'Error adding product');
+      });
+      document.getElementById("productForm").reset();
+       // Clear image input by resetting value
+const imageField = document.getElementById("cropperContainers");
+if (imageField) {
+  imageField.value = "";
+}
+imageField.innerHTML = "";
+// Optional: Clear cropping preview if any
+const croppingPreview = document.getElementById("croppingPreview");
+
+if (croppingPreview) {
+  croppingPreview.src = "";
+  croppingPreview.style.display = "none";
+}
+ };
+
+</script>  
+<!-- ended -->
+
+
+<script>
+  let croppers = {};  // Object to store the cropper instances
+  let croppedImages = [];  // Array to store the cropped image blobs
+
+  const handleImage = (e) => {
+      const files = e.target.files;  // Get the selected files
+      console.log("Selected Files: ", files);
+
+      // Clear any existing cropper containers
+      const cropperContainers = document.getElementById("cropperContainers");
+      cropperContainers.innerHTML = "";
+
+      // Iterate through the selected files
+      for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+
+          // Create a new cropper container dynamically
+          const cropperContainer = document.createElement('div');
+          cropperContainer.id = `cropperContainer${i}`;
+          cropperContainer.style.marginBottom = "20px";  // Styling for separation
+          cropperContainers.appendChild(cropperContainer);
+
+          // Create an image element for previewing the selected image
+          const img = document.createElement('img');
+          img.id = `cropImage${i}`;
+          img.style.width = '300px';
+          img.style.height = '200px';
+          cropperContainer.appendChild(img);
+
+          const saveButton = document.createElement('button');
+          saveButton.textContent = 'Save Cropped Image';
+          saveButton.id = `saveButton${i}`;
+          saveButton.setAttribute("type", "button");
+          cropperContainer.appendChild(saveButton);
+
+          // Read the file as data URL
+          reader.onload = function () {
+              img.src = reader.result;
+
+              // Initialize the cropper for this image
+              if (croppers[i]) {
+                  croppers[i].destroy();  // Destroy any existing cropper before initializing a new one
+              }
+
+              croppers[i] = new Cropper(img, {
+                  aspectRatio: 1,  // Maintain a square aspect ratio
+                  viewMode: 1,
+                  autoCropArea: 1,
+              });
+
+              // Handle the "Save Cropped Image" button click event
+              saveButton.onclick = function () {
+                  const croppedCanvas = croppers[i].getCroppedCanvas({
+                      width: 600,  // Resize to 600x600
+                      height: 600
+                  });
+
+                  // Get the file extension from the uploaded image
+                  const fileExtension = file.name.split('.').pop();  // Extract file extension (e.g., jpg, png, etc.)
+
+                  // Compress and convert the cropped image to a Blob
+                  croppedCanvas.toBlob(function (blob) {
+                      const url = URL.createObjectURL(blob);
+
+                      // If the image is already cropped, replace the preview with the new cropped image
+                      img.src = url;  // Replace the preview with the new cropped image
+
+                      img.dataset.blob = blob;  // Store the Blob for future submission (e.g., sending to the backend)
+
+                      // Push the cropped image Blob to the array
+                      croppedImages.push(blob);
+                      console.log("Cropped Images Array: ", croppedImages);
+
+                      // Display the cropped image
+                      const croppedImagePreview = document.createElement('img');
+                      croppedImagePreview.src = url;
+                      croppedImagePreview.style.width = '200px';
+                      croppedImagePreview.style.height = '200px';
+                      cropperContainer.appendChild(croppedImagePreview);
+
+                      // Hide the cropper container (or remove it)
+                      cropperContainer.innerHTML = '';  // Clear the cropper UI
+                      cropperContainer.appendChild(croppedImagePreview);  // Only show the cropped image
+
+                      // Add a button to allow re-cropping the cropped image
+                      const reCropButton = document.createElement('button');
+                      reCropButton.textContent = 'Re-Crop This Image';
+                      reCropButton.setAttribute("type", "button");
+                      cropperContainer.appendChild(reCropButton);
+
+                      // Handle re-cropping the cropped image
+                      reCropButton.onclick = function () {
+                          // Replace the cropped image with the cropper again
+                          img.src = url;  // Use the cropped image as the source for re-cropping
+
+                          // Destroy the previous cropper instance
+                          croppers[i].destroy();
+
+                          // Re-initialize the cropper with the cropped image
+                          croppers[i] = new Cropper(img, {
+                              aspectRatio: 1,  // Maintain a square aspect ratio
+                              viewMode: 1,
+                              autoCropArea: 1,
+                          });
+
+                          // Clear the cropped image preview and display the cropper again
+                          cropperContainer.innerHTML = '';  // Clear the cropped image preview
+                          cropperContainer.appendChild(img);  // Add the image back for cropping
+                          cropperContainer.appendChild(saveButton);  // Add the save button
+                      };
+                  }, `image/${fileExtension}`, 0.7);  // Use the dynamic file extension for the cropped image
+              };
+          };
+
+          reader.readAsDataURL(file);
+      }
+  };
+
+  // Form submission handler
+  document.getElementById("addproduct").addEventListener("submit", function(e) {
+      e.preventDefault(); // Prevent form from submitting normally
+
+      const name = document.getElementById("name").value;
+      const description = document.getElementById("description").value;
+      const brand = document.getElementById("brand").value;
+      const category = document.getElementById("category").value;
+      const salePrice = document.getElementById("salePrice").value;
+      const productOffer = document.getElementById("productOffer").value;
+      const stock = document.getElementById("stock").value;
+      const status = document.getElementById("status").value;
+      const imageFiles = document.getElementById("upload").files;
+
+      // Validate form fields
+      // if (/\s/.test(name)) {
+      //     alert('Name should not contain spaces.');
+      //     return false;
+      // }
+      // if (/\s/.test(description)) {
+      //     alert('Description should not contain spaces.');
+      //     return false;
+      // }
+      // if (/\s/.test(brand)) {
+      //     alert('Brand should not contain spaces.');
+      //     return false;
+      // }
+      // if (isNaN(salePrice) || salePrice <= 0) {
+      //     alert('Sale Price should be a valid positive number.');
+      //     return false;
+      // }
+      // if (isNaN(productOffer) || productOffer < 0) {
+      //     alert('Product Offer should be a valid non-negative number.');
+      //     return false;
+      // }
+      // if (isNaN(stock) || stock < 0) {
+      //     alert('Stock should be a valid non-negative number.');
+      //     return false;
+      // }
+
+      // if (!name || !description || !brand || !category || !salePrice || !productOffer || !stock || !status || imageFiles.length < 3) {
+      //     Swal.fire({
+      //         title: 'Error!',
+      //         text: 'Please fill in all required fields and upload at least 3 images.',
+      //         icon: 'error',
+      //         confirmButtonText: 'OK',
+      //     });
+      //     return;
+      // }
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("brand", brand);
+      formData.append("category", category);
+      formData.append("salePrice", salePrice);
+      formData.append("productOffer", productOffer);
+      formData.append("stock", stock);
+      formData.append("status", status);
+      croppedImages.forEach((image, index) => {
+    formData.append(`productImages`, image);
 });
 
-  </script>
+      // Send the form data to the backend
+      fetch("/admin/addproduct", {
+          method: 'POST',
+          body: formData,
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          Swal.fire({
+              title: 'Success!',
+              text: 'Product added successfully!',
+              icon: 'success',
+              confirmButtonText: 'OK',
+          }).then(() => {
+              window.location.href = '/admin/productManagement';
+          });
+      })
+      .catch(error => {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Something went wrong. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+          });
+          console.error('Error:', error);
+      });
+  });
+
+</script>
+
 </body>
 </html>

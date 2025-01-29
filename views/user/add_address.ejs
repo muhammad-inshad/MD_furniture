@@ -51,11 +51,11 @@
       </div>
       <div class="mb-3">
         <label for="pincode" class="form-label">Pincode</label>
-        <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Enter your pincode" required>
+        <input type="number" class="form-control" id="pincode" name="pincode" placeholder="Enter your pincode" required>
       </div>
       <div class="mb-3">
         <label for="phone" class="form-label">Phone Number</label>
-        <input type="text" class="form-control" id="phone" name="phone" value="<%=findUser.phone%>" >
+        <input type="number" class="form-control" id="phone" name="phone" value="<%=findUser.phone%>" >
       </div>
       <button type="submit" class="btn btn-custom w-100">Add Address</button>
     </form>
@@ -92,7 +92,7 @@
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          window.location.href = '/user/address';
+          window.location.href = '/user/checkout';
         });
       } else {
         Swal.fire({

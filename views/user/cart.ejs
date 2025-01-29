@@ -49,14 +49,14 @@
 					</tr>
 				  </thead>
           <tbody>
-            <% if (cartData.length === 0) { %>
+            <% if (cartData && cartData.length === 0) { %>
                 <tr>
                     <td colspan="6" class="text-center">
                         <h2>Your cart is empty</h2>
                     </td>
                 </tr>
-            <% } else { %>
-                <% cartData.forEach(item => { %>
+                <% } else if (cartData) { %>
+                  <% cartData.forEach(item => { %>
                     <tr>
                         <td class="product-thumbnail">
                             <img src="/uploads/<%= (item?.productDetails?.productImages && item?.productDetails?.productImages.length > 0) ? item?.productDetails?.productImages[0] : 'default-image.jpg' %>" 
