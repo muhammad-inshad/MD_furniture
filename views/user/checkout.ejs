@@ -121,6 +121,23 @@
   <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+  <script>
+    document.querySelector("form").addEventListener("submit", function (event) {
+      // Check if an address is selected
+      let addressChecked = document.querySelector('input[name="address"]:checked');
+      let paymentChecked = document.querySelector('input[name="paymentMethod"]:checked');
+  
+      if (!addressChecked || !paymentChecked) {
+        event.preventDefault(); // Prevent form submission
+  
+        Swal.fire({
+          icon: "warning",
+          title: "Selection Required",
+          text: "Please select an address and a payment method before proceeding.",
+        });
+      }
+    });
+  </script>
   
 
 

@@ -613,8 +613,6 @@ const getCartData = async(req,res) => {
                 return res.status(404).send("No address found for the user.");
             }
 
-            console.log(findAddress, 'findAddressfindAddress')
-    
             const newOrder = new Order({
                 orderedItems: detailedCart.items.map((item) => ({
                     product: item.product._id,
