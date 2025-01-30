@@ -174,7 +174,7 @@ td img:hover {
                         <td><%= order.userDetails ? order.userDetails.email : 'N/A' %></td>
                 
                             <td><%= order.productDetails.productName %>
-                            <br><div><img src="/uploads/<%=order.productDetails.productImages[0] %>" alt="img"></div></td>
+                            <br><a href="/admin/showProduct/<%=order.productDetails._id%>"><div><img src="/uploads/<%=order.productDetails.productImages[0] %>" alt="img"></div></a></td>
                             <td><form action="/admin/userAddress/<%=order.userDetails._id%>/<%=order.address%>"><button>viewaddress</button></form></td>
                         <td><%= order.invoiceDate ? order.invoiceDate.toISOString().slice(0, 10) : 'N/A' %></td>
                         <td>

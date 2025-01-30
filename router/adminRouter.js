@@ -34,8 +34,10 @@ router.post("/updateProduct/:id",uploadFields,customerController.postupdateProdu
 router.delete("/deleteImage/:id",uploadFields,customerController.deleteImage)
 
 
-router.get("/ordermanagment",customerController.ordermanagment)
+router.get("/ordermanagment",isAdmin,customerController.ordermanagment)
 router.post("/order/update/:id",customerController.orderupdate)
 
-router.get("/userAddress/:id1/:id2",customerController.userAddress)
+router.get("/showProduct/:id",isAdmin,customerController.showProduct)
+
+router.get("/userAddress/:id1/:id2",isAdmin,customerController.userAddress)
 module.exports=router

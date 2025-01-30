@@ -488,7 +488,21 @@ const userAddress = async (req, res) => {
     }
 };
 
-
+const showProduct=async (req,res)=>{
+    try {
+        const {id}=req.params
+        console.log(id)
+        const product = await Product.findById(id).populate("category"); ;
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+        console.log(product)
+        res.render("showProduct", { product });
+    } catch (error) {
+        console.error("showProduct from admin side", error);
+        res.status(500).json({ success: false, message: "showProduct product address" });
+    }
+}
 
 
 module.exports={
@@ -512,5 +526,6 @@ module.exports={
     deleteImage,
     ordermanagment,
     orderupdate,
-    userAddress
+    userAddress,
+    showProduct
 }
