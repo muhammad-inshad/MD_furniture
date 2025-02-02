@@ -31,7 +31,7 @@ router.post("/deleteProduct/:id",customerController.DeleteProduct)
 router.get("/viewOfProduct/:id",customerController.viewOfProduct)
 router.get("/updateProduct/:id",customerController.updateProduct)
 router.post("/updateProduct/:id",uploadFields,customerController.postupdateProduct)
-router.delete("/deleteImage/:id",uploadFields,customerController.deleteImage)
+router.post("/deleteProductImage/:productId/:imageName", customerController.deleteImage);
 
 
 router.get("/ordermanagment",isAdmin,customerController.ordermanagment)

@@ -54,6 +54,8 @@ const searchUSer = async (req, res) => {
     }
 };
 
+
+
 const CategoryManagement=async(req,res)=>{
     try {
         if( req.session.admin){
@@ -383,29 +385,31 @@ const updateProduct=async (req,res)=>{
     };
     
 
-const deleteImage=async (req,res)=>{
-    
-        const { id } = req.params;
-        const { image } = req.body;
-    
-        try {
-            const product = await Product.findById(id);
-            if (!product) {
-                return res.status(404).json({ success: false, message: 'Product not found' });
-            }
-    
-            const imageIndex = product.productImages.indexOf(image);
-            if (imageIndex > -1) {
-                product.productImages.splice(imageIndex, 1);
-            }
-    
-            await product.save();
-            res.json({ success: true, message: 'Image deleted successfully' });
-        } catch (error) {
-            console.error('Error deleting image:', error);
-            res.status(500).json({ success: false, message: 'Failed to delete image' });
+const deleteImage= async (req, res) => {
+    try { 
+        const { productId, imageName } = req.params;
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
         }
-    };
+
+        // Remove image from the productImages array
+        product.productImages = product.productImages.filter(img => img !== imageName);
+        await product.save();
+
+        // Delete the image file from the server
+        const imagePath = path.join(__dirname, "../uploads", imageName);
+        fs.unlink(imagePath, (err) => {
+            if (err) console.error("Error deleting file:", err);
+        });
+
+        res.json({ success: true, message: "Image deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
     
 // Example route handler in customerController.js
 const ordermanagment = async (req, res) => {
