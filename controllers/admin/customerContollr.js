@@ -16,8 +16,7 @@ const Address = require('../../models/addressSchema');
 const userManagement=async(req,res)=>{
     try {
         if( req.session.admin){
-        const userfind=await User.find()
-       
+            const userfind = await User.find().sort({_id:-1});
         res.render("userManagement",{userfind})}
         else{
             res.redirect("/user/home")
