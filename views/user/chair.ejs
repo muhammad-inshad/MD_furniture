@@ -38,6 +38,49 @@
 .star.filled {
     color: gold;  /* Gold color for filled stars */
 }
+.dropdown {
+    position: relative;
+    display: inline-block;
+    float: right; /* Aligns the dropdown to the right */
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0; /* Aligns the dropdown content to the right */
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    transition: background 0.3s;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  .dropdown-btn {
+    background-color: #12a04d;
+    color: white;
+    padding: 5px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+	margin-right: 6px;
+  }
 
 </style>  
 <form action="/user/allsearch/chair" method="POST">
@@ -46,8 +89,9 @@
 </form>
 
 					
-								
-								<div class="sidebar">
+<div class="dropdown">
+	<button class="dropdown-btn">Filters</button>
+	<div class="dropdown-content">
 									<a href="/user/chair"><h3>Filters</h3></a>
 									
 									  <a href="/user/PriceLowToHigh/chair">Price: Low to High</a>
@@ -56,7 +100,7 @@
                     <a href="/user/popularity/chair">Popularity</a>
                     <a href="/user/AtoZ/chair">A-Z</a>
 									  <a href="/user/ZtoA/chair">Z-A</a>
-								
+								</div>
 								  </div>
 <center><h1>CHAIR</h1></center>
 
