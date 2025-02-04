@@ -74,7 +74,12 @@ button {
     border-radius: 5px;
     cursor: pointer;
 }
-
+.iou{
+    background-color: #fff;
+}
+.iou:hover{
+    background-color: #fff;
+}
 button:hover {
     background-color: #2980b9;
 }
@@ -172,9 +177,22 @@ td img:hover {
                     <tr>
                         <td><%= order.userDetails ? order.userDetails.username : 'N/A' %></td>
                         <td><%= order.userDetails ? order.userDetails.email : 'N/A' %></td>
+                        <td><%= order.productDetails ? order.productDetails.productName : 'N/A' %>
+                            <form action="/admin/showProduct/<%= order.productDetails ? order.productDetails._id : '' %>" method="post">
+                                <div>
+                                    <!-- Corrected: Use order._id directly -->
+                                    <input type="hidden" name="cancelReason" value="<%= order._id %>">
+                                         
+                                    <button type="submit" class="iou">
+                                        <img src="/uploads/<%= (order.productDetails && order.productDetails.productImages.length > 0) ? order.productDetails.productImages[0] : 'default.jpg' %>" 
+                                             alt="<%= order.productDetails ? order.productDetails.productName : 'No Image' %>">
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
                 
-                            <td><%= order.productDetails.productName %>
-                            <br><a href="/admin/showProduct/<%=order.productDetails._id%>"><div><img src="/uploads/<%=order.productDetails.productImages[0] %>" alt="img"></div></a></td>
+                        
+                          
                             <td><form action="/admin/userAddress/<%=order.userDetails._id%>/<%=order.address%>"><button>viewaddress</button></form></td>
                         <td><%= order.invoiceDate ? order.invoiceDate.toISOString().slice(0, 10) : 'N/A' %></td>
                         <td>

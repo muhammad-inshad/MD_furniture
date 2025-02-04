@@ -362,8 +362,20 @@ const PriceLowToHigh = async (req, res) => {
     try {
         const { name } = req.params; // 'name' will be the category name passed from the route
         if(name==="shop"){
-            const findPrice=await Product.find().sort({ salePrice: 1 }); 
-            return res.render(name, { findPrice});
+            
+            let page = parseInt(req.query.page) || 1; 
+            let limit = 8; 
+            let skip = (page - 1) * limit;
+            let totalProducts = await Product.countDocuments(); 
+            let totalPages = Math.ceil(totalProducts / limit); 
+            let findProduct = await Product.find().sort({ salePrice: 1 })
+            .skip(skip)
+            .limit(limit);
+            res.render('shop', { 
+                findProduct, 
+                currentPage: page, 
+                totalPages 
+            });
           }
           else{
         // Fetch products and populate the 'category' field
@@ -391,8 +403,20 @@ const PriceHighToLow = async (req, res) => {
     try {
         const { name } = req.params;
           if(name==="shop"){
-            const findPrice=await Product.find().sort({ salePrice: -1 }); 
-            return res.render(name, { findPrice});
+             
+            let page = parseInt(req.query.page) || 1; 
+            let limit = 8; 
+            let skip = (page - 1) * limit;
+            let totalProducts = await Product.countDocuments(); 
+            let totalPages = Math.ceil(totalProducts / limit); 
+            let findProduct = await Product.find().sort({ salePrice: -1 })
+            .skip(skip)
+            .limit(limit);
+            res.render('shop', { 
+                findProduct, 
+                currentPage: page, 
+                totalPages 
+            });
           }
           else{
         const findPrice = await Product.find().populate({
@@ -416,8 +440,20 @@ const newArivels=async (req, res) => {
     try {
         const { name } = req.params;
         if(name==="shop"){
-            const findPrice=await Product.find().sort({ _id: -1 }).limit(4); 
-            return res.render(name, { findPrice});
+             
+            let page = parseInt(req.query.page) || 1; 
+            let limit = 4; 
+            let skip = (page - 1) * limit;
+            let totalProducts = await Product.countDocuments(); 
+            let totalPages = Math.ceil(totalProducts / limit); 
+            let findProduct = await Product.find().sort({ _id:-1 })
+            .skip(skip)
+            .limit(limit);
+            res.render('shop', { 
+                findProduct, 
+                currentPage: page, 
+                totalPages 
+            });
           }
           else{
         const findPrice = await Product.find().populate({
@@ -471,8 +507,20 @@ const popularity= async (req,res)=>{
   try {
     const name=req.params.id
     if(name=="shop"){
-        const products = await Product.find().sort({ salesCount: -1 });
-       return res.render(name, { findPrice: products }); 
+        let page = parseInt(req.query.page) || 1; 
+        let limit = 4; 
+        let skip = (page - 1) * limit;
+        let totalProducts = await Product.countDocuments(); 
+        let totalPages = Math.ceil(totalProducts / limit); 
+        let findProduct = await Product.find().sort({ salesCount: -1 })
+        .skip(skip)
+        .limit(limit);
+        res.render('shop', { 
+            findProduct, 
+            currentPage: page, 
+            totalPages 
+        });
+      
     }
     const findPrice = await Product.find().populate({
         path: 'category',
@@ -493,8 +541,19 @@ const AtoZ = async (req, res) => {
     try {
         const name = req.params.id; 
         if(name=="shop"){
-            const products = await Product.find().sort({ productName: 1 });
-            return res.render(name, { findPrice: products }); 
+            let page = parseInt(req.query.page) || 1; 
+            let limit = 4; 
+            let skip = (page - 1) * limit;
+            let totalProducts = await Product.countDocuments(); 
+            let totalPages = Math.ceil(totalProducts / limit); 
+            let findProduct = await Product.find().sort({ productName: 1 })
+            .skip(skip)
+            .limit(limit);
+            res.render('shop', { 
+                findProduct, 
+                currentPage: page, 
+                totalPages 
+            });
         }
         const products = await Product.find()
             .populate({
@@ -514,8 +573,19 @@ const ZtoA=async (req,res)=>{
     try {
         const name = req.params.id; 
         if(name=="shop"){
-            const products = await Product.find().sort({ productName:-1 });
-            return res.render(name, { findPrice: products }); 
+            let page = parseInt(req.query.page) || 1; 
+            let limit = 4; 
+            let skip = (page - 1) * limit;
+            let totalProducts = await Product.countDocuments(); 
+            let totalPages = Math.ceil(totalProducts / limit); 
+            let findProduct = await Product.find().sort({ productName: -1 })
+            .skip(skip)
+            .limit(limit);
+            res.render('shop', { 
+                findProduct, 
+                currentPage: page, 
+                totalPages 
+            });
         }
         const products = await Product.find()
             .populate({

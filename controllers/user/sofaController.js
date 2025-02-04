@@ -64,14 +64,19 @@ const sofa=async (req,res)=>{
 
 const shop=async (req,res)=>{
     try {
-        const find= await Product.find({isDeleted:false}).populate({
-            path: 'category', 
-            match: { status: 'active' },
-            match:{isDeleted:false}
+        let page = parseInt(req.query.page) || 1; 
+        let limit = 8; 
+        let skip = (page - 1) * limit;
+        let totalProducts = await Product.countDocuments(); 
+        let totalPages = Math.ceil(totalProducts / limit); 
+        let findProduct = await Product.find()
+        .skip(skip)
+        .limit(limit);
+        res.render('shop', { 
+            findProduct, 
+            currentPage: page, 
+            totalPages 
         });
-        const isLogin = req.session.user? true:false
-       const findProduct=find.filter(product=>product?.category?.status==='active')
-        res.render("shop",{findProduct,isLogin})
         
     } catch (error) {
         res.json({ "error": "form chair get error" });
@@ -442,23 +447,28 @@ const getCartData = async(req,res) => {
             const product = await Product.findById(productId);
     
             if (!product) {
-                return res.status(404).send("Product not found");
+                return res.status(404).json({ success: false, message: "Product not found" });
             }
-    
+            const AvailableQuantity = product.quantity;
             let userCart = await Cart.findOne({ userId });
     
             if (!userCart) {
-                return res.status(404).send("Cart not found");
+                return res.status(404).json({ success: false, message: "Cart not found" });
             }
     
             const existingItem = userCart.items.find((item) =>
                 item.productId.equals(productId)
             );
-    
+                
             if (!existingItem) {
-                return res.status(404).send("Item not found in cart");
+                return res.status(404).json({ success: false, message: "Item not found in cart" });
             }
-    
+            if (action == "1" && existingItem.quantity + 1 > AvailableQuantity) {
+                return res.status(400).json({
+                    success: false,
+                    message: `We only have ${AvailableQuantity} units in stock. Please buy fewer.`
+                });
+            }
             if (action == "1") {
                 // Increment quantity
                 existingItem.quantity += 1;
@@ -479,14 +489,21 @@ const getCartData = async(req,res) => {
     
             // Save updated cart
             await userCart.save();
-        
     
-            res.json({success:true});
+            // Send updated data to frontend
+            res.json({
+                success: true,
+                newQuantity: existingItem.quantity,
+                newTotalPrice: existingItem.totalPrice.toFixed(2),
+                salePrice: product.salePrice.toFixed(2),
+            });
         } catch (error) {
             console.error("Error in incORdec:", error);
-            res.status(500).send("Server error");
+            res.status(500).json({ success: false, message: "Server error" });
         }
     };
+    
+
     
     const checkout = async (req, res) => {
         try {
@@ -699,6 +716,7 @@ const getCartData = async(req,res) => {
     const orderCancel=async (req,res)=>{
            try {
             const id=req.params.id
+           
             res.render("orderCancel",{id});
            } catch (error) {
             res.status(500).send("Error fetching orderCancel");
@@ -709,8 +727,10 @@ const getCartData = async(req,res) => {
         try {
            
             const id=req.body.id
+            const {orderDetails}=req.body
             const order=await Order.findById(id)
             order.status="Cancelled"
+            order.cancelReson=orderDetails
             await order.save();
             return res.redirect("/user/myorders")
         } catch (error) {
@@ -730,7 +750,6 @@ const getCartData = async(req,res) => {
         res.status(500).send("Error rating");
       }
     }
-
 
 module.exports={
     chair,
@@ -755,6 +774,6 @@ module.exports={
     postorderCancel,
     rating,
     edit_address,
-    postedit_address
-    
+    postedit_address,
+   
 }

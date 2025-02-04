@@ -85,14 +85,61 @@
 	margin-right: 6px;
   }
 
+/* Style the form container */
+.search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 600px; /* Set a max width for the form */
+    margin: 20px auto; /* Center the form horizontally */
+    padding: 10px;
+    border-radius: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for the form */
+    background-color: #f7f7f7; /* Light background color */
+}
+
+/* Style the search input field */
+.search-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+/* Change border color when the input is focused */
+.search-input:focus {
+    border-color: #007bff;
+}
+
+/* Style the search button */
+.search-button {
+    padding: 12px 20px;
+    margin-left: 10px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Change button color on hover */
+.search-button:hover {
+    background-color: #0056b3;
+}
 
 </style>  
 
 					
-<form action="/user/allsearch/sofa" method="POST">
-	<input type="text" name="search" placeholder="Search for products..." required>
-	<button type="submit">Search</button>
-  </form>						
+
+	<form action="/user/allsearch/sofa" method="POST" class="search-form">
+		<input type="text" name="search" placeholder="Search for products..." required class="search-input">
+		<button type="submit" class="search-button">Search</button>
+	</form>				
   <div class="dropdown">
 	<button class="dropdown-btn">Filters</button>
 	<div class="dropdown-content">
@@ -108,8 +155,7 @@
 							</div>
 										  
 
-					
-								<center><h1>SOFA</h1></center>
+
 		
 								<div class="untree_co-section product-section before-footer-section">
 									<div class="container">

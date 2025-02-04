@@ -37,7 +37,7 @@ router.post("/deleteProductImage/:productId/:imageName", customerController.dele
 router.get("/ordermanagment",isAdmin,customerController.ordermanagment)
 router.post("/order/update/:id",customerController.orderupdate)
 
-router.get("/showProduct/:id",isAdmin,customerController.showProduct)
+router.post("/showProduct/:id",isAdmin,customerController.showProduct)
 
 router.get("/userAddress/:id1/:id2",isAdmin,customerController.userAddress)
 module.exports=router

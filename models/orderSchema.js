@@ -2,6 +2,7 @@ const mongoose=require("mongoose")
 const {Schema}=mongoose;
 const{v4:uuidv4}=require('uuid');
 const product = require("./productSchema");
+const { text } = require("express");
 
 const orderSchema=new Schema({
     orderId:{
@@ -69,6 +70,9 @@ const orderSchema=new Schema({
     },
     orderExpectedDate:{
         type:Date
+    },
+    cancelReson:{
+        type:String
     },
    
 })

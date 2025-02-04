@@ -99,6 +99,12 @@
                         <p><strong>Price:</strong> $<%= product.salePrice %></p>
                         <p><strong>Category:</strong> <%= product.category.name %></p>
                         <p><strong>Rating:</strong> <%= product.rating %>/5</p>
+                        <% if (order && order.cancelReson) { %>
+                            <p style="color: red;"> <strong>Cancelled Reason : </strong> <%= order.cancelReson || "Not provided" %> </p>
+                        <% } %>
+                        
+                        
+                        
                     </div>
                     <a href="/admin/ordermanagment" class="back-button">Back to order Management</a>
                 </div>

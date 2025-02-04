@@ -12,7 +12,8 @@
     white-space: nowrap; /* Prevent wrapping to the next line */
     overflow: hidden;    /* Hide the overflow */
     text-overflow: ellipsis; /* Show "..." for truncated text */
-    max-width: 200px; /* Adjust the max width as needed */
+    max-width: 170px; /* Adjust the max width as needed */
+    font-size: 13px ;
 	
 }
 .site-blocks-table thead th{
@@ -21,7 +22,7 @@
     border-width: 0px !important;
     vertical-align: middle;
     color: rgba(0, 0, 0, 0.8);
-    font-size: 18px;
+    font-size: 13px;
 }
 @media (min-width: 768px) {
     .col-md-6 {
@@ -132,20 +133,21 @@
                       </div>
                       <div class="row mb-3">
                         <div class="col-md-6">
-                          <span class="text-black">Subtotal</span>
+                            <span class="text-black">Subtotal</span>
                         </div>
                         <div class="col-md-6 text-right">
-                          <strong class="text-black">$<%= subtotal.toFixed(2) %></strong>
+                            <strong class="text-black subtotal-amount">$<%= subtotal.toFixed(2) %></strong>
                         </div>
-                      </div>
-                      <div class="row mb-5">
+                    </div>
+                    <div class="row mb-5">
                         <div class="col-md-6">
-                          <span class="text-black">Total</span>
+                            <span class="text-black">Total</span>
                         </div>
                         <div class="col-md-6 text-right">
-                          <strong class="text-black">$<%= total.toFixed(2) %></strong>
+                            <strong class="text-black total-amount">$<%= total.toFixed(2) %></strong>
                         </div>
-                      </div>
+                    </div>
+                    
         
                       <div class="row">
                         <div class="col-md-12">
@@ -161,65 +163,148 @@
             </div>
           </div>
 		
-
-
-		<!-- End Footer Section -->	
-    <script>
-      document.getElementById("removebtn").addEventListener("click", (e) => {
-        e.preventDefault(); // Prevent the default form submission behavior
-    
-        const productId = document.getElementById("productId").value;
-    
-        fetch("/user/cartremove", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ productId }),
-        })
-          .then((response) => {
-            if (response.ok) {
-              // Remove the row or refresh the cart items
-              e.target.closest("tr").remove();
-           
-            } else {
-              console.error("Failed to remove item");
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      });
-    </script>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-
-document.querySelectorAll(".qBTN").forEach(button => {
+	document.querySelectorAll(".qBTN").forEach(button => {
     button.addEventListener("click", (e) => {
-        const action = e.target.getAttribute("data-action"); // Get +1 or -1
-        const productId = e.target.getAttribute("data-product-id"); // Get the productId
+        const button = e.target;
+        const action = parseInt(button.getAttribute("data-action")); // Get +1 or -1
+        const productId = button.getAttribute("data-product-id"); // Get the productId
+        const rowElement = button.closest("tr"); // Select the row
+        const quantityInput = rowElement.querySelector(".quantity-amount"); // Select the correct input field
+        const totalPriceElement = rowElement.querySelector("td:nth-child(5)"); // Adjust selector for total price
+        const decreaseButton = rowElement.querySelector(".decrease"); // Get the minus button
+
+        // Prevent decrementing if quantity is 1
+        if (action === -1 && parseInt(quantityInput.value) <= 1) {
+            return; // Stop execution if already at 1
+        }
+        if(parseInt(quantityInput.value) > 4){
+          Swal.fire({
+        title: 'Oops!',
+        text: 'You can only buy up to 5 units of this product.',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+    });
+    return;
+          return;
+        }
+
+        
 
         fetch('/user/incORdec', {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productId, action }),
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-               
-              window.location.href = '/user/cart';
+                if (data.newQuantity > 0) {
+                    // Update quantity and total price for the specific row
+                    quantityInput.value = data.newQuantity;
+                    totalPriceElement.textContent = `$${data.newTotalPrice}`;
+
+                    // Disable the decrement button if quantity is 1
+                    if (data.newQuantity === 1) {
+                        decreaseButton.disabled = true;
+                    } else {
+                        decreaseButton.disabled = false;
+                    }
+
+                    // Update subtotal and total dynamically
+                    updateCartTotals();
+                } else {
+                    // Remove row if the item is removed from the cart
+                    rowElement.remove();
+                    updateCartTotals();
+                    checkIfCartIsEmpty();
+                }
             } else {
-                console.error("Failed to update quantity:", data.message);
+              Swal.fire({
+            title: 'Oops!',
+            text: data.message,  // Show the error message sent from the backend
+            icon: 'warning',
+            confirmButtonText: 'OK'
+        });
             }
         })
         .catch(err => console.error("Error:", err));
     });
 });
 
-</script> 
+// Function to update subtotal and total dynamically
+function updateCartTotals() {
+    let subtotal = 0;
+    let total = 0;
+    let hasItems = false; // Flag to check if cart has items
+
+    document.querySelectorAll("tbody tr").forEach(row => {
+        const totalPriceElement = row.querySelector("td:nth-child(5)");
+        if (totalPriceElement) {
+            let itemTotal = parseFloat(totalPriceElement.textContent.replace("$", "")) || 0;
+            subtotal += itemTotal;
+            hasItems = true;
+        }
+    });
+
+    total = subtotal; // If there are extra charges like tax, add them here.
+
+    // Update UI
+    document.querySelector(".subtotal-amount").textContent = `$${subtotal.toFixed(2)}`;
+    document.querySelector(".total-amount").textContent = `$${total.toFixed(2)}`;
+
+    // If no items, show "Cart is Empty" message
+    if (!hasItems) {
+        checkIfCartIsEmpty();
+    }
+}
+
+// Function to check if the cart is empty and display a message
+function checkIfCartIsEmpty() {
+    const tbody = document.querySelector("tbody");
+    if (tbody.children.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">
+                    <h2>Your cart is empty</h2>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// Fix for remove button to delete the correct item and update totals
+document.querySelectorAll("#removebtn").forEach(removeButton => {
+    removeButton.addEventListener("click", (e) => {
+        e.preventDefault(); // Prevent the default form submission behavior
+
+        const rowElement = e.target.closest("tr"); // Get the correct row
+        const productId = rowElement.querySelector("#productId").value; // Get correct productId
+
+        fetch("/user/cartremove", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId }),
+        })
+        .then((response) => {
+            if (response.ok) {
+                rowElement.remove(); // Remove the correct row
+                updateCartTotals(); // Update totals after removal
+                checkIfCartIsEmpty(); // Check if cart is empty
+            } else {
+                console.error("Failed to remove item");
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+    });
+});
+
+</script>  
 
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="js/tiny-slider.js"></script>
