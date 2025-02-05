@@ -326,10 +326,10 @@ const cart = async (req, res) => {
             console.log("Product not found");
             return res.status(404).render("pageNotFound");
         }
-
-        if(product.quantity<1){
-            return res.redirect("/user/shop")
+        if (product.quantity < 1) {
+            return res.redirect("/user/shop?error=outOfStock");
         }
+        
 
         // Check if a cart already exists for the user
         let userCart = await Cart.findOne({ userId });
@@ -368,7 +368,7 @@ const cart = async (req, res) => {
         res.redirect("/user/cart");
     } catch (error) {
         console.error("Error in cart:", error);
-        res.status(500).render("pageNotFound");
+        return res.redirect("/user/login?error=loginRequired");
     }
 };
 

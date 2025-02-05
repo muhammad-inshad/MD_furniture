@@ -414,40 +414,49 @@ const deleteImage= async (req, res) => {
 
 const ordermanagment = async (req, res) => {
     try {
+        let page = parseInt(req.query.page) || 1; // Get page number from query params (default to 1)
+        let limit = 3; // Number of orders per page
+        let skip = (page - 1) * limit; // Calculate the number of documents to skip
+
         const orders = await Order.aggregate([
             {
                 $lookup: {
-                    from: 'users', 
+                    from: 'users',
                     localField: 'userId',
-                    foreignField: '_id', 
-                    as: 'userDetails', 
+                    foreignField: '_id',
+                    as: 'userDetails',
                 },
             },
             {
-                $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true }, // Unwind user details
+                $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true },
             },
             {
                 $lookup: {
-                    from: 'products', 
-                    localField: 'orderedItems.product', 
-                    foreignField: '_id', 
-                    as: 'productDetails', 
-
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails',
                 },
             },
             {
-                $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true }, // Unwind product details
+                $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true },
             },
-            {
-                $sort: { _id: -1 } // Sorting by latest orders first
-            }
+            { $sort: { _id: -1 } }, // Sorting by latest orders first
+            { $skip: skip }, // Skip documents for pagination
+            { $limit: limit }, // Limit the number of documents per page
         ]);
-        res.render('ordermanagement', { orders }); // Pass orders to the view
+
+        // Count total orders to calculate total pages
+        const totalOrders = await Order.countDocuments();
+        const totalPages = Math.ceil(totalOrders / limit); // Calculate total pages
+        res.render('ordermanagement', { orders, currentPage: page, totalPages });
+   
     } catch (error) {
         console.error('Error in order management:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch orders' });
     }
 };
+
 
 
 const orderupdate=async (req,res)=>{
@@ -481,7 +490,7 @@ const userAddress = async (req, res) => {
         }
 
         const address = addressData.address[0]; // Extract first item from array
-        console.log("Selected Address:", address);
+       
 
         res.render("userAddresspage", { address }); // Pass only the matched address
 

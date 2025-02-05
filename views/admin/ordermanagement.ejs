@@ -18,7 +18,7 @@ body {
 .sidebar {
     width: 250px;
     height: 100vh;
-    background-color: #2c3e50;
+    background-color: #000000;
     color: #fff;
     padding: 20px;
 }
@@ -52,7 +52,7 @@ body {
 .heading {
     font-size: 28px;
     margin-bottom: 20px;
-    color: #2c3e50;
+    color: #f7f7f7;
 }
 
 /* Search Box Styling */
@@ -61,7 +61,7 @@ input[type="search"] {
     font-size: 16px;
     width: 200px;
     margin-right: 10px;
-    border: 2px solid #3498db;
+    border: 2px solid #dbee09;
     border-radius: 5px;
 }
 
@@ -101,7 +101,7 @@ th, td {
 }
 
 th {
-    background-color: #3498db;
+    background-color: #000000;
     color: #fff;
     font-weight: bold;
 }
@@ -136,7 +136,41 @@ td img:hover {
     transform: scale(1.1); /* Zoom in the image on hover */
 }
 
+#pagination-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
 
+    /* Styling buttons */
+    #pagination-form button {
+        background-color: #007bff; /* Blue color */
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+    }
+
+    #pagination-form button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    #pagination-form button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* Styling the page number */
+    #page-number {
+        font-size: 16px;
+        font-weight: bold;
+        padding: 0 10px;
+    }
     </style>
 </head>
 <body>
@@ -221,8 +255,42 @@ td img:hover {
                 
             </table>
         </div>
-
+        <center>
+            <form id="pagination-form" method="get" action="/admin/ordermanagment">
+                <button type="button" id="prev-btn" onclick="Previous()">Previous</button>
+                <span id="page-number"><%= currentPage %></span>
+                <button type="button" id="next-btn" onclick="Next()">Next</button>
+            </form>
+        </center>
+        
     </div>
+   
+    <script>
+        let currentPage = <%= currentPage %>;
+        let totalPages = <%= totalPages %>;
+    
+        function updatePage(newPage) {
+            if (newPage >= 1 && newPage <= totalPages) {
+                window.location.href = `/admin/ordermanagment?page=${newPage}`;
+            }
+        }
+    
+        function Previous() {
+            updatePage(currentPage - 1);
+        }
+    
+        function Next() {
+            updatePage(currentPage + 1);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("prev-btn").disabled = currentPage <= 1;
+            document.getElementById("next-btn").disabled = currentPage >= totalPages;
+        });
+    </script>
+    
+
+
 
     <script>
         document.getElementById('search').addEventListener('input', function() {

@@ -98,7 +98,12 @@
 						
 							
 						</li>
-						<li><a class="nav-link" href="/user/cart"><img src="/images/cart.svg" alt="Cart Icon"></a></li>
+						<% if (typeof isLogin !== 'undefined' && isLogin) { %>
+							<li><a class="nav-link" href="/user/cart">
+								<img src="/images/cart.svg" alt="Cart Icon">
+							</a></li>
+						<% } %>
+						
 					</ul>
 					
 					

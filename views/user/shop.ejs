@@ -325,6 +325,20 @@
 		</div>
 	<% } %>
 	
-	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get("error") === "outOfStock") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "This product is out of stock!",
+      });
+    }
+  });
+</script>
+
 								  
 		<%-include("../../views/partials/user/footer")%>

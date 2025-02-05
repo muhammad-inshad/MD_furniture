@@ -186,5 +186,40 @@
 
        
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (urlParams.has("error")) {
+          let errorMessage = "";
+          
+          switch (urlParams.get("error")) {
+            case "loginRequired":
+              errorMessage = "Please login to add items to the cart.";
+              break;
+            case "outOfStock":
+              errorMessage = "This product is out of stock.";
+              break;
+          }
+    
+          if (errorMessage) {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: errorMessage,
+            });
+          }
+        }
+    
+        if (urlParams.has("success")) {
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Product added to cart successfully!",
+          });
+        }
+      });
+    </script>
 </body>
 </html>

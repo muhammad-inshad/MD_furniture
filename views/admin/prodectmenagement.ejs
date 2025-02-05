@@ -5,7 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management</title>
     <link href="/admin/prodectmenagement.css" rel="stylesheet"> 
-</head>
+</head><style>/* Center the pagination */
+    #pagination-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    /* Styling buttons */
+    #pagination-form button {
+        background-color: #007bff; /* Primary blue */
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out, transform 0.2s;
+    }
+    
+    #pagination-form button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        transform: scale(1.05); /* Slight zoom effect */
+    }
+    
+    #pagination-form button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    /* Styling the page number */
+    #page-number {
+        font-size: 16px;
+        font-weight: bold;
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        color: #333;
+    }
+    
+    /* Make pagination responsive */
+    @media (max-width: 600px) {
+        #pagination-form {
+            flex-wrap: wrap;
+        }
+        #pagination-form button {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+    }
+    </style>
 <body>
     <div class="sidebar">
         <h2>Product Management</h2>

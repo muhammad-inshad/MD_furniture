@@ -9,7 +9,7 @@ body {
 .sidebar {
     width: 250px; /* Fixed width for the sidebar */
     height: 100vh; /* Full height of the viewport */
-    background-color: #2c3e50; /* Sidebar background color */
+    background-color: #000000; /* Sidebar background color */
     color: white; /* Text color for sidebar */
     padding: 15px; /* Spacing inside the sidebar */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for a 3D effect */
@@ -44,13 +44,14 @@ body {
 
 .heading {
     margin-bottom: 20px;
-    background-color: rgb(83, 148, 148);
+    background-color: rgb(0, 0, 0);
     margin: -20px;
     height: 90px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+    color: white;
 }
 
 table {
@@ -67,7 +68,7 @@ table th, table td {
 }
 
 table th {
-    background-color: #007BFF;
+    background-color: #000000;
     color: white;
     font-weight: bold;
     text-transform: uppercase;

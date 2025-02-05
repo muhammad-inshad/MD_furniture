@@ -7,7 +7,7 @@ body {
 .sidebar {
     width: 250px; /* Adjust width for better proportions */
     height: 100vh; /* Full viewport height */
-    background-color: #2c3e50; /* Dark theme for the sidebar */
+    background-color: #000000; /* Dark theme for the sidebar */
     color: white; /* White text for contrast */
     padding: 20px; /* Add spacing inside the sidebar */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
@@ -54,13 +54,14 @@ body {
 
 .heading {
     margin-bottom: 20px;
-    background-color: rgb(83, 148, 148);
+    background-color: rgb(0, 0, 0);
     margin: -20px;
     height: 100px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+    color: white;
     
 }
 
@@ -85,14 +86,14 @@ table {
 }
 
 thead tr {
-    background-color: rgb(83, 148, 148); /* Consistent background color with the heading */
+    background-color: rgb(0, 0, 0); /* Consistent background color with the heading */
     color: white; /* White text for contrast */
     font-weight: bold;
     text-align: center; /* Centering the header text */
 }
 
 th, td {
-    border: 1px solid #ddd; /* Light border */
+    border: 2px solid #ffffff; /* Light border */
     padding: 12px; /* Increased padding for better readability */
     white-space: nowrap; /* Prevent text from breaking into new lines */
     overflow: hidden; /* Hide overflowing content */

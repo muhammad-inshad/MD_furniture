@@ -229,8 +229,9 @@
             </div>
         <% } %>
         </div>
-        
-        
+
+
+       
        
         <form action="/user/cart" method="POST">
           <input type="hidden" name="productId" value="<%= findProduct._id %>">
@@ -244,7 +245,8 @@
 
     <a href="/user/shop" class="back-button">Back to Products</a>
   </div>
-
+  
+  
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const thumbnails = document.querySelectorAll('.thumbnail');

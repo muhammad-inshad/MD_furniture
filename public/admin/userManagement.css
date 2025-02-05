@@ -63,7 +63,7 @@
 .sidebar {
     width: 250px;
     height: 100vh;
-    background-color: #2c3e50;
+    background-color: #000000;
     color: white;
     padding: 15px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -94,13 +94,14 @@
 
 .heading {
     margin-bottom: 20px;
-    background-color: rgb(83, 148, 148);
+    background-color: rgb(0, 0, 0);
     margin: -20px;
     height: 90px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+    color: white;
 }
 .section {
     margin-bottom: 20px;
@@ -115,7 +116,8 @@
 }
 
 .block-btn:hover {
-    background-color: #70ff10;
+   
+    background-color: #ff0c0c;
     color: #430000;
 }
 .unblock-btn {
@@ -127,7 +129,7 @@
 }
 
 .unblock-btn:hover {
-    background-color: #ff0c0c;
+    background-color: #70ff10;
     color: #430000;
 }
 .searchbtn{
@@ -177,7 +179,7 @@
 }
 
 .user-table th {
-    background-color: #078596;
+    background-color: #070808;
     position: sticky;
     top: 0;
     z-index: 1; /* Ensure headers stay on top while scrolling */
