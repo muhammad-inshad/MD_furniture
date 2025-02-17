@@ -120,13 +120,7 @@
                                         <button type="submit" class="ubtn">
                                             <%= product.isDeleted ? 'Restore' : 'Delete' %>
                                         </button>
-                                    </form><br>
-                                    <form action="/admin/addOffer/<%= product._id %>" method="post">
-                                        <button type="submit" class="ubtn">
-                                            addOffer
-                                        </button>
                                     </form>
-                                    
                                 </td>
                             </tr>
                         <% }) %>
