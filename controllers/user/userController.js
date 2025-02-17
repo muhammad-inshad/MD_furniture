@@ -5,6 +5,8 @@ const { json } = require("express")
 const nodemailer = require("nodemailer")
 const { session } = require("passport")
 const Product = require("../../models/productSchema")
+const Cart=require("../../models/cartSchema")
+const Wishlist=require("../../models/wishlistSchema")
 
 const login = async (req, res) => {
     try {
@@ -52,17 +54,24 @@ const loginpost = async (req, res) => {
         res.status(500).send("Server error");
     }
 }
-
 const loadHomepage = async (req, res) => {
     try {
-        const isLogin = req.session.user ? true : false
-        return await res.render('home', { isLogin })
+        const isLogin = req.session.user ? true : false;
+        let cartCount = 0;
+        let countWishlist=0;
+        const userId = req?.session?.user?.id;
+        if (isLogin) {
+            const userCart  =  await Cart.findOne({ userId});
+            cartCount = userCart ? userCart.items.length : 0;
+            const wishlist = await Wishlist.findOne({ userId })
+            countWishlist= wishlist ? wishlist.products.length : 0;
+        }
+        return res.render('home', { isLogin, cartCount ,countWishlist}); // Pass cartCount to EJS
+    } catch (error) {
+        console.error("Error loading cart page:", error);
+        res.status(500).send("Internal Server Error");
     }
-    catch {
-        console.log("HOME NOT FOUNT")
-        res.status(500).send("srver error")
-    }
-}
+};
 
 const singup = async (req, res) => {
     try {
@@ -361,141 +370,253 @@ const postChangepassword= async (req,res)=>{
 const PriceLowToHigh = async (req, res) => {
     try {
         const { name } = req.params; // 'name' will be the category name passed from the route
-        if(name==="shop"){
-            
+        const isLogin = !!req.session.user;
+        const userId = req.session.user ? req.session.user._id : null; // Get userId safely
+
+        let countWishlist = 0;
+        let cartCount = 0;
+        let wishlistProductIds = [];
+
+        if (userId) {
+            // Fetch wishlist data
+            const wishlist = await Wishlist.findOne({ userId });
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+            }
+
+            // Fetch cart data
+            const userCart = await Cart.findOne({ userId });
+            cartCount = userCart ? userCart.items.length : 0;
+        }
+
+        if (name === "shop") {
             let page = parseInt(req.query.page) || 1; 
             let limit = 8; 
             let skip = (page - 1) * limit;
             let totalProducts = await Product.countDocuments(); 
             let totalPages = Math.ceil(totalProducts / limit); 
-            let findProduct = await Product.find().sort({ salePrice: 1 })
-            .skip(skip)
-            .limit(limit);
+
+            let findProduct = await Product.find()
+                .sort({ salePrice: 1 })
+                .skip(skip)
+                .limit(limit);
+
             res.render('shop', { 
                 findProduct, 
                 currentPage: page, 
-                totalPages 
+                totalPages, 
+                isLogin, 
+                cartCount,  
+                countWishlist, 
+                wishlistProductIds 
             });
-          }
-          else{
-        // Fetch products and populate the 'category' field
-        const findPrice = await Product.find().populate({
-            path: 'category',
-            match: { 
-                status: 'active', 
-                isDeleted: false 
-            }
-        }).sort({ salePrice: 1 });
+        } else {
+            const findPrice = await Product.find().populate({
+                path: 'category',
+                match: { 
+                    status: 'active', 
+                    isDeleted: false 
+                }
+            }).sort({ salePrice: 1 });
 
-        // Filter products based on the category name (which is dynamic)
-        const chairProducts = findPrice.filter(product => product?.category?.name === name);
+            const chairProducts = findPrice.filter(product => product?.category?.name === name);
 
-        // Render the view with the filtered products
-        res.render(name, { findPrice: chairProducts }); }
+            res.render(name, { 
+                findPrice: chairProducts, 
+                isLogin, 
+                cartCount,    
+                countWishlist,  
+                wishlistProductIds 
+            });
+        }
     } catch (error) {
-        console.log("PriceLowToHigh", error);
+        console.log("PriceLowToHigh Error:", error);
         res.redirect("/user/pageNotFound");
     }
 };
+
+
+
 
 
 const PriceHighToLow = async (req, res) => {
     try {
         const { name } = req.params;
-          if(name==="shop"){
-             
+        const isLogin = !!req.session.user;
+        const userId = req.session.user ? req.session.user._id : null; // Ensure userId is defined
+
+        let countWishlist = 0;
+        let wishlistProductIds = [];
+
+        // Fetch wishlist count if user is logged in
+        if (userId) {
+            const wishlist = await Wishlist.findOne({ userId });
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+            }
+        }
+
+        if (name === "shop") {
             let page = parseInt(req.query.page) || 1; 
             let limit = 8; 
             let skip = (page - 1) * limit;
             let totalProducts = await Product.countDocuments(); 
             let totalPages = Math.ceil(totalProducts / limit); 
-            let findProduct = await Product.find().sort({ salePrice: -1 })
-            .skip(skip)
-            .limit(limit);
+
+            let findProduct = await Product.find()
+                .sort({ salePrice: -1 }) // Sorting from High to Low
+                .skip(skip)
+                .limit(limit);
+
             res.render('shop', { 
                 findProduct, 
                 currentPage: page, 
-                totalPages 
+                totalPages, 
+                isLogin, 
+                countWishlist,  // ✅ Make sure to pass wishlist count
+                wishlistProductIds 
             });
-          }
-          else{
-        const findPrice = await Product.find().populate({
-            path: 'category',
-            match: { 
-                status: 'active', 
-                isDeleted: false 
-            }
-        }).sort({ salePrice: -1 });
+        } else {
+            const findPrice = await Product.find().populate({
+                path: 'category',
+                match: { 
+                    status: 'active', 
+                    isDeleted: false 
+                }
+            }).sort({ salePrice: -1 });
 
-        const chairProducts = findPrice.filter(product => product?.category?.name === name);
-        res.render(name, { findPrice: chairProducts }); 
-    }
+            const chairProducts = findPrice.filter(product => product?.category?.name === name);
+
+            res.render(name, { 
+                findPrice: chairProducts, 
+                isLogin, 
+                countWishlist,  // ✅ Ensure wishlist count is passed
+                wishlistProductIds 
+            });
+        }
     } catch (error) {
-        console.log("PriceLowToHigh", error);
+        console.log("PriceHighToLow Error:", error);
         res.redirect("/user/pageNotFound");
     }
 };
 
-const newArivels=async (req, res) => {
+
+
+const newArivels = async (req, res) => {
     try {
         const { name } = req.params;
-        if(name==="shop"){
-             
+        const isLogin = !!req.session.user;
+        const userId = req.session.user ? req.session.user._id : null; // Ensure userId is defined
+
+        let countWishlist = 0;
+        let wishlistProductIds = [];
+
+        // Fetch wishlist count if user is logged in
+        if (userId) {
+            const wishlist = await Wishlist.findOne({ userId });
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+            }
+        }
+
+        if (name === "shop") {
             let page = parseInt(req.query.page) || 1; 
             let limit = 4; 
             let skip = (page - 1) * limit;
             let totalProducts = await Product.countDocuments(); 
             let totalPages = Math.ceil(totalProducts / limit); 
-            let findProduct = await Product.find().sort({ _id:-1 })
-            .skip(skip)
-            .limit(limit);
+
+            let findProduct = await Product.find()
+                .sort({ _id: -1 }) // Sorting by newest arrivals
+                .skip(skip)
+                .limit(limit);
+
             res.render('shop', { 
                 findProduct, 
                 currentPage: page, 
-                totalPages 
+                totalPages, 
+                isLogin, 
+                wishlistProductIds
             });
-          }
-          else{
-        const findPrice = await Product.find().populate({
-            path: 'category',
-            match: { 
-                status: 'active', 
-                isDeleted: false 
-            }
-        }).sort({ _id: -1 }).limit(4);
+        } else {
+            const findPrice = await Product.find().populate({
+                path: 'category',
+                match: { 
+                    status: 'active', 
+                    isDeleted: false 
+                }
+            }).sort({ _id: -1 }).limit(4);
 
-        const chairProducts = findPrice.filter(product => product?.category?.name === name);
-        res.render(name, { findPrice: chairProducts }); 
-    }
+            const chairProducts = findPrice.filter(product => product?.category?.name === name);
+
+            res.render(name, { 
+                findPrice: chairProducts, 
+                isLogin, 
+                wishlistProductIds
+            }); 
+        }
     } catch (error) {
-        console.log("PriceLowToHigh", error);
+        console.log("newArrivals Error:", error);
         res.redirect("/user/pageNotFound");
     }
 };
+
 
 const allsearch = async (req, res) => {
     try {
         const searchValue = req.body.search; 
         const { id } = req.params;
+        const isLogin = !!req.session.user;
+        const userId = req.session.user ? req.session.user._id : null; // Ensure userId is defined
+
         if (!searchValue || searchValue.trim() === "") {
             console.log("Search query is empty. Redirecting to default page.");
             return res.redirect("/user/shop"); 
         }
-        if(id=="shop"){
-            const products = await Product.find({ productName: { $regex: searchValue, $options: "i" } })
-            return res.render(id, { results: products, message: null });    
+
+        let countWishlist = 0;
+        let wishlistProductIds = [];
+
+        // Fetch wishlist count if user is logged in
+        if (userId) {
+            const wishlist = await Wishlist.findOne({ userId });
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+            }
         }
-        const products = await Product.find({ productName: { $regex: searchValue, $options: "i" } })
+
+        let products = await Product.find({ productName: { $regex: searchValue, $options: "i" } });
+
+        if (id === "shop") {
+            return res.render(id, { 
+                results: products, 
+                message: null, 
+                isLogin, 
+                wishlistProductIds 
+            });    
+        }
+
+        products = await Product.find({ productName: { $regex: searchValue, $options: "i" } })
             .populate('category');
 
         if (products.length === 0) {
             return res.redirect("/user/shop"); 
         }
+
         const filteredProducts = id 
             ? products.filter(product => product?.category?.name === id) 
             : products;
 
-        res.render(id, { results: filteredProducts, message: null }); // Render searchResults page
+        res.render(id, { 
+            results: filteredProducts, 
+            message: null, 
+            isLogin, 
+            wishlistProductIds 
+        });
     } catch (error) {
         console.error("Error in allsearch:", error);
         res.redirect("/user/pageNotFound");
@@ -503,104 +624,282 @@ const allsearch = async (req, res) => {
 };
 
 
-const popularity= async (req,res)=>{
-  try {
-    const name=req.params.id
-    if(name=="shop"){
-        let page = parseInt(req.query.page) || 1; 
-        let limit = 4; 
+const popularity = async (req, res) => {
+    try {
+      const name = req.params.id;
+      const isLogin = !!req.session.user;
+      const userId = req.session.user ? req.session.user._id : null; // Ensure userId is defined
+  
+      let countWishlist = 0;
+      let wishlistProductIds = [];
+  
+      // Fetch wishlist count if user is logged in
+      if (userId) {
+        const wishlist = await Wishlist.findOne({ userId });
+        if (wishlist) {
+          countWishlist = wishlist.products.length;
+          wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+        }
+      }
+  
+      if (name === "shop") {
+        let page = parseInt(req.query.page) || 1;
+        let limit = 4;
         let skip = (page - 1) * limit;
-        let totalProducts = await Product.countDocuments(); 
-        let totalPages = Math.ceil(totalProducts / limit); 
-        let findProduct = await Product.find().sort({ salesCount: -1 })
-        .skip(skip)
-        .limit(limit);
-        res.render('shop', { 
-            findProduct, 
-            currentPage: page, 
-            totalPages 
+        let totalProducts = await Product.countDocuments();
+        let totalPages = Math.ceil(totalProducts / limit);
+  
+        let findProduct = await Product.find()
+          .sort({ salesCount: -1 }) // Sorting by popularity (salesCount)
+          .skip(skip)
+          .limit(limit);
+  
+        return res.render('shop', { 
+          findProduct, 
+          currentPage: page, 
+          totalPages, 
+          isLogin, 
+          wishlistProductIds 
         });
-      
-    }
-    const findPrice = await Product.find().populate({
+      }
+  
+      const findPrice = await Product.find().populate({
         path: 'category',
         match: { 
-            status: 'active', 
-            isDeleted: false 
+          status: 'active', 
+          isDeleted: false 
         }
-    }).sort({ salesCount: -1 });
-    const chairProducts = findPrice.filter(product => product?.category?.name === name);
-    res.render(name, { findPrice: chairProducts }); 
-  } catch (error) {
-    console.error("popularity:", error);
-        res.redirect("/user/pageNotFound");
-  }
-}
+      }).sort({ salesCount: -1 });
+  
+      const chairProducts = findPrice.filter(product => product?.category?.name === name);
+  
+      res.render(name, { 
+        findPrice: chairProducts, 
+        isLogin, 
+        wishlistProductIds 
+      });
+    } catch (error) {
+      console.error("popularity:", error);
+      res.redirect("/user/pageNotFound");
+    }
+  };
+  
 
-const AtoZ = async (req, res) => {
+  const AtoZ = async (req, res) => {
     try {
-        const name = req.params.id; 
-        if(name=="shop"){
-            let page = parseInt(req.query.page) || 1; 
-            let limit = 4; 
+        const name = req.params.id;
+        const isLogin = !!req.session.user;
+        const userId = req.session.user ? req.session.user._id : null; // Ensure userId is defined
+
+        let countWishlist = 0;
+        let wishlistProductIds = [];
+
+        // Fetch wishlist count if user is logged in
+        if (userId) {
+            const wishlist = await Wishlist.findOne({ userId });
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+            }
+        }
+
+        if (name === "shop") {
+            let page = parseInt(req.query.page) || 1;
+            let limit = 4;
             let skip = (page - 1) * limit;
-            let totalProducts = await Product.countDocuments(); 
-            let totalPages = Math.ceil(totalProducts / limit); 
-            let findProduct = await Product.find().sort({ productName: 1 })
-            .skip(skip)
-            .limit(limit);
-            res.render('shop', { 
+            let totalProducts = await Product.countDocuments();
+            let totalPages = Math.ceil(totalProducts / limit);
+
+            let findProduct = await Product.find()
+                .sort({ productName: 1 }) // Sorting A-Z
+                .skip(skip)
+                .limit(limit);
+
+            return res.render('shop', { 
                 findProduct, 
                 currentPage: page, 
-                totalPages 
+                totalPages, 
+                isLogin, 
+                wishlistProductIds 
             });
         }
+
         const products = await Product.find()
             .populate({
                 path: 'category',
                 match: { status: 'active', isDeleted: false }
             })
-            .sort({ productName: 1 }); 
+            .sort({ productName: 1 });
+
         const chairProducts = products.filter(product => product?.category?.name === name);
-        res.render(name, { findPrice: chairProducts }); 
+
+        res.render(name, { 
+            findPrice: chairProducts, 
+            isLogin, 
+            wishlistProductIds 
+        });
     } catch (error) {
         console.error("Error in AtoZ:", error);
         res.redirect("/user/pageNotFound");
     }
 };
 
-const ZtoA=async (req,res)=>{
+const ZtoA = async (req, res) => {
     try {
-        const name = req.params.id; 
-        if(name=="shop"){
-            let page = parseInt(req.query.page) || 1; 
-            let limit = 4; 
+        const name = req.params.id;
+        const isLogin = !!req.session.user;
+        const userId = req.session.user ? req.session.user._id : null; // Ensure userId is defined
+
+        let countWishlist = 0;
+        let wishlistProductIds = [];
+
+        // Fetch wishlist count if user is logged in
+        if (userId) {
+            const wishlist = await Wishlist.findOne({ userId });
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+            }
+        }
+
+        if (name === "shop") {
+            let page = parseInt(req.query.page) || 1;
+            let limit = 4;
             let skip = (page - 1) * limit;
-            let totalProducts = await Product.countDocuments(); 
-            let totalPages = Math.ceil(totalProducts / limit); 
-            let findProduct = await Product.find().sort({ productName: -1 })
-            .skip(skip)
-            .limit(limit);
-            res.render('shop', { 
+            let totalProducts = await Product.countDocuments();
+            let totalPages = Math.ceil(totalProducts / limit);
+
+            let findProduct = await Product.find()
+                .sort({ productName: -1 }) // Sorting Z-A
+                .skip(skip)
+                .limit(limit);
+
+            return res.render('shop', { 
                 findProduct, 
                 currentPage: page, 
-                totalPages 
+                totalPages, 
+                isLogin, 
+                wishlistProductIds 
             });
         }
+
         const products = await Product.find()
             .populate({
                 path: 'category',
                 match: { status: 'active', isDeleted: false }
             })
-            .sort({ productName:-1 }); 
+            .sort({ productName: -1 });
+
         const chairProducts = products.filter(product => product?.category?.name === name);
-        res.render(name, { findPrice: chairProducts });
-    } 
-     catch (error) {
+
+        res.render(name, { 
+            findPrice: chairProducts, 
+            isLogin, 
+            wishlistProductIds 
+        });
+    } catch (error) {
         console.error("Error in ZtoA:", error);
         res.redirect("/user/pageNotFound");
     }
-}
+};
+
+const wishlist=async (req,res)=>{
+    const { productId } = req.body;
+    const userId = req.session.user.id; // Assuming session stores user ID
+
+    if (!productId) {
+        return res.status(400).json({ success: false, message: "Product ID is required." });
+    }
+
+    try {
+        let wishlist = await Wishlist.findOne({ userId });
+
+        if (!wishlist) {
+            wishlist = new Wishlist({ userId, products: [{ productId }] });
+        } else {
+            const productIndex = wishlist.products.findIndex(p => p.productId.toString() === productId)
+            if (productIndex !== -1) {
+                wishlist.products.splice(productIndex, 1);
+            } else {
+                wishlist.products.push({ productId });
+            }
+        }
+
+        await wishlist.save();
+        res.json({ success: true, message: "Wishlist updated successfully." });
+    } catch (error) {
+        console.error("Wishlist Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
+};
+const showWishlist = async (req, res) => {
+    try {
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
+        }
+
+        const userId = req.session.user.id;
+        const isLogin = true;
+
+        // Fetch wishlist & populate product details
+        const wishlist = await Wishlist.findOne({ userId }).populate("products.productId");
+
+        // Ensure wishlist count is always a valid number
+        let countWishlist = wishlist?.products?.length || 0;
+
+        // Fetch cart count
+        let cartCount = 0;
+        const userCart = await Cart.findOne({ userId });
+        cartCount = userCart ? userCart.items.length : 0;
+
+        res.render("wishlist", { 
+            wishlist: wishlist ? wishlist.products : [], 
+            countWishlist, 
+            cartCount, 
+            isLogin 
+        });
+
+    } catch (error) {
+        console.error("Wishlist Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
+};
+
+const WishlistToggle = async (req, res) => {
+    try {
+        const userId = req.session?.user?.id; 
+        const { productId } = req.body; 
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
+        }
+
+        console.log("Wishlist toggle request received for product:", productId);
+
+        let wishlist = await Wishlist.findOne({ userId });
+
+        if (!wishlist) {
+            return res.status(404).json({ success: false, message: "Wishlist not found." });
+        }
+        const productIndex = wishlist.products.findIndex(item => item.productId.toString() === productId);
+
+        if (productIndex !== -1) {
+            wishlist.products.splice(productIndex, 1);
+            console.log("Product removed from wishlist:", productId);
+        } else {
+            return res.status(404).json({ success: false, message: "Product not found in wishlist." });
+        }
+        await wishlist.save();
+
+        return res.json({ success: true, message: "Product removed from wishlist successfully." });
+
+    } catch (error) {
+        console.error("Error removing product from wishlist:", error);
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
+};
+
+
 
 
 module.exports = {
@@ -625,5 +924,8 @@ module.exports = {
     allsearch,
     popularity,
     AtoZ,
-    ZtoA
+    ZtoA,
+    wishlist,
+    showWishlist,
+    WishlistToggle
 }

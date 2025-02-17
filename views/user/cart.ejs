@@ -113,14 +113,24 @@
                   <div class="row">
                     <div class="col-md-12">
                       <label class="text-black h4" for="coupon">Coupon</label>
+                      <input type="hidden" id="totalPrice" value="<%= total%>" name="totalPrice">
                       <p>Enter your coupon code if you have one.</p>
                     </div>
                     <div class="col-md-8 mb-3 mb-md-0">
-                      <input type="text" class="form-control py-3" id="coupon" placeholder="Coupon Code">
+                        <input type="text" class="form-control py-3" id="coupon" placeholder="Coupon Code" value="<%= couponRemoved ? couponName : '' %>">
                     </div>
+                    
                     <div class="col-md-4">
-                      <button class="btn btn-black">Apply Coupon</button>
+                        <% if (couponRemoved) { %>
+                            <button class="btn btn-black" id="Remove-Coupon" onclick="ApplyCoupon(true)">Remove Coupon</button>
+                        <% } else { %>
+                            <button class="btn btn-black" id="Apply-Coupon" onclick="ApplyCoupon(false)">Apply Coupon</button>
+                        <% } %>
                     </div>
+                    
+                    
+
+                    
                   </div>
                 </div>
                 <div class="col-md-6 pl-5">
@@ -139,6 +149,14 @@
                             <strong class="text-black subtotal-amount">$<%= subtotal.toFixed(2) %></strong>
                         </div>
                     </div>
+                    <div class="row mb-3" id="discountRow" style="display: none;">
+                        <div class="col-md-6">
+                            <span class="text-black">Discount</span>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <strong class="text-black" id="discountAmount">-$0.00</strong>
+                        </div>
+                    </div>
                     <div class="row mb-5">
                         <div class="col-md-6">
                             <span class="text-black">Total</span>
@@ -148,7 +166,7 @@
                         </div>
                     </div>
                     
-        
+    
                       <div class="row">
                         <div class="col-md-12">
                           <form action="/user/checkout">
@@ -305,6 +323,74 @@ document.querySelectorAll("#removebtn").forEach(removeButton => {
 });
 
 </script>  
+
+<script>
+async function ApplyCoupon(isRemoving) {
+    const couponCode = document.getElementById("coupon").value.trim();
+    const totalPrice = document.getElementById("totalPrice").value;
+    const applyButton = document.getElementById("Apply-Coupon");
+    const removeButton = document.getElementById("Remove-Coupon");
+
+    let bodyData = {};
+
+    if (isRemoving) {
+        // User wants to remove the coupon
+        bodyData = {};
+    } else {
+        if (!couponCode) {
+            Swal.fire({
+                icon: "warning",
+                title: "Oops...",
+                text: "Please enter a coupon code!",
+            });
+            return;
+        }
+        bodyData = { coupon: couponCode, totalPrice };
+    }
+
+    try {
+        const response = await fetch("/user/applycoupon", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(bodyData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: data.message,
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "OK",
+            }).then(() => {
+                location.reload(); // Reload to update UI
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: data.message,
+                confirmButtonColor: "#d33",
+            });
+        }
+    } catch (error) {
+        console.error("Error applying/removing coupon:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong. Please try again.",
+            confirmButtonColor: "#d33",
+        });
+    }
+}
+
+
+</script>
+
 
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="js/tiny-slider.js"></script>

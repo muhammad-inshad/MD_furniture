@@ -32,6 +32,33 @@
 			  object-fit: cover;
 			  border-radius: 5px;
 			}
+			.cart-count {
+    position: absolute;
+    top: -4px;
+    right: -15px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 0px 4px;
+    min-width: 26px;
+    text-align: center;
+}
+.notification-badge {
+    position: absolute;
+    top: 6px;
+    right: 9px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding:0px 9px;
+    border-radius: 50%;
+    min-width: 12px;
+    text-align: center;
+	
+}
+
 			
 		  </style>
 		  
@@ -97,12 +124,39 @@
 							
 						
 							
-						</li>
+							<% if (typeof isLogin !== 'undefined' && isLogin) { %>
+								<li style="position: relative;">
+									<a class="nav-link" href="/user/showWishlist">
+										<i class="bi bi-suit-heart-fill" style="font-size: 24px; color: red;"></i>
+										<% if (typeof countWishlist !== 'undefined' && countWishlist > 0) { %>
+											<span class="notification-badge"><%= countWishlist %></span>
+											
+										<% } %>
+										
+									</a>
+								</li>
+							<% } %>
+							
+							
+						
 						<% if (typeof isLogin !== 'undefined' && isLogin) { %>
-							<li><a class="nav-link" href="/user/cart">
-								<img src="/images/cart.svg" alt="Cart Icon">
-							</a></li>
+							<% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
+								<li style="position: relative;">
+									<a class="nav-link" href="/user/cart">
+										<img src="/images/cart.svg" alt="Cart Icon" style="width: 30px; height: 30px;">
+										<span class="cart-count"><%= cartCount %></span>
+									</a>
+								</li>
+							<% } else { %>
+								<li>
+									<a class="nav-link" href="/user/cart">
+										<img src="/images/cart.svg" alt="Cart Icon" style="width: 30px; height: 30px;">
+									</a>
+								</li>
+							<% } %>
 						<% } %>
+						
+						
 						
 					</ul>
 					

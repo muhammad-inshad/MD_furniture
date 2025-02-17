@@ -1,0 +1,123 @@
+<%- include("../../views/partials/user/top") %>
+
+<style>
+    .wishlist-container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .wishlist-title {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .wishlist-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .wishlist-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .wishlist-item-details {
+        flex: 1;
+        margin-left: 15px;
+    }
+
+    .wishlist-item-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .wishlist-item-price {
+        color: #12a04d;
+        font-size: 16px;
+    }
+
+    .wishlist-remove {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .wishlist-remove:hover {
+        background-color: #cc0000;
+    }
+</style>
+
+<div class="wishlist-container">
+    <h2 class="wishlist-title">My Wishlist</h2>
+    <% if (wishlist.length > 0) { %>
+        <% wishlist.forEach(item => { %>
+            <% if (item.productId) { %> 
+                <div class="wishlist-item">
+                    <img src="/uploads/<%= item.productId.productImages?.[0] || 'default.jpg' %>" 
+                         alt="<%= item.productId.productName || 'Product' %>">
+                    
+                    <div class="wishlist-item-details">
+                        <a style="text-decoration: none;" href="/user/showDetailProduct/<%= item.productId._id %>">
+                            <div class="wishlist-item-title"><%= item.productId.productName || 'No Name' %></div>
+                        </a>
+                        <div class="wishlist-item-price">$<%= item.productId.salePrice || '0.00' %></div>
+                    </div>
+    
+                    <button class="wishlist-remove" data-product-id="<%= item.productId._id %>">Remove</button>
+                </div>
+            <% } else { %>
+                <p>Product details not available.</p>
+            <% } %>
+        <% }); %>
+    <% } else { %>
+        <p style="text-align: center; font-size: 18px;">Your wishlist is empty.</p>
+    <% } %>
+    
+    
+</div>
+<br><br><br>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".wishlist-remove").forEach(button => {
+            button.addEventListener("click", async function () {
+                const productId = this.getAttribute("data-product-id");
+
+                try {
+                    const response = await fetch("/user/WishlistToggle", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ productId })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.closest(".wishlist-item").remove(); // Remove item from UI
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error("Error removing item from wishlist:", error);
+                }
+            });
+        });
+    });
+</script>
+
+<%- include("../../views/partials/user/footer") %>

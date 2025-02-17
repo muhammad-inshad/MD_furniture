@@ -7,25 +7,57 @@ const { session } = require('passport');
 const bcrypt = require("bcrypt")
 const Cart=require("../../models/cartSchema")
 const Order=require("../../models/orderSchema")
+const Wishlist=require("../../models/wishlistSchema")
+const Coupon=require("../../models/coupnSchema")
 
-const chair=async(req,res)=>{
+const chair = async (req, res) => {
     try {
-        const findProduct= await Product.find({isDeleted:false}).populate({
-            path: 'category', 
-            match: { status: 'active' },
-            match:{isDeleted:false}
+        const findProduct = await Product.find({ isDeleted: false }).populate({
+            path: 'category',
+            match: { status: 'active', isDeleted: false }
         });
-         
-        const isLogin = req.session.user? true:false
-        const chairProducts = findProduct.filter(product => product?.category?.name === "chair");
-        if(chairProducts.length>0){
-        res.render("chair",{findProduct:chairProducts,isLogin})
+
+        let userId = null;
+        let isLogin = false;
+        let countWishlist = 0;
+        let cartCount = 0;
+        let wishlistProductIds = [];
+
+        if (req.session && req.session.user) {
+            userId = req.session.user.id;
+            isLogin = true;
+
+            const userCart = await Cart.findOne({ userId });
+            cartCount = userCart ? userCart.items.length : 0;
+
+            const wishlist = await Wishlist.findOne({ userId });
+            countWishlist = wishlist ? wishlist.products.length : 0;
+
+            // Store wishlist product IDs for easy checking
+            if (wishlist) {
+                wishlistProductIds = wishlist.products.map(p => p.productId.toString());
+            }
         }
+
+        // Filter products for the "chair" category
+        const chairProducts = findProduct.filter(product => product?.category?.name === "chair");
+
+        // Render the page with wishlist information
+        res.render("chair", { 
+            findProduct: chairProducts, 
+            isLogin, 
+            cartCount, 
+            countWishlist,
+            wishlistProductIds // Pass wishlist product IDs
+        });
+
     } catch (error) {
-        res.json({ "error": "form chair get error" });
-           console.log("form chair get error",error)
+        console.error("Error fetching chair products:", error);
+        res.status(500).json({ error: "Error fetching chair products" });
     }
-}
+};
+
+
 
 const showDetailProduct=async(req,res)=>{
      const {id}=req.params
@@ -43,46 +75,110 @@ const showDetailProduct=async(req,res)=>{
     
 }
 
-
-const sofa=async (req,res)=>{
+const sofa = async (req, res) => {
     try {
-        const findProduct= await Product.find({isDeleted:false}).populate({
-            path: 'category', 
-            match: { status: 'active' },
-            match:{isDeleted:false}
+        const findProduct = await Product.find({ isDeleted: false }).populate({
+            path: 'category',
+            match: { status: 'active', isDeleted: false }
         });
-        const isLogin = req.session.user? true:false
 
+        let userId = null;
+        let isLogin = false;
+        let cartCount = 0;
+        let countWishlist = 0;
+        let wishlistProductIds = []; // ✅ Store wishlist product IDs
+
+        if (req.session && req.session.user) {
+            userId = req.session.user.id;
+            isLogin = true;
+
+            // Get Cart Count
+            const userCart = await Cart.findOne({ userId });
+            cartCount = userCart ? userCart.items.length : 0;
+
+            // Get Wishlist Products
+            const wishlist = await Wishlist.findOne({ userId });
+
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString()); // ✅ Extract product IDs
+            }
+        }
+
+        // Filter products for "sofa" category
         const sofaProducts = findProduct.filter(product => product?.category?.name === "sofa");
-        res.render("sofa",{findProduct:sofaProducts,isLogin})
-        
-    } catch (error) {
-        res.json({ "error": "form chair get error" });
-           console.log("form chair get error",error)
-    }
-}
 
-const shop=async (req,res)=>{
+        // Render the page with wishlistProductIds
+        res.render("sofa", { 
+            findProduct: sofaProducts, 
+            isLogin, 
+            cartCount, 
+            countWishlist, 
+            wishlistProductIds 
+        });
+
+    } catch (error) {
+        console.error("Error fetching sofa products:", error);
+        res.status(500).json({ error: "Error fetching sofa products" });
+    }
+};
+
+
+const shop = async (req, res) => {
     try {
         let page = parseInt(req.query.page) || 1; 
         let limit = 8; 
         let skip = (page - 1) * limit;
+
         let totalProducts = await Product.countDocuments(); 
         let totalPages = Math.ceil(totalProducts / limit); 
+
         let findProduct = await Product.find()
-        .skip(skip)
-        .limit(limit);
-        res.render('shop', { 
+            .skip(skip)
+            .limit(limit);
+
+        let userId = null;
+        let isLogin = false;
+        let countWishlist = 0;
+        let cartCount = 0;
+        let wishlistProductIds = []; 
+
+        // Check if user is logged in
+        if (req.session && req.session.user) {
+            userId = req.session.user.id;
+            isLogin = true;
+
+            // Fetch Cart Count
+            const userCart = await Cart.findOne({ userId });
+            cartCount = userCart ? userCart.items.length : 0;
+
+            // Fetch Wishlist Items
+            const wishlist = await Wishlist.findOne({ userId });
+
+            if (wishlist) {
+                countWishlist = wishlist.products.length;
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+            }
+        }
+
+        res.render("shop", { 
             findProduct, 
             currentPage: page, 
-            totalPages 
+            totalPages,
+            isLogin,
+            cartCount,
+            countWishlist,
+            wishlistProductIds 
         });
-        
+
     } catch (error) {
-        res.json({ "error": "form chair get error" });
-           console.log("form chair get error",error)
+        console.error("Error fetching shop products:", error);
+        res.status(500).json({ error: "Error fetching shop products" });
     }
-}
+};
+
+
+
 
 const profile=async (req,res)=>{
     try {
@@ -346,6 +442,7 @@ const cart = async (req, res) => {
         const existingItem = userCart.items.find((item) =>
             item.productId.equals(trimmedId)
         );
+      
 
         if (existingItem) {
             // If the product exists, update the quantity and total price
@@ -371,49 +468,65 @@ const cart = async (req, res) => {
         return res.redirect("/user/login?error=loginRequired");
     }
 };
-
-
-
-const getCartData = async(req,res) => {
+const getCartData = async (req, res) => {
     const userId = req?.session?.user?.id;
-      const isLogin = req.session.user? true:false
-    if(!userId) {
+    const isLogin = req.session.user ? true : false;
+
+    if (!userId) {
         return res.redirect('/user/login');
     }
 
-    const cart = await Cart.find({userId})
-    if(!cart) {
-        const newCart = await Cart.create({
-            userId,
-            items:[],
-        })
-       
-        return res.render('cart', { cartData: newCart });
+    const cart = await Cart.findOne({ userId });
 
+    if (!cart) {
+        return res.render('cart', { cartData: [], subtotal: 0, total: 0, isLogin, discountAmount: 0, couponRemoved: false, couponName: '' });
     }
 
     const userCart = await Cart.aggregate([
         { $match: { userId: new mongoose.Types.ObjectId(userId) } },
         { $unwind: '$items' },
-        { $lookup: {
-            from: 'products',
-            localField: 'items.productId',
-            foreignField: '_id',
-            as: 'productDetails'
-        }},
-        { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } }  // Unwind the productDetails array if there is only one product
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'items.productId',
+                foreignField: '_id',
+                as: 'productDetails'
+            }
+        },
+        { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } }
     ]);
-  
+
     const subtotal = userCart.reduce((sum, item) => {
         return sum + item.items.quantity * item.productDetails.salePrice;
     }, 0);
-    
-    const tax = 0.1 * subtotal; 
-    const total = subtotal + tax;
 
-    res.render('cart', { cartData: userCart ,subtotal,total,isLogin});
-  
+    const tax = 0.1 * subtotal;
+    let discountAmount = 0;
+    let couponRemoved = false;
+    let couponName = '';
+
+    if (req.session.coupon) {
+        discountAmount = req.session.coupon.discountValue;
+        couponRemoved = true;
+        couponName = req.session.coupon.name;  
     }
+
+    const total = subtotal - discountAmount + tax;
+
+    res.render('cart', {
+        cartData: userCart,
+        subtotal,
+        discountAmount,
+        total,
+        isLogin,
+        couponRemoved,
+        couponName, 
+    });
+};
+
+
+
+
 
     
     const remove = async (req, res) => {
@@ -509,22 +622,24 @@ const getCartData = async(req,res) => {
         try {
             const userId = req.session.user.id;
             if (!mongoose.Types.ObjectId.isValid(userId)) {
-                throw new Error('Invalid User ID');
+                throw new Error("Invalid User ID");
             }
     
+            // Fetch the user's address
             const findAddress = await Address.findOne({ userId });
             if (!findAddress) {
-                console.log('No address found for the given userId');
+                console.log("No address found for the given userId");
                 return res.render("checkout", { isLogin: true, address: null, detailedCart: null });
             }
     
             const address = findAddress.address;
     
-            let detailedCart = null;  // Ensure detailedCart is initialized
-    
+            // Fetch the user's cart
+            let detailedCart = null;
             const findproduct = await Cart.findOne({ userId });
+    
             if (findproduct && findproduct.items.length > 0) {
-                // Only perform the aggregation if the cart has items
+                // Perform aggregation to get cart details with product information
                 detailedCart = await Cart.aggregate([
                     { $match: { userId: new mongoose.Types.ObjectId(userId) } },
                     { $unwind: "$items" },
@@ -552,21 +667,39 @@ const getCartData = async(req,res) => {
                 ]);
             }
     
+            // Initialize subtotal, tax, and total
             let subtotal = 0;
             let total = 0;
+            let discountAmount = 0; // Default discountAmount is 0
     
             if (detailedCart && detailedCart.length > 0) {
                 subtotal = detailedCart[0].items.reduce((sum, item) => {
                     const price = item.product.salePrice || item.product.price;
                     return sum + price * item.quantity;
                 }, 0);
-                const tax = 0.1 * subtotal;
-                total = subtotal + tax;
+    
+                const tax = 0.1 * subtotal; // 10% tax
+    
+                // Apply discount if a coupon is available in session
+                if (req.session.coupon) {
+                    discountAmount = (req.session.coupon.discountValue / 100) * subtotal; // Assuming discountValue is a percentage
+                    total = subtotal - discountAmount + tax;
+                } else {
+                    total = subtotal + tax;
+                }
             }
     
             const isLogin = req.session.user ? true : false;
-            return res.render("checkout", { isLogin, address, detailedCart, subtotal, total });
     
+            // Render the checkout page with calculated values
+            return res.render("checkout", {
+                isLogin,
+                address,
+                detailedCart,
+                subtotal,
+                discountAmount,
+                total,
+            });
         } catch (error) {
             console.error("Error in checkout:", error);
             res.status(500).render("pageNotFound");
@@ -574,18 +707,15 @@ const getCartData = async(req,res) => {
     };
     
     
-     
+    
     const postCkeckout = async (req, res) => {
         try {
-            
             if (!req.session || !req.session.user) {
                 return res.status(401).send("User not logged in");
             }
-    
-            const { paymentMethod } = req.body;
-           
-            const userWantAddress=req.body.address
-           
+        
+            const { paymentMethod, total } = req.body;
+            const userWantAddress = req.body.address;
             const userId = req.session.user.id;
     
             const findCart = await Cart.aggregate([
@@ -623,13 +753,12 @@ const getCartData = async(req,res) => {
                 return sum + price * item.quantity;
             }, 0);
             const tax = 0.1 * subtotal;
-            const total = subtotal + tax;
     
-            const findAddress = await Address.findOne({ userId,  });
+            const findAddress = await Address.findOne({ userId });
             if (!findAddress) {
                 return res.status(404).send("No address found for the user.");
             }
-
+    
             const newOrder = new Order({
                 orderedItems: detailedCart.items.map((item) => ({
                     product: item.product._id,
@@ -645,42 +774,44 @@ const getCartData = async(req,res) => {
                 userId: userId,
             });
     
+            // Update products and sales count
             for (const item of newOrder.orderedItems) {
-                const productId = item.product;
-                const quantity = item.quantity;
-                const currentProduct = await Product.findById(productId);
-               let op=  await Product.findByIdAndUpdate(productId)
-               op.salesCount=quantity  
-                 await op.save()
-    
-                if (quantity > currentProduct.quantity || currentProduct.quantity === 0) {
+                const currentProduct = await Product.findById(item.product);
+                if (item.quantity > currentProduct.quantity || currentProduct.quantity === 0) {
                     return res.status(400).send("One or more items are out of stock.");
                 }
-    
-                currentProduct.quantity -= quantity;
+                currentProduct.quantity -= item.quantity;
+                currentProduct.salesCount += item.quantity; // Increment sales count
                 await currentProduct.save();
             }
     
-            await newOrder.save();
+            // Check for coupon
+            if (req.session.coupon) {
+                const coupon = await Coupon.findOne({ name: req.session.coupon.name });
+                if (coupon) {
+                    newOrder.discount = coupon.discountValue;
+                }
+            }
     
+            // Set expected date and payment method
             const orderDate = newOrder.invoiceDate;
             const expectedDate = new Date(orderDate);
             expectedDate.setDate(expectedDate.getDate() + 5);
-            const formattedExpectedDate = expectedDate.toDateString();
-    
-            newOrder.orderExpectedDate = formattedExpectedDate;
+            newOrder.orderExpectedDate = expectedDate.toDateString();
             newOrder.paymentType = paymentMethod;
-            newOrder.address=userWantAddress;
+    
             await newOrder.save();
     
+            // Clear cart
             await Cart.deleteOne({ userId });
     
-            res.render("placeOrder", { paymentMethod, formattedExpectedDate });
+            res.render("placeOrder", { paymentMethod, formattedExpectedDate: newOrder.orderExpectedDate });
         } catch (error) {
             console.error("Error in postCheckout:", error);
             res.status(500).render("pageNotFound");
         }
     };
+    
     
 
 
@@ -751,6 +882,74 @@ const getCartData = async(req,res) => {
       }
     }
 
+  const applycoupon = async (req, res) => {
+    try {
+        const { coupon, totalPrice } = req.body;
+
+        if (req.session.coupon) {
+            delete req.session.coupon;
+            return res.json({ message: "Coupon removed successfully", couponRemoved: true });
+        }
+
+        if (!coupon) {
+            return res.status(400).json({ message: "Coupon code is required" });
+        }
+
+        const foundCoupon = await Coupon.findOne({ name: coupon });
+        if (!foundCoupon) {
+            return res.status(400).json({ message: "Invalid coupon code" });
+        }
+
+        if (new Date() > new Date(foundCoupon.expiredOn)) {
+            return res.status(400).json({ message: "Coupon has expired" });
+        }
+
+        if (foundCoupon.usageLimit <= 0) {
+            return res.status(400).json({ message: "Coupon has been fully used" });
+        }
+
+        if (totalPrice < foundCoupon.minPurchase) {
+            return res.status(400).json({ message: `Minimum purchase of ${foundCoupon.minPurchase} is required to apply this coupon` });
+        }
+
+        let discountAmount = 0;
+
+        if (foundCoupon.discountType === "percentage") {
+            discountAmount = (totalPrice * foundCoupon.discountValue) / 100;
+
+            if (foundCoupon.maxDiscount && discountAmount > foundCoupon.maxDiscount) {
+                discountAmount = foundCoupon.maxDiscount;
+            }
+        } else if (foundCoupon.discountType === "fixed") {
+            discountAmount = foundCoupon.discountValue;
+        }
+
+        foundCoupon.usageLimit -= 1;
+        await foundCoupon.save();
+
+        req.session.coupon = {
+            name: foundCoupon.name,
+            discountValue: discountAmount,
+        };
+
+        res.json({
+            message: "Coupon applied successfully!",
+            discountAmount,
+            finalPrice: totalPrice - discountAmount,
+            couponRemoved: false,
+        });
+    } catch (error) {
+        console.error("Error in applyCoupon:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+    
+    
+    
+  
+    
+
 module.exports={
     chair,
     showDetailProduct,
@@ -775,5 +974,5 @@ module.exports={
     rating,
     edit_address,
     postedit_address,
-   
+    applycoupon
 }

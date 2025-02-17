@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="/admin/sales.css" rel="stylesheet"> 
+    <style>
+        /* Basic Layout */
+        .filter-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        select, input, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 15px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Overall Stats */
+        .overall-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            width: 30%;
+            background: #f4f4f4;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-box h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 18px;
+        }
+        .stat-box p {
+            font-size: 22px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">Product Management</a>
+        <a href="/admin/ordermanagment">Order Management</a>
+        <a href="/admin/coupenMenagement">Coupon Management</a>
+        <a href="/admin/SalesReport">Sales Report</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+
+    <div class="content">
+        <div>
+            <h1 class="heading">DASHBOARD</h1>
+        </div>
+        <div class="section">
+            <center><h2>MD-FURNITURE</h2></center>
+        </div>
+
+        <div class="filter-container">
+            <label for="filter">Filter:</label>
+            <select id="filter" onchange="toggleDateFields()">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+                <option value="custom">Custom Date</option>
+            </select>
+
+            <!-- Date Inputs for Custom Filter -->
+            <div id="customDateInputs" style="display:none;">
+                <label for="startDate">From:</label>
+                <input type="date" id="startDate">
+                <label for="endDate">To:</label>
+                <input type="date" id="endDate">
+            </div>
+            
+            <button onclick="fetchSalesReport()">Generate Report</button>
+            <button onclick="downloadPDF()">Download PDF</button>
+            <button onclick="downloadExcel()">Download Excel</button>
+        </div>
+
+        <!-- Overall Stats -->
+        <div class="overall-stats">
+            <div class="stat-box">
+                <h3>Overall Sales Count</h3>
+                <p id="overallSalesCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>Overall Order Amount</h3>
+                <p id="overallOrderAmount">₹0</p>
+            </div>
+            <div class="stat-box">
+                <h3>Overall Discount</h3>
+                <p id="overallDiscount">₹0</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+
+    <script>
+        function toggleDateFields() {
+            const filterType = document.getElementById("filter").value;
+            const customDateInputs = document.getElementById("customDateInputs");
+
+            if (filterType === "custom") {
+                customDateInputs.style.display = "block";
+            } else {
+                customDateInputs.style.display = "none";
+            }
+        }
+
+        function fetchSalesReport() {
+            const filterType = document.getElementById("filter").value;
+            let startDate = document.getElementById("startDate").value;
+            let endDate = document.getElementById("endDate").value;
+
+            if (filterType !== "custom") {
+                const today = new Date();
+                switch (filterType) {
+                    case "daily":
+                        startDate = endDate = today.toISOString().split("T")[0];
+                        break;
+                    case "weekly":
+                        const weekStart = new Date(today);
+                        weekStart.setDate(today.getDate() - 6);
+                        startDate = weekStart.toISOString().split("T")[0];
+                        endDate = today.toISOString().split("T")[0];
+                        break;
+                    case "monthly":
+                        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                        startDate = monthStart.toISOString().split("T")[0];
+                        endDate = today.toISOString().split("T")[0];
+                        break;
+                    case "yearly":
+                        const yearStart = new Date(today.getFullYear(), 0, 1);
+                        startDate = yearStart.toISOString().split("T")[0];
+                        endDate = today.toISOString().split("T")[0];
+                        break;
+                }
+            }
+
+            if (!startDate || !endDate) {
+                alert("Please select a valid date range.");
+                return;
+            }
+
+            fetch(`/admin/ShowTheSalesReport?startDate=${startDate}&endDate=${endDate}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("overallSalesCount").innerText = data.salesCount || 0;
+                document.getElementById("overallOrderAmount").innerText = `₹${data.orderAmount || 0}`;
+                document.getElementById("overallDiscount").innerText = `₹${data.discount || 0}`;
+            })
+            .catch(error => console.error("Error fetching sales report:", error));
+        }
+
+
+ function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.text("Sales Report", 20, 20); 
+ 
+    const overallSalesCount = document.getElementById("overallSalesCount").innerText;
+    const overallOrderAmount = document.getElementById("overallOrderAmount").innerText;
+    const overallDiscount = document.getElementById("overallDiscount").innerText;
+
+    doc.text(`Overall Sales Count: ${overallSalesCount}`, 20, 30);
+    doc.text(`Overall Order Amount: ${overallOrderAmount}`, 20, 40);
+    doc.text(`Overall Discount: ${overallDiscount}`, 20, 50);
+
+
+    doc.save("sales_report.pdf");
+}
+
+function downloadExcel() {
+
+    const overallSalesCount = document.getElementById("overallSalesCount").innerText;
+    const overallOrderAmount = document.getElementById("overallOrderAmount").innerText;
+    const overallDiscount = document.getElementById("overallDiscount").innerText;
+
+
+    const data = [
+        ["Sales Report"], // Title row
+        ["Overall Sales Count", overallSalesCount],
+        ["Overall Order Amount", overallOrderAmount],
+        ["Overall Discount", overallDiscount],
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+    XLSX.writeFile(wb, "sales_report.xlsx");
+}
+
+    </script>
+</body>
+</html>

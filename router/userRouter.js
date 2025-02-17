@@ -33,6 +33,9 @@ router.get("/popularity/:id",userContoller.popularity)
 router.get("/AtoZ/:id",userContoller.AtoZ)
 router.get("/ZtoA/:id",userContoller.ZtoA)
 
+router.post("/wishlist",userContoller.wishlist)
+router.get("/showWishlist",isLoginORnot,userContoller.showWishlist)
+router.post("/WishlistToggle",userContoller.WishlistToggle)
 
 router.get("/auth/google",passport.authenticate("google",{scope:['profile','email']}))
 router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:'/user/signup'}),async(req,res)=>{
@@ -43,8 +46,6 @@ router.get("/auth/google/callback",passport.authenticate("google",{failureRedire
     if (!findemail) {
         return res.status(401).json({ success: false, message: "Invalid email or password." });
     }
-
-    
     req.session.user = {
         id: findemail._id,
         email: findemail.email,
@@ -83,7 +84,7 @@ router.get("/orderCancel/:id",isLoginORnot,sofaController.orderCancel)
 router.post("/orderCancel",sofaController.postorderCancel)
 
 
-
-
 router.post("/rating",sofaController.rating)
+
+router.post("/applycoupon",sofaController.applycoupon)
 module.exports=router

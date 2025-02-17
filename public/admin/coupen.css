@@ -1,0 +1,58 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: rgb(91, 89, 89);
+    min-height: 100vh; /* Ensures the body takes up the full height of the viewport */
+}
+
+.sidebar {
+    width: 250px; /* Fixed width for the sidebar */
+    height: 100vh; /* Full height of the viewport */
+    background-color: #000000; /* Sidebar background color */
+    color: white; /* Text color for sidebar */
+    padding: 15px; /* Spacing inside the sidebar */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for a 3D effect */
+    position: fixed; /* Fix the sidebar in place */
+    top: 0; /* Align to the top of the viewport */
+    left: 0; /* Align to the left of the viewport */
+    overflow-y: auto; /* Add scrolling to the sidebar if content overflows */
+}
+
+.sidebar a {
+    color: white; /* Link color */
+    text-decoration: none; /* Remove underline from links */
+    display: block; /* Stack links vertically */
+    padding: 10px; /* Spacing around links */
+    margin-bottom: 10px; /* Space between links */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth hover effect */
+}
+
+.sidebar a:hover {
+    background-color: #34495e; /* Darker background on hover */
+    transform: translateX(10px); /* Slight slide effect on hover */
+}
+
+.content {
+    margin-left: 281px; /* Add margin to the left to account for the fixed sidebar */
+    padding: 20px; /* Add padding for content area */
+    background-color: #e2ddddef; /* Content background color */
+    flex-grow: 1; /* Allow content to expand */
+}
+
+.heading {
+    margin-bottom: 20px;
+    background-color: rgb(0, 0, 0);
+    margin: -20px;
+    height: 90px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    color: #ffffff;
+}
+.section {
+    margin-bottom: 20px;
+}

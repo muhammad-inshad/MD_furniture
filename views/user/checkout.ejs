@@ -34,8 +34,12 @@
                   <td class="text-black">$<%= subtotal %></td>
               </tr>
               <tr>
-                  <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
-                  <td class="text-black font-weight-bold"><strong>$<%= total %></strong></td>
+                <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
+                <td class="text-black font-weight-bold">
+                  <strong>$<%= total %></strong>
+                  <input type="hidden" id="totalInput" name="total" value="<%= total %>">
+                </td>
+                
               </tr>
           <% } else { %>
               <p>No items in the cart.</p>
@@ -46,6 +50,7 @@
 
         <form action="/user/checkout" method="post">
           <label for="address">Select Address</label>
+          <input type="hidden" id="totalInput" name="total" value="<%= total %>">
           <% if (address && address.length > 0) { %>
               <% address.forEach((addr, index) => { %>
                   <div>
@@ -91,20 +96,13 @@
         
             <!-- Cheque Payment -->
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="Cheque" value="Cheque Payment">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="Cheque" value="Online Payment">
               <label class="form-check-label" for="Cheque">
-                Cheque Payment
+                Online Payment
               </label>
             </div>
         
-            <!-- Paypal -->
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="Paypal" value="Paypal">
-              <label class="form-check-label" for="Paypal">
-                Paypal
-              </label>
-            </div>
-        
+         
         </div>
         <center>
           <div class="form-group">
@@ -126,7 +124,7 @@
       // Check if an address is selected
       let addressChecked = document.querySelector('input[name="address"]:checked');
       let paymentChecked = document.querySelector('input[name="paymentMethod"]:checked');
-  
+
       if (!addressChecked || !paymentChecked) {
         event.preventDefault(); // Prevent form submission
   

@@ -5,10 +5,10 @@ const product = require("./productSchema");
 const { text } = require("express");
 
 const orderSchema=new Schema({
-    orderId:{
-        type:String,
-        default:()=>uuidv4(),
-        unique:true
+    orderId: {
+        type: String,
+        default: uuidv4,
+        unique: true
     },
 
     userId: {
@@ -51,15 +51,15 @@ const orderSchema=new Schema({
     invoiceDate:{
         type:Date
     },
-    status:{
-        type:String,
-        required:true,
-        enum:['pending','Processing','shipped',"Delivered","Cancelled","Returnd",]
+    status: {
+        type: String,
+        required: true,
+        enum: ['pending', 'Processing', 'shipped', "Delivered", "Cancelled", "Returned"]
     },
-    createdOn:{
-        type:Date,
-        default:Date.now,
-        required:true
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        required: true
     },
     couponApplied:{
         type:Boolean,

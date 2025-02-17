@@ -127,6 +127,24 @@
 .search-button:hover {
     background-color: #0056b3;
 }
+
+.wishlist-icon {
+    position: absolute;
+    top: 10px; 
+    right: 10px;
+    font-size: 24px; 
+    font: bold;
+    color: rgb(232, 10, 10); /* Change color if needed */
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.wishlist-icon:hover {
+    transform: scale(1.2);
+}
+
 </style>  
 
 <form action="/user/allsearch/chair" method="POST" class="search-form">
@@ -159,7 +177,25 @@
         <% findProduct.forEach(product => { %>
           <div class="col-12 col-md-4 col-lg-3 mb-5">
             <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
-              <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+              
+              <div class="product-card position-relative">
+                <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+                
+                <!-- Heart Icon Positioned in Top-Right Corner -->
+                <!-- Wishlist Icon with dynamic class -->
+                <% if (isLogin) { %>
+                  <i class="bi wishlist-icon <%= wishlistProductIds.includes(product._id.toString()) ? 'bi-suit-heart-fill' : 'bi-suit-heart' %>" 
+                     data-product-id="<%= product._id %>"></i>
+                <% } else { %>
+                  <i class="bi bi-suit-heart wishlist-icon" onclick="showLoginPopup()"></i>
+                <% } %>
+                
+
+              
+              
+
+            </div>
+            
 
               <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
 
@@ -202,7 +238,22 @@
         <% findPrice.forEach(product => { %>
           <div class="col-12 col-md-4 col-lg-3 mb-5">
             <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
-              <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+           
+              <div class="product-card position-relative">
+                <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+                
+                
+                <!-- Wishlist Icon with dynamic class -->
+<% if (isLogin) { %>
+  <i class="bi wishlist-icon <%= wishlistProductIds.includes(product._id.toString()) ? 'bi-suit-heart-fill' : 'bi-suit-heart' %>" 
+     data-product-id="<%= product._id %>"></i>
+<% } else { %>
+  <i class="bi bi-suit-heart wishlist-icon" onclick="showLoginPopup()"></i>
+<% } %>
+
+                
+              
+              </div>
 
               <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
 
@@ -246,7 +297,21 @@
           <% results.forEach(product => { %>
             <div class="col-12 col-md-4 col-lg-3 mb-5">
               <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
-                <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+                <div class="product-card position-relative">
+                  <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
+                  
+                  <!-- Heart Icon Positioned in Top-Right Corner -->
+                
+<% if (isLogin) { %>
+  <i class="bi wishlist-icon <%= wishlistProductIds.includes(product._id.toString()) ? 'bi-suit-heart-fill' : 'bi-suit-heart' %>" 
+     data-product-id="<%= product._id %>"></i>
+<% } else { %>
+  <i class="bi bi-suit-heart wishlist-icon" onclick="showLoginPopup()"></i>
+<% } %>
+
+                  
+                
+                </div>
   
                 <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
   
@@ -280,4 +345,70 @@
   <% } %>
   
   <% } %>
+  <script>
+    var isUserLoggedIn = <%= isLogin ? 'true' : 'false' %>;
+</script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".wishlist-icon").forEach(icon => {
+        icon.addEventListener("click", async function (event) {
+            event.preventDefault();
+
+            const productId = this.getAttribute("data-product-id");
+            console.log("Clicked product ID:", productId); // Debugging
+
+            if (typeof isUserLoggedIn === "undefined" || !isUserLoggedIn) {
+                console.log("User not logged in"); // Debugging
+                showLoginPopup();
+                return;
+            }
+
+            try {
+                console.log("Sending request to /user/wishlist..."); // Debugging
+                const response = await fetch("/user/wishlist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId })
+                });
+
+                const result = await response.json();
+                console.log("Wishlist API Response:", result); // Debugging
+
+                if (result.success) {
+                    if (this.classList.contains("bi-suit-heart")) {
+                        this.classList.remove("bi-suit-heart");
+                        this.classList.add("bi-suit-heart-fill");
+                    } else {
+                        this.classList.remove("bi-suit-heart-fill");
+                        this.classList.add("bi-suit-heart");
+                    }
+                } else {
+                    console.log("Error from server:", result.message);
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error("Error updating wishlist:", error);
+            }
+        });
+    });
+});
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function showLoginPopup() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Login Required',
+            text: 'Please log in to add items to your wishlist!',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#007bff'
+        });
+    }
+</script>
+
+
 <%-include("../../views/partials/user/footer")%>

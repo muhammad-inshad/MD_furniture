@@ -40,4 +40,12 @@ router.post("/order/update/:id",customerController.orderupdate)
 router.post("/showProduct/:id",isAdmin,customerController.showProduct)
 
 router.get("/userAddress/:id1/:id2",isAdmin,customerController.userAddress)
+
+router.get("/coupenMenagement",adminController.coupenMenagement)
+router.get("/addcoupon",adminController.addcoupon)
+router.post("/addcouponPost",adminController.addcouponPost)
+router.post("/deletecoupon/:id",adminController.deletecoupon)
+
+router.get("/SalesReport",isAdmin,adminController.SalesReport)
+router.post("/ShowTheSalesReport",adminController.ShowTheSalesReport)
 module.exports=router

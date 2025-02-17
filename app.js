@@ -9,6 +9,7 @@ const adminRouter=require("./router/adminRouter")
 const Swal = require('sweetalert2');
 const nocache = require("nocache");
 const passport=require("./config/passport")
+const pymentRoute=require("./router/paymentRouter")
 
 
 
@@ -43,6 +44,7 @@ app.use(express.static(path.join(__dirname,"public")))
 app.use("/user",userRouter);
 app.use('/admin',adminRouter);
 
+// app.use('/razorpay',pymentRoute)
 
 app.listen(process.env.PORT,()=>{
     console.log("server running")
