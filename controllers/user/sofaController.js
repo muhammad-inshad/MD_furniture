@@ -842,7 +842,7 @@ const postCkeckout = async (req, res) => {
         }
 
         // Clear cart
-        // await Cart.deleteOne({ userId });
+        await Cart.deleteOne({ userId });
 
     } catch (error) {
         console.error("Error in postCheckout:", error);
