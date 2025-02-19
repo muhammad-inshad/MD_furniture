@@ -4,6 +4,8 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <link href="/css/bootstrap.min.css" rel="stylesheet">
 <link href="/css/style.css" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <title>MD-furniture</title>
 </head>
 
@@ -48,7 +50,7 @@
           </tbody>
         </table>
 
-        <form action="/user/checkout" method="post">
+        <form >
           <label for="address">Select Address</label>
           <input type="hidden" id="totalInput" name="total" value="<%= total %>">
           <% if (address && address.length > 0) { %>
@@ -88,7 +90,7 @@
           
             <!-- Cash on Delivery -->
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="COD" value="COD">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="COD" value="cod">
               <label class="form-check-label" for="COD">
                 Cash on Delivery
               </label>
@@ -96,7 +98,7 @@
         
             <!-- Cheque Payment -->
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="Cheque" value="Online Payment">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="Cheque" value="onlinePayment">
               <label class="form-check-label" for="Cheque">
                 Online Payment
               </label>
@@ -116,12 +118,14 @@
     </div>
   </div>
 
+
   <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
     document.querySelector("form").addEventListener("submit", function (event) {
       // Check if an address is selected
+      event.preventDefault()
       let addressChecked = document.querySelector('input[name="address"]:checked');
       let paymentChecked = document.querySelector('input[name="paymentMethod"]:checked');
 
@@ -134,11 +138,81 @@
           text: "Please select an address and a payment method before proceeding.",
         });
       }
+
+      if(addressChecked && paymentChecked){
+        makePayment()
+      }
     });
   </script>
   
 
 
+  <script>
+    async function makePayment() {
+      alert('s')
+      console.log(document.getElementById("totalInput").value,'document.getElementById("totalInput").value');
+      const value = document.getElementById("totalInput").value
+      const paymentMethod = document.getElementById("Cheque").value
+      // console.log(paymentMethod,'ssd');
+      
+      const address = document.querySelector("[name='address']").value
+        try {
+            // 1. Create Order (Call Backend)
+            let response = await fetch("http://localhost:4007/user/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  total:value,
+                  paymentMethod,
+                  address,
+                }), // Amount in INR
+            });
+            let order = await response.json();
+            console.log(order,'order');
+            
+            // 2. Open Razorpay Checkout
+            let options = {
+                key: "rzp_test_dDhywmKqhJmLtU", // Replace with actual Key ID
+                amount: order.amount,
+                currency: order.currency,
+                name: "My Store",
+                description: "Test Transaction",
+                order_id: order.id, 
+                handler: async function (response) {
+                    console.log("Payment Successful", response);
+
+                    // 3. Verify Payment (Call Backend)
+                    let verifyResponse = await fetch("http://localhost:4007/verifyOrder", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({...response,orderId:order.receipt})
+                    });
+                    let verifyResult = await verifyResponse.json();
+                    alert(verifyResult.message);
+                    window.location.href = '/'
+                },
+                prefill: {
+                    name: "John Doe",
+                    email: "johndoe@example.com",
+                    contact: "9999999999"
+                },
+                
+                theme: { color: "#528FF0" }
+            };
+
+            let rzp = new Razorpay(options);
+            rzp.open();
+
+            rzp.on('payment.failed', function (response){
+         console.log(response);
+         alert("This step of Payment Failed");
+   });
+   
+        } catch (error) {
+            console.error("Payment failed:", error);
+        }
+    }
+</script>
 
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/tiny-slider.js"></script>

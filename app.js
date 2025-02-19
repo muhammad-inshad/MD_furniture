@@ -10,6 +10,9 @@ const Swal = require('sweetalert2');
 const nocache = require("nocache");
 const passport=require("./config/passport")
 const pymentRoute=require("./router/paymentRouter")
+const MongoStore = require("connect-mongo");
+const crypto = require("crypto");
+const Order = require("./models/orderSchema");
 
 
 
@@ -28,7 +31,11 @@ app.use(session({
         secure:false,
         httpOnly:true,
         maxAge:72*60*60*100
-    }
+    },
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI, // Use your MongoDB connection string
+        collectionName: "sessions", // Name of the collection where sessions will be stored
+    }),
 }))
 
 
@@ -43,6 +50,42 @@ app.use(express.static(path.join(__dirname,"public")))
 
 app.use("/user",userRouter);
 app.use('/admin',adminRouter);
+
+
+//Inside app.js
+app.post('/verifyOrder', async (req, res)=>{ 
+    
+    // STEP 7: Receive Payment Data
+    const {razorpay_order_id, razorpay_payment_id,orderId} = req.body;     
+    const razorpay_signature =  req.body.razorpay_signature;
+
+    // Pass yours key_secret here
+    const key_secret = '9wZDRCYPwn0qXq3ze0GOFEq0';     
+console.log(orderId,'orderId');
+
+    // STEP 8: Verification & Send Response to User
+    // Creating hmac object 
+    let hmac = crypto.createHmac('sha256', key_secret); 
+
+    // Passing the data to be hashed
+    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+    
+    // Creating the hmac in the required format
+    const generated_signature = hmac.digest('hex');
+    
+    
+    if(razorpay_signature===generated_signature){
+    await Order.findByIdAndUpdate(orderId,{$set:{status:'paid'}})
+
+        res.json({success:true, message:"Payment has been verified"})
+    }
+    else{
+    await Order.findByIdAndUpdate(orderId,{$set:{status:'failed'}})
+
+    res.json({success:false, message:"Payment verification failed"})
+    }
+});
+
 
 // app.use('/razorpay',pymentRoute)
 

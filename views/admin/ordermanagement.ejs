@@ -239,6 +239,7 @@ td img:hover {
                         <td>    <form action="/admin/order/update/<%= order._id %>" method="POST">
                             <label for="status">Order Status:</label>
                             <select name="status" id="status">
+                                <option value="paid" <%= order?.status === 'paid' ? 'selected' : '' %>>Paid</option>
                                 <option value="pending" <%= order?.status === 'pending' ? 'selected' : '' %>>Pending</option>
                                 <option value="Processing" <%= order?.status === 'Processing' ? 'selected' : '' %>>Processing</option>
                                 <option value="shipped" <%= order?.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
