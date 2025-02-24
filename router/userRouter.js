@@ -87,4 +87,8 @@ router.post("/orderCancel",sofaController.postorderCancel)
 router.post("/rating",sofaController.rating)
 
 router.post("/applycoupon",sofaController.applycoupon)
+
+router.get("/Wallet",sofaController.Wallet)
+router.post("/addmoney",sofaController.addmoney)
+router.post("/verifyPayment",sofaController.verifyPayment)
 module.exports=router

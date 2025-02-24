@@ -1,0 +1,250 @@
+<%-include("../../views/partials/user/top")%>
+<title>User Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+     .dashboard-container {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .dashboard {
+        display: flex;
+        min-height: 100vh;
+    }
+    .sidebar {
+        width: 250px;
+        background-color: #d7dee5;
+        color: #000;
+        padding: 20px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .sidebar a {
+        display: block;
+        text-decoration: none;
+        color: #000;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+        background-color: #0056b3;
+        color: #fff;
+    }
+    .content {
+        flex: 1;
+        padding: 20px;
+        background-color: #fff;
+    }
+    .wallet-section {
+    padding: 40px;
+    margin: 30px auto;
+    background: linear-gradient(135deg, #1a1a2e, #16213e); /* Deep Dark Blue */
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: #ffffff;
+    max-width: 800px;
+    width: 90%;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.wallet-section:hover {
+    transform: scale(1.21);
+    box-shadow: 0 12px 30px rgba(26, 26, 46, 0.6);
+}
+
+/* Wallet Image */
+.wallet-section::before {
+    content: "";
+    background: url('https://cdn-icons-png.flaticon.com/512/3135/3135715.png') no-repeat center;
+    background-size: 100px;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    opacity: 0.8;
+}
+
+.wallet-section h2 {
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 120px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ffc400; /* Softer Gold */
+    
+}
+
+.wallet-balance {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 14px 28px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* Button */
+.add-money-btn {
+    background: linear-gradient(135deg, #b8860b, #8b7500); /* Dark Gold */
+    color: white;
+    padding: 14px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+}
+
+.add-money-btn:hover {
+    background: linear-gradient(135deg, #a57c00, #6d5c00);
+    transform: scale(1.08);
+    box-shadow: 0 8px 20px rgba(184, 134, 11, 0.5);
+}
+
+</style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard">
+            <div class="sidebar">
+                <h2>PROFILE</h2>
+                <a href="/user/profile">Profile</a>
+                <a href="/user/myorders">My Orders</a>
+                <a href="/user/address">Address</a>
+                <a href="/user/Wallet" class="active">Wallet</a>
+                <a href="/user/home">Back</a>
+            </div>
+            <div class="content">
+                <div class="wallet-section">
+                    <h2>My Wallet</h2>
+                    <p class="wallet-balance">Current Balance: <span id="wallet-balance"><%=findUser.wallet%></span></p>
+                    <button class="add-money-btn" id="showAddMoney" onclick="showAmountInput()">Add Money</button>
+
+<!-- Hidden Input Field and Proceed Button -->
+<div id="addMoneySection" style="display: none; margin-top: 10px;">
+    <input type="number" id="amountInput" name="amountInput" required placeholder="Enter amount">
+    <button class="add-money-btn" onclick="addMoneyToWallet()">Proceed to Pay</button>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+    <script>
+        function showAmountInput() {
+            document.getElementById("addMoneySection").style.display = "block"; // Show input and proceed button
+            document.getElementById("showAddMoney").style.display = "none"; // Hide initial button
+        }
+    </script>
+
+    <script>
+        async function addMoneyToWallet() {
+            const amount = document.getElementById("amountInput").value;
+    
+            if (!amount || amount <= 0) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Invalid Amount",
+                    text: "Please enter a valid amount.",
+                });
+                return;
+            }
+    
+            const response = await fetch("/user/addmoney", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount })
+            });
+    
+            const order = await response.json();
+            console.log("Received response from backend:", order);
+    
+            if (!order.amount) {
+                console.error("Invalid amount received:", order);
+                Swal.fire({
+                    icon: "error",
+                    title: "Payment Error",
+                    text: "Invalid payment amount. Try again later.",
+                });
+                return;
+            }
+    
+            let options = {
+                key: "rzp_test_dDhywmKqhJmLtU",
+                amount: order.amount,  
+                currency: "INR",
+                name: "MD_FURNITURE",
+                description: "Wallet Recharge",
+                handler: async function (response) {
+                    console.log("Payment successful. Verifying...");
+    
+                    let verifyResponse = await fetch("/user/verifyPayment", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            ...response,
+                            amount: order.amount  
+                        })
+                    });
+    
+                    let result = await verifyResponse.json();
+                    console.log("Payment verification response:", result);
+    
+                    Swal.fire({
+                        title: result.success ? "Wallet Updated!" : "Payment Failed!",
+                        text: result.message,
+                        icon: result.success ? "success" : "error",
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        if (result.success) window.location.reload();
+                    });
+                },
+                prefill: {
+                    name: "Inshad",
+                    email: "johndoe@example.com",
+                    contact: "9999999999"
+                },
+                theme: { color: "#528FF0" }
+            };
+    
+            console.log("Opening Razorpay payment modal...");
+            let rzp = new Razorpay(options);
+            rzp.open();
+    
+            rzp.on('payment.failed', function (response) {
+                console.log("Payment failed:", response.error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Payment Failed",
+                    text: response.error.description,
+                });
+            });
+        }
+    </script>
+<%-include("../../views/partials/user/footer")%>

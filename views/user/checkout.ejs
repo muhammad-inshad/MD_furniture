@@ -104,6 +104,12 @@
               </label>
             </div>
         
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="wallet" value="wallet">
+              <label class="form-check-label" for="Cheque">
+               wallet
+              </label>
+            </div>
          
         </div>
         <center>
@@ -122,97 +128,213 @@
   <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+  
+
   <script>
     document.querySelector("form").addEventListener("submit", function (event) {
-      // Check if an address is selected
-      event.preventDefault()
+      event.preventDefault(); // Stop default submission
+  
       let addressChecked = document.querySelector('input[name="address"]:checked');
       let paymentChecked = document.querySelector('input[name="paymentMethod"]:checked');
-
-      if (!addressChecked || !paymentChecked) {
-        event.preventDefault(); // Prevent form submission
   
+      if (!addressChecked || !paymentChecked) {
         Swal.fire({
           icon: "warning",
           title: "Selection Required",
           text: "Please select an address and a payment method before proceeding.",
         });
+        return; // Stop execution if validation fails
       }
-
-      if(addressChecked && paymentChecked){
-        makePayment()
+  
+      let selectedPaymentMethod = paymentChecked.value;
+  
+      if (selectedPaymentMethod === "onlinePayment") {
+        makePayment(); // Call online payment function
+      }
+      else if(selectedPaymentMethod === "wallet"){
+              wallet()
+      }
+       else
+       {
+        COD(); // Call COD function
       }
     });
   </script>
+
+<script>
+  async function wallet() {
+    try {
+      const value = document.getElementById("totalInput")?.value;
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+      const address = document.querySelector('input[name="address"]:checked')?.value;
+
+      if (!value || !paymentMethod || !address) {
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please ensure all fields are selected before proceeding.",
+        });
+        return;
+      }
+
+      const response = await fetch("/user/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ total: value, paymentMethod, address }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Order Placed!",
+          text: "Your order has been placed successfully.",
+        }).then(() => {
+          window.location.href = "/user/myorders"; // Redirect to orders page
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Order Failed",
+          text: result.error || result.message || "Something went wrong!",
+        });
+      }
+    } catch (error) {
+      console.error("Error in wallet function:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: "Please try again later.",
+      });
+    }
+  }
+</script>
+
+    
+  <script>
+    async function COD() {
+      try {
+        const value = document.getElementById("totalInput").value;
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const address = document.querySelector("input[name='address']:checked").value;
   
-
-
+        const response = await fetch("/user/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            total: value,
+            paymentMethod,
+            address,
+          }),
+        });
+  
+        const result = await response.json();
+  
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Order Placed!",
+            text: "Your order has been placed successfully.",
+          }).then(() => {
+            window.location.href = "/user/myorders"; // Redirect to orders page
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Order Failed",
+            text: result.error || "Something went wrong!",
+          });
+        }
+      } catch (error) {
+        console.error("Error in COD function:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Network Error",
+          text: "Please try again later.",
+        });
+      }
+    }
+  </script>
+  
   <script>
     async function makePayment() {
-      alert('s')
-      console.log(document.getElementById("totalInput").value,'document.getElementById("totalInput").value');
-      const value = document.getElementById("totalInput").value
-      const paymentMethod = document.getElementById("Cheque").value
-      // console.log(paymentMethod,'ssd');
-      
-      const address = document.querySelector("[name='address']").value
-        try {
-            // 1. Create Order (Call Backend)
-            let response = await fetch("http://localhost:4007/user/checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  total:value,
-                  paymentMethod,
-                  address,
-                }), // Amount in INR
+      Swal.fire({
+        title: "Processing Payment...",
+        text: "Please wait while we process your order.",
+        icon: "info",
+        showConfirmButton: false,
+        allowOutsideClick: false
+      });
+  
+      try {
+        const value = document.getElementById("totalInput").value;
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const address = document.querySelector("input[name='address']:checked").value;
+  
+        let response = await fetch("http://localhost:4007/user/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            total: value,
+            paymentMethod,
+            address,
+          }),
+        });
+  
+        let order = await response.json();
+  
+        let options = {
+          key: "rzp_test_dDhywmKqhJmLtU",
+          amount: order.amount,
+          currency: order.currency,
+          name: "MD_FURNITURE",
+          description: "Test Transaction",
+          order_id: order.id,
+          handler: async function (response) {
+            console.log("Payment Successful", response);
+  
+            let verifyResponse = await fetch("http://localhost:4007/verifyOrder", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...response, orderId: order.receipt })
             });
-            let order = await response.json();
-            console.log(order,'order');
-            
-            // 2. Open Razorpay Checkout
-            let options = {
-                key: "rzp_test_dDhywmKqhJmLtU", // Replace with actual Key ID
-                amount: order.amount,
-                currency: order.currency,
-                name: "My Store",
-                description: "Test Transaction",
-                order_id: order.id, 
-                handler: async function (response) {
-                    console.log("Payment Successful", response);
-
-                    // 3. Verify Payment (Call Backend)
-                    let verifyResponse = await fetch("http://localhost:4007/verifyOrder", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({...response,orderId:order.receipt})
-                    });
-                    let verifyResult = await verifyResponse.json();
-                    alert(verifyResult.message);
-                    window.location.href = '/'
-                },
-                prefill: {
-                    name: "John Doe",
-                    email: "johndoe@example.com",
-                    contact: "9999999999"
-                },
-                
-                theme: { color: "#528FF0" }
-            };
-
-            let rzp = new Razorpay(options);
-            rzp.open();
-
-            rzp.on('payment.failed', function (response){
-         console.log(response);
-         alert("This step of Payment Failed");
-   });
-   
-        } catch (error) {
-            console.error("Payment failed:", error);
-        }
+  
+            let verifyResult = await verifyResponse.json();
+  
+            Swal.fire({
+              title: verifyResult.success ? "Payment Verified!" : "Verification Failed!",
+              text: verifyResult.message,
+              icon: verifyResult.success ? "success" : "error",
+              confirmButtonText: "OK"
+            }).then(() => {
+              if (verifyResult.success) window.location.href = '/user/myorders';
+            });
+          },
+          prefill: {
+            name: "inshad",
+            email: "johndoe@example.com",
+            contact: "9999999999"
+          },
+          theme: { color: "#528FF0" }
+        };
+  
+        let rzp = new Razorpay(options);
+        rzp.open();
+  
+        rzp.on('payment.failed', function (response) {
+          console.log(response);
+          alert("Payment Failed");
+        });
+  
+      } catch (error) {
+        console.error("Payment failed:", error);
+      }
     }
-</script>
+  </script>
+  
 
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/tiny-slider.js"></script>

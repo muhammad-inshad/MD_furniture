@@ -830,18 +830,57 @@ const postCkeckout = async (req, res) => {
                 receipt: newOrder._id,
                 notes: { info: "Test payment" }
             }).then((order) => {
-                console.log(order, 'Order Created');
                return res.json(order); // Send order details to frontend
             }).catch((err) => {
                 console.log(err, 'Order Creation Failed');
                 res.status(500).json({ error: err });
             });
-        }else{
-            res.render("placeOrder", { paymentMethod, formattedExpectedDate: newOrder.orderExpectedDate });
+        }
+        else if (paymentMethod == "wallet") {
+            try {
+                await Cart.deleteOne({ userId });  // Delete cart item
+        
+                let findUser = new mongoose.Types.ObjectId(req.session.user.id); // Convert to ObjectId
+    
+        
+                let User = await user.findOne({ _id: findUser }); // Correct query
+
+                if (!User) {
+                    return res.json({ success: false, message: "User not found" });
+                }
+        
+                let wallet = User.wallet;
+        
+                if (wallet < 1) {
+                    return res.json({ success: false, message: "Wallet is empty" });
+                }
+        
+                if (wallet < total) {
+                    return res.json({ success: false, message: "Wallet does not have enough money" });
+                }
+        
+                User.wallet -= total;  // Deduct amount
+                await User.save();  // Save updated user data
+             
+        
+                return res.json({ success: true, message: "Payment successful" });
+            } catch (error) {
+                console.error("Error processing payment:", error);
+                return res.json({ success: false, message: "Server error" });
+            }
+        }
+        
+        
+        else{
+            await Cart.deleteOne({ userId });
+            return res.json({
+                success: true,
+                message: "Order placed successfully",
+                formattedExpectedDate: newOrder.orderExpectedDate
+            });
 
         }
 
-        // Clear cart
         await Cart.deleteOne({ userId });
 
     } catch (error) {
@@ -862,17 +901,21 @@ const myorders = async (req, res) => {
                     }
                 },
                 {
+                    $sort: { createdAt: -1 }  // Sort by most recent orders
+                },
+                {
                     $unwind: "$orderedItems"  // Unwind orderedItems to separate each item
                 },
                 {
                     $lookup: {
-                        from: "products",  // The collection name in MongoDB (make sure this is correct)
+                        from: "products",  // The collection name in MongoDB
                         localField: "orderedItems.product",  // Field from Order model (product ID)
                         foreignField: "_id",  // Field from Products collection (Product ID)
                         as: "productDetails"  // The field to store the lookup result
                     }
                 },
             ]);
+            
             res.render("myorders", { orders, isLogin: true });
         }
     } catch (error) {
@@ -892,10 +935,15 @@ const orderCancel = async (req, res) => {
 
 const postorderCancel = async (req, res) => {
     try {
-
+        let userId = req.session.user.id;
         const id = req.body.id
         const { orderDetails } = req.body
         const order = await Order.findById(id)
+        if(order.paymentType=="onlinePayment"){
+        const findUser=await user.findById(userId)
+        findUser.wallet = (findUser.wallet || 0) + order.finalAmount;
+        await findUser.save()
+        }
         order.status = "Cancelled"
         order.cancelReson = orderDetails
         await order.save();
@@ -981,10 +1029,76 @@ const applycoupon = async (req, res) => {
 };
 
 
+const Wallet=async (req,res)=>{
+    try {
+        let userId = req.session.user.id;
+        let findUser= await user.findById(userId)
+        res.render("wallet",{findUser})
+    } catch (error) {
+        console.error("Error in Wallet:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
 
+const addmoney = async (req, res) => {
+    try {
+        if (!req.session || !req.session.user || !req.session.user.id) {
+            return res.status(401).json({ message: "User not logged in" });
+        }
 
+        const { amount } = req.body;
 
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ message: "Invalid amount" });
+        }
 
+        const paymentDetails = {
+            amount: amount * 100, // Convert to paisa
+            currency: "INR",
+        };
+
+        res.json(paymentDetails);
+    } catch (error) {
+        console.error("Error in addmoney:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const verifyPayment = async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount } = req.body;
+
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({ message: "User not logged in" });
+        }
+
+        // Secure Razorpay secret key from .env
+
+        const secret = process.env.RAZORPAY_SECRET_KEY;
+        if (!secret) {
+            return res.status(500).json({ message: "Razorpay secret key missing!" });
+        }
+    
+        const userId = req.session.user.id;
+        const User = await user.findById(userId);
+
+        if (!User) {
+            console.error(" User not found:", userId);
+            return res.status(404).json({ message: "User not found" });
+        }
+
+      
+
+        User.wallet += amount / 100; // Convert paise to rupees
+        await User.save();
+
+        res.json({ success: true, message: "Wallet updated successfully" });
+
+    } catch (error) {
+        console.error(" Error in verifyPayment:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
 
 
 
@@ -1012,5 +1126,8 @@ module.exports = {
     rating,
     edit_address,
     postedit_address,
-    applycoupon
+    applycoupon,
+    Wallet,
+    addmoney,
+    verifyPayment
 }
