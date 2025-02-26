@@ -95,9 +95,35 @@
 
     <script>
        document.getElementById("couponForm").addEventListener("submit", async function(event) {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault(); 
+    const name = document.getElementById("name").value.trim();
+    const discountType = document.getElementById("discountType").value;
+    const discountValue = document.getElementById("discountValue").value.trim();
+    const minPurchase = document.getElementById("minPurchase").value.trim();
+    const maxDiscount = document.getElementById("maxDiscount").value.trim();
+    const usageLimit = document.getElementById("usageLimit").value.trim();
+    const expiryDate = document.getElementById("expiryDate").value;
 
-    // Collect form data
+    const discountValueNum = parseFloat(discountValue);
+    const minPurchaseNum = parseFloat(minPurchase);
+    const maxDiscountNum = maxDiscount ? parseFloat(maxDiscount) : null;
+    const usageLimitNum = parseInt(usageLimit);
+
+
+    if (
+        name === "" || discountValue === "" || minPurchase === "" || usageLimit === "" || expiryDate === "" ||
+        isNaN(discountValueNum) || isNaN(minPurchaseNum) || isNaN(usageLimitNum) || (maxDiscount !== "" && isNaN(maxDiscountNum)) ||
+        discountValueNum < 0 || minPurchaseNum < 0 || (maxDiscountNum !== null && maxDiscountNum < 0) || usageLimitNum < 0
+    ) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Input",
+            text: "Fields cannot be empty, contain spaces only, or have negative values. Please enter valid numbers.",
+            confirmButtonColor: "#d33"
+        });
+        return; // Stop execution if validation fails
+    }
+
     const formData = {
         name: document.getElementById("name").value.trim(),
         discountType: document.getElementById("discountType").value,

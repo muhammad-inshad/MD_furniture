@@ -34,7 +34,7 @@ const blockUser=async (req,res)=>{
             const user= await User.findById(id)
             user.isBlocked = !user.isBlocked;
             await user.save();
-            res.redirect("/admin/userManagement")
+            res.json({success:true})
       } catch (error) {
         console.log(error);
       }

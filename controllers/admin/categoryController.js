@@ -114,7 +114,7 @@ const deleteCategory = async (req, res) => {
         }
         category.isDeleted = !category.isDeleted;
         await category.save();
-        res.redirect("/admin/CategoryManagement");
+        res.json({success:true})
     } catch (error) {
         console.error("Error deleting/restoring category:", error);
         res.status(500).json({ message: "Internal server error" });

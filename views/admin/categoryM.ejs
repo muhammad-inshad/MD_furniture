@@ -57,15 +57,14 @@
                                 <form action="/admin/updateCategory/<%= category._id %>" method="post">
                                     <button type="submit" class="ubtn">Update</button>
                                 </form><br>
-                                <form action="/admin/deleteCategory" method="post">
-                                    <input type="hidden" name="id" value="<%= category._id %>">
-                                    
-                                    <% if (category.isDeleted) { %>
-                                        <button type="submit" class="Dbtn">Restore</button>
-                                    <% } else { %>
-                                        <button type="submit" class="Dbtn">Delete</button>
-                                    <% } %>
-                                </form>
+                                
+                                    <button class="Dbtn" 
+                                            data-category-id="<%= category._id %>" 
+                                            onclick="deleteOrRestoreCategory('<%= category._id %>', '<%= category.isDeleted ? 'true' : 'false' %>')">
+                                        <%= category.isDeleted ? 'Restore' : 'Delete' %>
+                                    </button>
+                                
+                                
                                 
                                 
                             </td>       
@@ -82,5 +81,72 @@
     </div>
 </div>
     
+
+<script>
+    function deleteOrRestoreCategory(categoryId, isDeleted) {
+        isDeleted = isDeleted === "true";
+        
+        Swal.fire({
+        title: isDeleted ? "Restore Category?" : "Delete Category?",
+        text: isDeleted 
+            ? "Are you sure you want to restore this category?" 
+            : "Are you sure you want to delete this category?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: isDeleted ? "Yes, Restore" : "Yes, Delete"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/admin/deleteCategory`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: categoryId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: isDeleted ? "Category Restored" : "Category Deleted",
+                        text: `The category has been ${isDeleted ? 'restored' : 'deleted'} successfully.`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // 🔹 Update Button Text & Action Dynamically
+                    const button = document.querySelector(`button[data-category-id="${categoryId}"]`);
+                    if (button) {
+                        if (isDeleted) {
+                            button.innerText = "Delete";
+                            button.setAttribute("onclick", `deleteOrRestoreCategory('${categoryId}', 'false')`);
+                        } else {
+                            button.innerText = "Restore";
+                            button.setAttribute("onclick", `deleteOrRestoreCategory('${categoryId}', 'true')`);
+                        }
+                    }
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Action Failed",
+                        text: "Something went wrong. Please try again."
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Failed to process the request."
+                });
+            });
+        }
+    });
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </body>
 </html>

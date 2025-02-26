@@ -116,8 +116,8 @@
                                     <form action="/admin/updateProduct/<%= product._id %>" method="get">
                                         <button type="submit" class="ubtn">Update</button>
                                     </form><br>
-                                    <form action="/admin/deleteProduct/<%= product._id %>" method="post">
-                                        <button type="submit" class="ubtn">
+                                    <form id="deleteForm-<%= product._id %>" data-id="<%= product._id %>">
+                                        <button type="button" class="ubtn" onclick="toggleDelete('<%= product._id %>', <%= product.isDeleted %>)">
                                             <%= product.isDeleted ? 'Restore' : 'Delete' %>
                                         </button>
                                     </form>
@@ -234,7 +234,52 @@ document.getElementById("searchBTN").addEventListener("click", async (e) => {
 });
 
     </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-   
+    <script>
+    async function toggleDelete(productId, isDeleted) {
+        try {
+            const response = await fetch(`/admin/deleteProduct/${productId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ isDeleted: !isDeleted }) // Toggle delete state
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: "success",
+                    title: isDeleted ? "Restored!" : "Deleted!",
+                    text: `Product has been ${isDeleted ? "restored" : "deleted"} successfully.`,
+                    confirmButtonColor: "#3085d6"
+                }).then(() => {
+                    // Update button text dynamically
+                    const button = document.querySelector(`#deleteForm-${productId} button`);
+                    button.textContent = isDeleted ? "Delete" : "Restore";
+                    button.setAttribute("onclick", `toggleDelete('${productId}', ${!isDeleted})`);
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: data.message || "Something went wrong!",
+                    confirmButtonColor: "#d33"
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting/restoring product:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An error occurred. Please try again.",
+                confirmButtonColor: "#d33"
+            });
+        }
+    }
+</script>
+ 
 </body>
 </html>

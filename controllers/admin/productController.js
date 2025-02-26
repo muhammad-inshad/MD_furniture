@@ -134,7 +134,7 @@ const DeleteProduct=async(req,res)=>{
     
       
     await product.save();
-        res.redirect("/admin/productManagement")
+        res.json({success:true})
     
    } catch (error) {
     console.error('Error from  delete product:', error);

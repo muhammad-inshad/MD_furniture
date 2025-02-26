@@ -128,12 +128,13 @@
 </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function toggleDateFields() {
             const filterType = document.getElementById("filter").value;
             const customDateInputs = document.getElementById("customDateInputs");
-
+             
             if (filterType === "custom") {
                 customDateInputs.style.display = "block";
             } else {
@@ -172,24 +173,47 @@
             }
 
             if (!startDate || !endDate) {
-                alert("Please select a valid date range.");
-                return;
-            }
+    Swal.fire({
+        icon: "warning",
+        title: "Invalid Date Range",
+        text: "Please select a valid date range.",
+    });
+    return;
+}
+
 
             fetch(`/admin/ShowTheSalesReport?startDate=${startDate}&endDate=${endDate}`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("overallSalesCount").innerText = data.salesCount || 0;
-                document.getElementById("overallOrderAmount").innerText = `₹${data.orderAmount || 0}`;
-                document.getElementById("overallDiscount").innerText = `₹${data.discount || 0}`;
-            })
-            .catch(error => console.error("Error fetching sales report:", error));
+        headers: {
+            "Content-Type": "application/json",
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Check if there's no sales data
+        if (!data.salesCount && !data.orderAmount && !data.discount) {
+            Swal.fire({
+                icon: "info",
+                title: "No Sales Data",
+                text: "No sales data available for the selected date range.",
+            });
+            return;
+        }
+
+        // Update UI with sales data
+        document.getElementById("overallSalesCount").innerText = data.salesCount || 0;
+        document.getElementById("overallOrderAmount").innerText = `₹${data.orderAmount || 0}`;
+        document.getElementById("overallDiscount").innerText = `₹${data.discount || 0}`;
+    })
+    .catch(error => {
+        console.error("Error fetching sales report:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to fetch sales report. Please try again later.",
+        });
+    });
+}
 
 
  function downloadPDF() {
