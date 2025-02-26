@@ -33,8 +33,8 @@ app.use(session({
         maxAge:72*60*60*100
     },
     store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI, // Use your MongoDB connection string
-        collectionName: "sessions", // Name of the collection where sessions will be stored
+        mongoUrl: process.env.MONGODB_URI, 
+        collectionName: "sessions", 
     }),
 }))
 

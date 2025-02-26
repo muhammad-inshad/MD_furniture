@@ -28,6 +28,7 @@
     }
     .form-group {
       margin-bottom: 15px;
+      position: relative;
     }
     label {
       display: block;
@@ -39,6 +40,12 @@
       padding: 10px;
       border: 1px solid #004ef5;
       border-radius: 5px;
+    }
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
     }
     button {
       background-color: #007bff;
@@ -56,21 +63,22 @@
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>Admin Dashboard</h2>
-    <a href="/admin/dashboard">Dashboard</a>
-    <a href="/admin/userManagement">Manage Users</a>
-    <a href="/admin/CategoryManagement">Category Management</a>
-    <a href="/admin/productManagement">Product Management</a>
-    <a href="/admin/ordermanagment">Order Management</a>
-    <a href="/admin/coupenMenagement">Coupon Management</a>
-    <a href="/admin/SalesReport">Sales Report</a>
-    <a href="/admin/logout">Logout</a>
-</div>
-<div class="content">
+  <body>
+    <div class="sidebar">
+      <h2>Admin Dashboard</h2>
+      <a href="/admin/dashboard">Dashboard</a>
+      <a href="/admin/userManagement">Manage Users</a>
+      <a href="/admin/CategoryManagement">Category Management</a>
+      <a href="/admin/productManagement">Product Management</a>
+      <a href="/admin/ordermanagment">Order Management</a>
+      <a href="/admin/coupenMenagement">Coupon Management</a>
+      <a href="/admin/SalesReport">Sales Report</a>
+      <a href="/admin/logout">Logout</a>
+  </div>
+  <div class="content">
    <div>
        <h1 class="heading">
-           addProduct
+           Add Product
        </h1>
    </div>
   <div class="form-container">
@@ -80,18 +88,21 @@
       <div class="form-group">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" placeholder="Enter name" required>
+        <span class="error-message" id="nameError"></span>
       </div>
       
       <!-- Description -->
       <div class="form-group">
         <label for="description">Description:</label>
         <textarea id="description" name="description" rows="3" placeholder="Enter description" required></textarea>
+        <span class="error-message" id="descriptionError"></span>
       </div>
       
       <!-- Offer Price -->
       <div class="form-group">
         <label for="offerPrice">Offer Price:</label>
         <input type="number" id="offerPrice" name="offerPrice" placeholder="Enter offer price" required>
+        <span class="error-message" id="offerPriceError"></span>
       </div>
       
       <!-- Status -->
@@ -111,30 +122,44 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
       function validateForm() {
-      const name = document.getElementById("name").value
-      const description = document.getElementById("description").value
-      const offerPrice = document.getElementById('offerPrice').value
-            
-      if (!/^[a-zA-Z]+$/.test(name)) {
-        alert('Name should not contain spaces or numbers.');
-        return false;
-    }
-      if (/\s/.test(description)) {
-        alert('Description should not contain spaces.');
-        return false;
+        let isValid = true;
+
+        const name = document.getElementById("name").value;
+        const description = document.getElementById("description").value;
+        const offerPrice = document.getElementById('offerPrice').value;
+
+        const nameError = document.getElementById("nameError");
+        const descriptionError = document.getElementById("descriptionError");
+        const offerPriceError = document.getElementById("offerPriceError");
+
+        nameError.textContent = "";
+        descriptionError.textContent = "";
+        offerPriceError.textContent = "";
+
+        if (!/^[a-zA-Z]+$/.test(name)) {
+          nameError.textContent = "Name should not contain spaces or numbers.";
+          isValid = false;
+        }
+
+        if (/\s/.test(description)) {
+          descriptionError.textContent = "Description should not contain spaces.";
+          isValid = false;
+        }
+
+        if (offerPrice <= 0) {
+          offerPriceError.textContent = "Offer Price should be a positive number.";
+          isValid = false;
+        }
+
+        return isValid;
       }
-      if (offerPrice <= 0) {
-        alert('Offer Price should be a positive number.');
-        return false;
-      }
-      return true;
-    }
     
     document.getElementById('updateForm').addEventListener('submit', function(event) {
       event.preventDefault(); // Prevent the default form submission
       if (!validateForm()) {
         return; // Stop form submission if validation fails
       }
+      
       // Collect form data
       const formData = {
         name: document.getElementById('name').value,

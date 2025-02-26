@@ -64,6 +64,7 @@
             color: #4CAF50;
         }
     </style>
+     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 <body>
     <div class="sidebar">
@@ -77,15 +78,14 @@
         <a href="/admin/SalesReport">Sales Report</a>
         <a href="/admin/logout">Logout</a>
     </div>
-
     <div class="content">
         <div>
-            <h1 class="heading">DASHBOARD</h1>
-        </div>
+            <h1 class="heading">sales report</h1>
+        </div><br>
         <div class="section">
             <center><h2>MD-FURNITURE</h2></center>
         </div>
-
+        <div class="sm">
         <div class="filter-container">
             <label for="filter">Filter:</label>
             <select id="filter" onchange="toggleDateFields()">
@@ -125,7 +125,7 @@
             </div>
         </div>
     </div>
-
+</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
 

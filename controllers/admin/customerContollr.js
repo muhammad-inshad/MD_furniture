@@ -9,7 +9,7 @@ const path=require("path")
 const Sharp=require("sharp");
 const { constants } = require('perf_hooks');
 const Address = require('../../models/addressSchema');
-
+const mongoose = require("mongoose");
 
 
 
@@ -477,28 +477,29 @@ const orderupdate=async (req,res)=>{
 
 const userAddress = async (req, res) => {
     try {
-        const addressMainId = req.params.id1;
-        const addressSecondId = req.params.id2;
+        const addressMainId = new mongoose.Types.ObjectId(req.params.id1);
 
+        // Fetch user document with the first address only
         const addressData = await Address.findOne(
-            { userId: addressMainId, "address._id": addressSecondId },
-            { "address.$": 1 } // Projection to get only the matching address
+            { userId: addressMainId },
+            { "address": { $slice: 1 } } // Retrieve only the first address
         );
+
 
         if (!addressData || !addressData.address.length) {
             return res.status(404).json({ success: false, message: "Address not found" });
         }
 
-        const address = addressData.address[0]; // Extract first item from array
-       
+        const address = addressData.address[0]; // Take the first address
 
-        res.render("userAddresspage", { address }); // Pass only the matched address
+        res.render("userAddresspage", { address });
 
     } catch (error) {
-        console.error("userAddress from admin side", error);
+        console.error("Error fetching user address:", error);
         res.status(500).json({ success: false, message: "Error fetching user address" });
     }
 };
+
 
 const showProduct=async (req,res)=>{
     try {

@@ -44,8 +44,8 @@ body {
 .heading {
     margin-bottom: 20px;
     background-color: rgb(0, 0, 0);
-    margin: -20px;
-    height: 90px;
+    margin: -52px;
+    height: 145px;
     display: flex;
     justify-content: space-between;
     align-items: center;

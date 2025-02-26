@@ -7,24 +7,28 @@
     <link href="/admin/category.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Category</h2>
-      
-        <a href="/admin/dashboard">Dashboard</a>
-        <a href="/admin/userManagement">Manage Users</a>
-        <a href="/admin/CategoryManagement">Category Management</a>
-        <a href="/admin/productManagement">Product Management</a>
-        <a href="/admin/ordermanagment">Order Management</a>
-        <a href="/admin/coupenMenagement">Coupon Management</a>
-        <a href="/admin/SalesReport">Sales Report</a>
-        <a href="/admin/logout">Logout</a>
+    <div class="sidebar bg-gray-900 text-white w-64 h-screen p-5 fixed">
+        <h2 class="text-xl font-semibold mb-4">Category</h2>
+        <nav class="space-y-2">
+            <a href="/admin/dashboard" class="block px-4 py-2 rounded-lg transition hover:bg-gray-700">Dashboard</a>
+            <a href="/admin/userManagement" class="block px-4 py-2 rounded-lg transition hover:bg-gray-700">Manage Users</a>
+            <a href="/admin/CategoryManagement" class="block px-4 py-2 rounded-lg bg-gray-800">Category Management</a>
+            <a href="/admin/productManagement" class="block px-4 py-2 rounded-lg transition hover:bg-gray-700">Product Management</a>
+            <a href="/admin/ordermanagment" class="block px-4 py-2 rounded-lg transition hover:bg-gray-700">Order Management</a>
+            <a href="/admin/coupenMenagement" class="block px-4 py-2 rounded-lg transition hover:bg-gray-700">Coupon Management</a>
+            <a href="/admin/SalesReport" class="block px-4 py-2 rounded-lg transition hover:bg-gray-700">Sales Report</a>
+            <a href="/admin/logout" class="block px-4 py-2 rounded-lg transition hover:bg-red-600">Logout</a>
+        </nav>
     </div>
+    
+    <div class="sm">
     <div class="content">
         <div>
             <form action="/admin/addCategory" method="get">
-                <h1 class="heading">a   Category Management</h1>
+                <h1 class="heading">   Category Management</h1>
                 <div>
                     <button type="submit" id="add" class="btn">Add</button>
                 </div>
@@ -76,7 +80,7 @@
             
         </table>
     </div>
-  
+</div>
     
 </body>
 </html>

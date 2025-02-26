@@ -172,6 +172,7 @@ td img:hover {
         padding: 0 10px;
     }
     </style>
+     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 <body>
     <div class="sidebar">
@@ -191,6 +192,7 @@ td img:hover {
                 order Management
             </h1>
         </div>
+        <div class="sm">
          <div>
             <input type="search" placeholder="Enter the data" id="search">
          </div>
@@ -236,8 +238,8 @@ td img:hover {
                                 <div><%= item.quantity %></div> <!-- Access quantity here -->
                             <% }) %>
                         </td>
-                        <td>    <form action="/admin/order/update/<%= order._id %>" method="POST">
-                            <label for="status">Order Status:</label>
+                        <td><form id="orderForm" action="/admin/order/update/<%= order._id %>" method="POST">
+                            <input type="hidden" value="<%= order._id %>" name="id" id="orderid">
                             <select name="status" id="status">
                                 <option value="paid" <%= order?.status === 'paid' ? 'selected' : '' %>>Paid</option>
                                 <option value="pending" <%= order?.status === 'pending' ? 'selected' : '' %>>Pending</option>
@@ -246,10 +248,11 @@ td img:hover {
                                 <option value="Delivered" <%= order?.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                                 <option value="Cancelled" <%= order?.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                                 <option value="Returnd" <%= order?.status === 'Returnd' ? 'selected' : '' %>>Returnd</option>
-                               
                             </select>
-                            <button type="submit">Update Status</button>
-                        </form></td>
+                        </form>
+                        
+                        
+                        
                         <td><%= order?.finalAmount %></td>
                         <td><%= order?.paymentType %></td>
                        
@@ -265,9 +268,33 @@ td img:hover {
                 <button type="button" id="next-btn" onclick="Next()">Next</button>
             </form>
         </center>
-        
     </div>
-   
+    </div>
+    <script>
+        document.getElementById('status').addEventListener('change', function() {
+            const orderId = document.getElementById("orderid").value
+            const status = this.value; // Get selected status
+        
+            fetch(`/admin/order/update/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status }) // Send status as JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Order status updated successfully!');
+                } else {
+                    alert('Failed to update order status.');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating order:', error);
+            });
+        });
+        </script>
     <script>
         let currentPage = <%= currentPage %>;
         let totalPages = <%= totalPages %>;

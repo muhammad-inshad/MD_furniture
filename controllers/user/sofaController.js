@@ -190,7 +190,22 @@ const profile = async (req, res) => {
             const findUser = await user.findById(id)
             const userAddresses = await Address.findOne({ userId: id });
             const addresses = userAddresses ? userAddresses.address : [];
-            return res.render("userProfile", { findUser, addresses, isLogin: true })
+            if (req.session && req.session.user) {
+                userId = req.session.user.id;
+                isLogin = true;
+        
+                const userCart = await Cart.findOne({ userId });
+                cartCount = userCart ? userCart.items.length : 0;
+        
+                const wishlist = await Wishlist.findOne({ userId });
+                countWishlist = wishlist ? wishlist.products.length : 0;
+        
+                // Store wishlist product IDs for easy checking
+                if (wishlist) {
+                    wishlistProductIds = wishlist.products.map(p => p.productId.toString());
+                }
+            }
+            return res.render("userProfile", { findUser, addresses, isLogin: true,cartCount })
         }
     } catch (error) {
         res.render("pageNotFound")
@@ -516,6 +531,9 @@ const getCartData = async (req, res) => {
     }
 
     const total = subtotal - discountAmount + tax;
+    
+    let cartCount=0
+
 
     res.render('cart', {
         cartData: userCart,
@@ -525,6 +543,7 @@ const getCartData = async (req, res) => {
         isLogin,
         couponRemoved,
         couponName,
+        cartCount
     });
 };
 
@@ -820,10 +839,10 @@ const postCkeckout = async (req, res) => {
         newOrder.orderExpectedDate = expectedDate.toDateString();
         newOrder.paymentType = paymentMethod;
 
-        await newOrder.save();
 
 
         if (paymentMethod == "onlinePayment") {
+            
             razorpayInstance.orders.create({
                 amount: parseInt(total * 100), // Convert INR to paise
                 currency: "INR",
@@ -835,43 +854,57 @@ const postCkeckout = async (req, res) => {
                 console.log(err, 'Order Creation Failed');
                 res.status(500).json({ error: err });
             });
+            await Cart.deleteOne({ userId });
+            
+        await newOrder.save();
         }
         else if (paymentMethod == "wallet") {
             try {
-                await Cart.deleteOne({ userId });  // Delete cart item
+                console.log("Total:", total); // Log total
+                
+                let findUser = new mongoose.Types.ObjectId(req.session.user.id);
+                let User = await user.findOne({ _id: findUser });
         
-                let findUser = new mongoose.Types.ObjectId(req.session.user.id); // Convert to ObjectId
-    
-        
-                let User = await user.findOne({ _id: findUser }); // Correct query
-
                 if (!User) {
-                    return res.json({ success: false, message: "User not found" });
+                    return res.status(400).json({ success: false, message: "User not found" });
                 }
         
-                let wallet = User.wallet;
+                let wallet = Number(User.wallet);
+                let totalAmount = Number(total);
+        
+                if (isNaN(wallet) || isNaN(totalAmount)) {
+                    return res.status(400).json({ success: false, message: "Invalid wallet or total amount" });
+                }
         
                 if (wallet < 1) {
-                    return res.json({ success: false, message: "Wallet is empty" });
+                    return res.status(400).json({ success: false, message: "Wallet is empty" });
                 }
         
-                if (wallet < total) {
-                    return res.json({ success: false, message: "Wallet does not have enough money" });
+                if (wallet < totalAmount) {
+                    return res.status(400).json({ success: false, message: "Wallet does not have enough money" });
                 }
         
-                User.wallet -= total;  // Deduct amount
-                await User.save();  // Save updated user data
-             
+                // ✅ If all conditions pass, only then update wallet
+                User.wallet -= totalAmount;
+                await User.save();
         
-                return res.json({ success: true, message: "Payment successful" });
+                // ✅ Remove cart item only if payment succeeds
+                await Cart.deleteOne({ userId });
+        
+                await newOrder.save();
+                return res.status(200).json({ success: true, message: "Payment successful" });
+        
             } catch (error) {
                 console.error("Error processing payment:", error);
-                return res.json({ success: false, message: "Server error" });
+                return res.status(500).json({ success: false, message: "Server error" });
             }
         }
+          
         
         
         else{
+            
+        await newOrder.save();
             await Cart.deleteOne({ userId });
             return res.json({
                 success: true,
@@ -880,7 +913,6 @@ const postCkeckout = async (req, res) => {
             });
 
         }
-
         await Cart.deleteOne({ userId });
 
     } catch (error) {

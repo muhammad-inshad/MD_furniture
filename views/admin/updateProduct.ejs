@@ -273,8 +273,61 @@ cropButton.addEventListener("click", () => {
         cropper = null;
     });
 });
+function validateForm() {
+    let name = document.getElementById("name").value.trim();
+    let description = document.getElementById("description").value.trim();
+    let brand = document.getElementById("brand").value.trim();
+    let salePrice = document.getElementById("salePrice").value.trim();
+    let stock = document.getElementById("stock").value.trim();
+    let productOffer = document.getElementById("productOffer").value.trim();
+    let status = document.getElementById("status").value;
+    let imageUpload = document.getElementById("upload");
+
+    if (name === "" || description === "" || brand === "" || salePrice === "" || stock === "") {
+        Swal.fire("Error!", "Please fill in all required fields.", "error");
+        return false;
+    }
+
+    if (isNaN(salePrice) || salePrice <= 0) {
+        Swal.fire("Error!", "Sale Price must be a valid positive number.", "error");
+        return false;
+    }
+
+    if (productOffer !== "" && isNaN(productOffer)) {
+        Swal.fire("Error!", "Product Offer must be a valid number.", "error");
+        return false;
+    }
+
+    if (isNaN(stock) || stock < 0) {
+        Swal.fire("Error!", "Stock must be a valid non-negative number.", "error");
+        return false;
+    }
+
+    if (status === "") {
+        Swal.fire("Error!", "Please select a product status.", "error");
+        return false;
+    }
+
+    // Validate uploaded images (if required)
+    if (imageUpload.files.length > 0) {
+        for (let file of imageUpload.files) {
+            let fileType = file.type;
+            if (!["image/jpeg", "image/png", "image/webp"].includes(fileType)) {
+                Swal.fire("Error!", "Only JPG, PNG, and WEBP images are allowed.", "error");
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 document.getElementById("updateProduct").addEventListener("submit", (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default submission
+
+    if (!validateForm()) {
+        return; // Stop execution if validation fails
+    }
 
     const formData = new FormData();
 
@@ -288,13 +341,18 @@ document.getElementById("updateProduct").addEventListener("submit", (e) => {
     formData.append("stock", document.getElementById("stock").value);
     formData.append("status", document.getElementById("status").value);
 
-    // Append cropped images with the same key
-    croppedImages.forEach((image) => {
-        formData.append("productImages", image); // Use the same key
-    });
+    // Ensure `croppedImages` is defined before using
+    if (typeof croppedImages !== "undefined" && Array.isArray(croppedImages)) {
+        croppedImages.forEach((image) => {
+            formData.append("productImages", image);
+        });
+    } else {
+        Swal.fire("Error!", "No images selected or processed.", "error");
+        return;
+    }
 
     // Submit the form
-    fetch("/admin/updateProduct/<%= findUPproduct._id %>", {
+    fetch(`/admin/updateProduct/<%= findUPproduct._id %>`, {
         method: "POST",
         body: formData,
     })
