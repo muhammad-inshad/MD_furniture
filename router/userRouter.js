@@ -2,6 +2,10 @@ const express=require("express");
 const router=express.Router();
 const userContoller=require("../controllers/user/userController");
 const sofaController=require("../controllers/user/sofaController")
+const chairControler=require("../controllers/user/chairControler")
+const profileControler=require("../controllers/user/userProfileController")
+const checkoutController=require("../controllers/user/checkoutController")
+const cartController=require("../controllers/user/cartController")
 const {uploadFields}=require("../middlewares/multer")
 const {isUser,isLoginORnot}=require("../middlewares/auth");
 const passport = require("passport");
@@ -57,38 +61,40 @@ router.get("/auth/google/callback",passport.authenticate("google",{failureRedire
 })
 
 
-router.get("/chair",isUser,uploadFields,sofaController.chair)
+router.get("/chair",isUser,uploadFields,chairControler.chair)
 router.get("/showDetailProduct/:id",isUser,uploadFields,sofaController.showDetailProduct)
 
 router.get("/sofa",isUser,uploadFields,sofaController.sofa)
 
 router.get("/shop",isUser,uploadFields,sofaController.shop)
 
-router.get("/profile",isUser,isLoginORnot,sofaController.profile)
-router.get("/address",isLoginORnot,isUser,sofaController.address)
-router.get("/add_address",isLoginORnot,isUser,sofaController.add_address)
-router.post("/add_address",sofaController.post_add_address)
-router.get("/edit_address/:id",sofaController.edit_address)
-router.post("/edit_address",sofaController.postedit_address)
-router.get("/editeprofile",isLoginORnot,sofaController.editeprofile)
-router.post("/editeprofile/:id",sofaController.PostEditeprofile)
-router.post("/deleteAddress/:id",sofaController.deleteAddress)
-router.post("/cart",uploadFields,sofaController.cart)
-router.get('/cart' ,sofaController.getCartData);
-router.post('/cartremove',sofaController.remove)
-router.post('/incORdec',sofaController.incORdec)
-router.get('/checkout',isLoginORnot,isUser,sofaController.checkout)
-router.post("/checkout",sofaController.postCkeckout)
-router.get("/myorders",isLoginORnot,uploadFields,sofaController.myorders)
-router.get("/orderCancel/:id",isLoginORnot,sofaController.orderCancel)
-router.post("/orderCancel",sofaController.postorderCancel)
+router.get("/profile",isUser,isLoginORnot,profileControler.profile)
+router.get("/address",isLoginORnot,isUser,profileControler.address)
+router.get("/add_address",isLoginORnot,isUser,profileControler.add_address)
+router.post("/add_address",profileControler.post_add_address)
+router.get("/edit_address/:id",profileControler.edit_address)
+router.post("/edit_address",profileControler.postedit_address)
+router.get("/editeprofile",isLoginORnot,profileControler.editeprofile)
+router.post("/editeprofile/:id",profileControler.PostEditeprofile)
+router.post("/deleteAddress/:id",profileControler.deleteAddress)
+
+
+router.post("/cart",uploadFields,cartController.cart)
+router.get('/cart' ,cartController.getCartData);
+router.post('/cartremove',cartController.remove)
+router.post('/incORdec',cartController.incORdec)
+
+router.get('/checkout',isLoginORnot,isUser,checkoutController.checkout)
+router.post("/checkout",checkoutController.postCkeckout)
+router.get("/myorders",isLoginORnot,uploadFields,checkoutController.myorders)
+router.get("/orderCancel/:id",isLoginORnot,checkoutController.orderCancel)
+router.post("/orderCancel",checkoutController.postorderCancel)
 
 
 router.post("/rating",sofaController.rating)
-
 router.post("/applycoupon",sofaController.applycoupon)
 
-router.get("/Wallet",sofaController.Wallet)
-router.post("/addmoney",sofaController.addmoney)
-router.post("/verifyPayment",sofaController.verifyPayment)
+router.get("/Wallet",checkoutController.Wallet)
+router.post("/addmoney",checkoutController.addmoney)
+router.post("/verifyPayment",checkoutController.verifyPayment)
 module.exports=router
