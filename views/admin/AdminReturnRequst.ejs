@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Return Management</title>
+    <link href="/admin/dashbord.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Table Container for Responsiveness */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table Styling */
+        .return-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Prevents column stacking */
+        }
+        .return-table th, .return-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .return-table thead {
+            background-color: #007bff;
+            color: white;
+        }
+        .return-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .return-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Button Styling */
+        .accept-btn, .reject-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .accept-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .accept-btn:hover {
+            background-color: #218838;
+        }
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+            margin-left: 10px;
+        }
+        .reject-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 5px;
+            }
+            .return-table {
+                font-size: 12px;
+            }
+            .accept-btn, .reject-btn {
+                font-size: 12px;
+                padding: 6px 10px;
+                margin: 3px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>ReturnRequest</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">Product Management</a>
+        <a href="/admin/ordermanagment">Order Management</a>
+        <a href="/admin/coupenMenagement">Coupon Management</a>
+        <a href="/admin/SalesReport">Sales Report</a>
+        <a href="/admin/AdminReturnRequest">Return Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+    
+    <div class="content">
+        <h1 class="heading">Return Management</h1>
+
+        <div class="table-container">
+            <table class="return-table">
+                <thead>
+                    <tr>
+                        <th>Item name</th>
+                        <th>Item id</th>
+                        <th>Reason for Return</th>
+                        <th>Actions</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (returnRequests && returnRequests.length > 0) { %>
+                        <% returnRequests.forEach(request => { %>
+                           
+                            <tr>
+                                  <td>
+                                <% if (request.productDetails) { %>
+                                    <%= request.productDetails.productName%>
+                                <% } else { %>
+                                    <span>No Image Available</span>
+                                <% } %>
+                            </td>
+                                <td><%=request._id%></td>
+                               <input type="hidden" value="<%=request.userId%>" name="userId" id="userId">
+                                <td><%= request.ReturnReson %></td>
+                                <td>
+                                    <% if (request.status === "ReturnRequst") { %>
+                                        <button class="accept-btn" data-id="<%= request._id %>">Accept</button>
+                                        <button class="reject-btn" data-id="<%= request._id %>">Reject</button>
+                                    <% } else if (request.status === "Rejected") { %>
+                                        <span style="font-weight:bold; color:red;">Product return request rejected</span>
+                                    <% } else if (request.status === "Returned") { %>
+                                        <span style="font-weight:bold; color:green;">Product return request approved</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 15px;">No return requests found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".accept-btn").forEach(button => {
+        button.addEventListener("click", async (event) => {
+            const requestId = event.target.getAttribute("data-id");
+            const userId=document.getElementById("userId").value
+            const confirmAction = await Swal.fire({
+                title: "Accept Return Request?",
+                text: "Are you sure you want to accept this return?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Accept"
+            });
+
+            if (confirmAction.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/acceptReturn/${requestId}`, {
+                        method: "POST",
+                        body:  JSON.stringify({ userId }),
+                        headers: { "Content-Type": "application/json" },
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        Swal.fire("Accepted!", "The return request has been accepted.", "success");
+
+                        // Find the actions cell and replace the buttons
+                        const actionsCell = event.target.closest("td");
+                        actionsCell.innerHTML = `
+                            <span style="font-weight:bold; color:green;">Product return request approved</span>
+                        `;
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    Swal.fire("Error", "Failed to accept return request.", "error");
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll(".reject-btn").forEach(button => {
+        button.addEventListener("click", async (event) => {
+            const requestId = event.target.getAttribute("data-id");
+
+            const confirmAction = await Swal.fire({
+                title: "Reject Return Request?",
+                text: "Are you sure you want to reject this return?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, Reject"
+            });
+
+            if (confirmAction.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/rejectReturn/${requestId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        Swal.fire("Rejected!", "The return request has been rejected.", "success");
+
+                        // Find the actions cell and replace the buttons
+                        const actionsCell = event.target.closest("td");
+                        actionsCell.innerHTML = `
+                            <span style="font-weight:bold; color:red;">Product return request rejected</span>
+                        `;
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    Swal.fire("Error", "Failed to reject return request.", "error");
+                }
+            }
+        });
+    });
+});
+
+    </script>
+</body>
+</html>

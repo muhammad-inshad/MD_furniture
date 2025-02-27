@@ -54,7 +54,7 @@ const orderSchema=new Schema({
     status: {
         type: String,
         required: true,
-        enum: ['pending', 'Processing', 'shipped', "Delivered", "Cancelled", "Returned","paid","failed"]
+        enum: ['pending', 'Processing', 'shipped', "Delivered", "Cancelled", "Returned","paid","failed","ReturnRequst","Rejected"]
     },
     createdAt: {
         type: Date,
@@ -74,7 +74,9 @@ const orderSchema=new Schema({
     cancelReson:{
         type:String
     },
-   
+   ReturnReson:{
+    type:String
+   }
 })
 
 const Order=mongoose.model("Order",orderSchema);

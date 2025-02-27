@@ -55,7 +55,7 @@
   </head>
   <body>
       <div class="sidebar">
-          <h2>Admin Dashboard</h2>
+          <h2>updateCategory</h2>
           <a href="/admin/dashboard">Dashboard</a>
           <a href="/admin/userManagement">Manage Users</a>
           <a href="/admin/CategoryManagement">Category Management</a>
@@ -63,6 +63,7 @@
           <a href="/admin/ordermanagment">Order Management</a>
           <a href="/admin/coupenMenagement">Coupon Management</a>
           <a href="/admin/SalesReport">Sales Report</a>
+          <a href="/admin/AdminReturnRequest">Return Management</a>
           <a href="/admin/logout">Logout</a>
       </div>
   <div class="form-container">
@@ -98,6 +99,10 @@
     </form>
     <% } %>
   </div>
+
+
+
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
@@ -112,6 +117,19 @@
       const description = document.getElementById("description").value;
       const offerPrice = document.getElementById("offerPrice").value;
       const status = document.getElementById("status").value;
+
+      const offerPriceValue = parseFloat(offerPrice);
+
+      if (!name || !description || /^\s/.test(name) || /^\s/.test(description) || isNaN(offerPriceValue) || offerPriceValue < 1) {
+  Swal.fire({
+    icon: "error",
+    title: "Invalid Input",
+    text: "Fields cannot be empty, start with a space, or contain invalid values.",
+    confirmButtonColor: "#d33"
+  });
+  return; // Stop further execution
+}
+
 
       // Send data using fetch
       fetch('/admin/updateForm', {

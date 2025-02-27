@@ -50,4 +50,9 @@ router.post("/deletecoupon/:id",adminController.deletecoupon)
 
 router.get("/SalesReport",isAdmin,adminController.SalesReport)
 router.post("/ShowTheSalesReport",adminController.ShowTheSalesReport)
+
+router.get("/AdminReturnRequest",adminController.ReturnRequest)
+router.post("/acceptReturn/:id",adminController.acceptReturn)
+router.post("/rejectReturn/:id",adminController.rejectReturn)
+
 module.exports=router

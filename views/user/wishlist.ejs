@@ -1,6 +1,128 @@
 <%- include("../../views/partials/user/top") %>
 
 <style>
+     .dashboard-container {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .dashboard-container .delete-button {
+        background-color: #ff4d4d;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        text-transform: uppercase;
+    }
+    .dashboard-container .delete-button:hover {
+        background-color: #e60000;
+        transform: translateY(-3px);
+    }
+    .dashboard-container .delete-button:active {
+        transform: translateY(1px);
+        background-color: #cc0000;
+    }
+    .dashboard-container .delete-button:focus {
+        outline: none;
+    }
+    .dashboard-container .dashboard {
+        display: flex;
+        min-height: 100vh;
+    }
+    .dashboard-container .sidebar {
+        width: 250px;
+        background-color:  #d7dee5;
+        color: #000000;
+        padding: 20px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-container .sidebar h2 {
+        margin: 0 0 20px;
+        text-align: center;
+    }
+    .dashboard-container .sidebar a {
+        display: block;
+        text-decoration: none;
+        color: #000000;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+    .dashboard-container .sidebar a:hover,
+    .dashboard-container .sidebar a.active {
+        background-color: #0056b3;
+    }
+    .dashboard-container .content {
+        flex: 1;
+        padding: 20px;
+        background-color: #fff;
+    }
+    .dashboard-container .content .section {
+        display: none;
+    }
+    .dashboard-container .content .section.active {
+        display: block;
+    }
+    .dashboard-container .profile img {
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        margin: 10px 0;
+    }
+    .dashboard-container .profile h2 {
+        margin: 10px 0;
+    }
+    .dashboard-container ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    .dashboard-container ul li {
+        background: #f9f9f9;
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    .dashboard-container .logout button {
+        padding: 10px 20px;
+        background-color: #ff4d4d;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .dashboard-container .logout button:hover {
+        background-color: #e60000;
+    }
+    .dashboard-container .add_address {
+        background-color: #f9f9f9;
+        max-height: 500px;
+        height: 100%;
+        max-width: 200px;
+        width: 100%;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, background-color 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+        color: #333;
+        cursor: pointer;
+    }
+    .dashboard-container .add_address:hover {
+        background-color: #60bd52;
+        color: #fff;
+        transform: translateY(-7px);
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
     .wishlist-container {
         max-width: 1000px;
         margin: auto;
@@ -62,6 +184,18 @@
     }
 </style>
 
+<div class="dashboard-container">
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>wishlist</h2>
+            <a href="/user/profile">Profile</a>
+            <a href="/user/myorders" >My Orders</a>
+            <a href="/user/address" >Address</a>
+            <a href="/user/Wallet" >Wallet</a>
+            <a href="/user/showWishlist">wishlist</a>
+            <a href="/user/home">Back</a>
+        </div>
+
 <div class="wishlist-container">
     <h2 class="wishlist-title">My Wishlist</h2>
     <% if (wishlist.length > 0) { %>
@@ -89,7 +223,7 @@
     <% } %>
     
     
-</div>
+</div></div>
 <br><br><br>
 
 <script>

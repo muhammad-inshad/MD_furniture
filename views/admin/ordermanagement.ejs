@@ -238,18 +238,25 @@ td img:hover {
                                 <div><%= item.quantity %></div> <!-- Access quantity here -->
                             <% }) %>
                         </td>
-                        <td><form id="orderForm" action="/admin/order/update/<%= order._id %>" method="POST">
+                        <td><form id="orderForm" data-id="<%= order._id %>">
                             <input type="hidden" value="<%= order._id %>" name="id" id="orderid">
-                            <select name="status" id="status">
-                                <option value="paid" <%= order?.status === 'paid' ? 'selected' : '' %>>Paid</option>
-                                <option value="pending" <%= order?.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                                <option value="Processing" <%= order?.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                <option value="shipped" <%= order?.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
-                                <option value="Delivered" <%= order?.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                <option value="Cancelled" <%= order?.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                <option value="Returnd" <%= order?.status === 'Returnd' ? 'selected' : '' %>>Returnd</option>
+                            <select name="status" id="status-<%= order._id %>">
+                                <% 
+                                    const statuses = ['paid', 'pending', 'Processing', 'shipped', 'Delivered', 'Cancelled', 'Returned'];
+                                    const selectedStatus = order?.status;
+                                %>
+                                <!-- Move the selected option to the top -->
+                                <option value="<%= selectedStatus %>" selected><%= selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1) %></option>
+                        
+                                <% statuses.forEach(status => { 
+                                    if (status !== selectedStatus) { %>
+                                        <option value="<%= status %>"><%= status.charAt(0).toUpperCase() + status.slice(1) %></option>
+                                <% } }); %>
                             </select>
                         </form>
+                        
+                        
+                 
                         
                         
                         
@@ -271,29 +278,45 @@ td img:hover {
     </div>
     </div>
     <script>
-        document.getElementById('status').addEventListener('change', function() {
-            const orderId = document.getElementById("orderid").value
-            const status = this.value; // Get selected status
-        
-            fetch(`/admin/order/update/${orderId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status }) // Send status as JSON
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Order status updated successfully!');
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("select[name='status']").forEach(select => {
+        select.addEventListener("change", async (event) => {
+            const orderId = event.target.closest("form").getAttribute("data-id");
+            const newStatus = event.target.value;
+
+            try {
+                const response = await fetch(`/admin/order/update/${orderId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Order status updated successfully.",
+                        icon: "success",
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                 } else {
-                    alert('Failed to update order status.');
+                    throw new Error(result.message);
                 }
-            })
-            .catch(error => {
-                console.error('Error updating order:', error);
-            });
+            } catch (error) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to update order status.",
+                    icon: "error"
+                });
+            }
         });
+    });
+});
+</script>
+
         </script>
     <script>
         let currentPage = <%= currentPage %>;

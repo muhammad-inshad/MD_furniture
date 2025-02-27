@@ -176,8 +176,99 @@ const ShowTheSalesReport = async (req, res) => {
     }
 };
 
+const ReturnRequest=async(req,res)=>{
+    try {
+        const returnRequests = await Order.aggregate([
+            {
+                $match: {
+                    status: { $in: ["ReturnRequst", "Rejected", "Returned"] }
+                }
+            },
+            {
+                $lookup: {
+                    from: "products", // Collection name of Product model
+                    localField: "orderedItems.product", // Field in Order model
+                    foreignField: "_id", // Field in Product model
+                    as: "productDetails"
+                }
+            },
+            {
+                $unwind: "$productDetails" // Unwind because lookup returns an array
+            },
+            {
+                $project: {
+                    _id: 1,
+                    ReturnReson: 1,
+                    status: 1,
+                    userId: 1,
+                    "productDetails.productName": 1 // Fetch only productImages
+                }
+            }
+        ]);
+               
+        res.render("AdminReturnRequst", { returnRequests });
+        
+    } catch (error) {
+        console.error("Error ReturnRequest:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+}
 
+const acceptReturn = async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body; 
     
+    try {
+        const order = await Order.findById(id);
+        
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+    
+        order.status = "Returned"; 
+        await order.save(); 
+    
+        const amount = order.finalAmount;
+   
+  
+        const findUser = await User.findById(userId);
+        
+        if (!findUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+       
+        findUser.wallet += amount;
+     
+        await findUser.save();
+      
+    
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error acceptReturn:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+    
+};
+  
+const rejectReturn=async (req,res)=>{
+     try {
+        const { id } = req.params;
+    
+        const order = await Order.findById(id);
+        
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        order.status = "Rejected";
+        await order.save();
+        console.log(order)
+        res.json({ success: true });
+     } catch (error) {
+        console.error("Error rejectReturn:", error);
+        res.status(500).json({ message: "Internal server error." });
+     }
+}
   
 module.exports={
     login,
@@ -189,5 +280,8 @@ module.exports={
     addcouponPost,
     deletecoupon,
     SalesReport,
-    ShowTheSalesReport
+    ShowTheSalesReport,
+    ReturnRequest,
+    acceptReturn,
+    rejectReturn
 }

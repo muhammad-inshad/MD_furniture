@@ -68,7 +68,7 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Admin Dashboard</h2>
+        <h2>Sales report</h2><br>
         <a href="/admin/dashboard">Dashboard</a>
         <a href="/admin/userManagement">Manage Users</a>
         <a href="/admin/CategoryManagement">Category Management</a>
@@ -76,6 +76,7 @@
         <a href="/admin/ordermanagment">Order Management</a>
         <a href="/admin/coupenMenagement">Coupon Management</a>
         <a href="/admin/SalesReport">Sales Report</a>
+        <a href="/admin/AdminReturnRequest">Return Management</a>
         <a href="/admin/logout">Logout</a>
     </div>
     <div class="content">
@@ -226,6 +227,16 @@
     const overallOrderAmount = document.getElementById("overallOrderAmount").innerText;
     const overallDiscount = document.getElementById("overallDiscount").innerText;
 
+    if (overallSalesCount==0 ) {
+        Swal.fire({
+            icon: "error",
+            title: "No Data Available",
+            text: "There is no data to generate the sales report.",
+            confirmButtonColor: "#d33"
+        });
+        return;
+    }
+
     doc.text(`Overall Sales Count: ${overallSalesCount}`, 20, 30);
     doc.text(`Overall Order Amount: ${overallOrderAmount}`, 20, 40);
     doc.text(`Overall Discount: ${overallDiscount}`, 20, 50);
@@ -236,10 +247,19 @@
 
 function downloadExcel() {
 
-    const overallSalesCount = document.getElementById("overallSalesCount").innerText;
-    const overallOrderAmount = document.getElementById("overallOrderAmount").innerText;
-    const overallDiscount = document.getElementById("overallDiscount").innerText;
-
+    const overallSalesCount = document.getElementById("overallSalesCount").innerText.trim();
+    const overallOrderAmount = document.getElementById("overallOrderAmount").innerText.trim();
+    const overallDiscount = document.getElementById("overallDiscount").innerText.trim();
+ 
+    if (overallSalesCount==0 ) {
+        Swal.fire({
+            icon: "error",
+            title: "No Data Available",
+            text: "There is no data to generate the sales report.",
+            confirmButtonColor: "#d33"
+        });
+        return;
+    }
 
     const data = [
         ["Sales Report"], // Title row
