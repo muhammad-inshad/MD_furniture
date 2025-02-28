@@ -13,6 +13,7 @@ const Razorpay=require("razorpay")
 
 const checkout = async (req, res) => {
     try {
+   
         const userId = req.session.user.id;
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             throw new Error("Invalid User ID");
@@ -20,9 +21,11 @@ const checkout = async (req, res) => {
 
         // Fetch the user's address
         const findAddress = await Address.findOne({ userId });
+
+     
         if (!findAddress) {
             console.log("No address found for the given userId");
-            return res.render("checkout", { isLogin: true, address: null, detailedCart: null });
+            return res.redirect("/user/add_address");
         }
 
         const address = findAddress.address;
@@ -83,6 +86,9 @@ const checkout = async (req, res) => {
         }
 
         const isLogin = req.session.user ? true : false;
+
+     
+
 
         // Render the checkout page with calculated values
         return res.render("checkout", {
@@ -317,7 +323,7 @@ const myorders = async (req, res) => {
                     }
                 },
             ]);
-            
+       
             res.render("myorders", { orders, isLogin: true });
         }
     } catch (error) {

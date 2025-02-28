@@ -43,7 +43,7 @@ router.post("/showProduct/:id",isAdmin,customerController.showProduct)
 
 router.get("/userAddress/:id1/:id2",isAdmin,customerController.userAddress)
 
-router.get("/coupenMenagement",adminController.coupenMenagement)
+router.get("/coupenMenagement",isAdmin,adminController.coupenMenagement)
 router.get("/addcoupon",adminController.addcoupon)
 router.post("/addcouponPost",adminController.addcouponPost)
 router.post("/deletecoupon/:id",adminController.deletecoupon)
@@ -51,7 +51,7 @@ router.post("/deletecoupon/:id",adminController.deletecoupon)
 router.get("/SalesReport",isAdmin,adminController.SalesReport)
 router.post("/ShowTheSalesReport",adminController.ShowTheSalesReport)
 
-router.get("/AdminReturnRequest",adminController.ReturnRequest)
+router.get("/AdminReturnRequest",isAdmin,adminController.ReturnRequest)
 router.post("/acceptReturn/:id",adminController.acceptReturn)
 router.post("/rejectReturn/:id",adminController.rejectReturn)
 

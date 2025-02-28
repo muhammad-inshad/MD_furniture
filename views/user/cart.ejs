@@ -116,6 +116,7 @@
                       <input type="hidden" id="totalPrice" value="<%= total%>" name="totalPrice">
                       <p>Enter your coupon code if you have one.</p>
                     </div>
+                    <% if (typeof total !== "undefined" && total > 0) { %>
                     <div class="col-md-8 mb-3 mb-md-0">
                         <input type="text" class="form-control py-3" id="coupon" placeholder="Coupon Code" value="<%= couponRemoved ? couponName : '' %>">
                     </div>
@@ -127,7 +128,7 @@
                             <button class="btn btn-black" id="Apply-Coupon" onclick="ApplyCoupon(false)">Apply Coupon</button>
                         <% } %>
                     </div>
-                    
+                    <% } %>
                     
 
                     
@@ -161,6 +162,7 @@
                         <div class="col-md-6">
                             <span class="text-black">Total</span>
                         </div>
+                        
                         <div class="col-md-6 text-right">
                             <strong class="text-black total-amount">$<%= total.toFixed(2) %></strong>
                         </div>
@@ -168,11 +170,12 @@
                     
     
                       <div class="row">
+                        <% if (typeof total !== "undefined" && total > 0) { %>
                         <div class="col-md-12">
                           <form action="/user/checkout">
                           <button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location='checkout.html'" >Proceed To Checkout</button>
                         </form>
-                        </div>
+                        </div><% } %>
                       </div>
                     </div>
                   </div>

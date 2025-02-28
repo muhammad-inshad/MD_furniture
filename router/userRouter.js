@@ -6,6 +6,7 @@ const chairControler=require("../controllers/user/chairControler")
 const profileControler=require("../controllers/user/userProfileController")
 const checkoutController=require("../controllers/user/checkoutController")
 const cartController=require("../controllers/user/cartController")
+const ReturnController=require("../controllers/user/ReturnController")
 const {uploadFields}=require("../middlewares/multer")
 const {isUser,isLoginORnot}=require("../middlewares/auth");
 const passport = require("passport");
@@ -99,6 +100,6 @@ router.get("/Wallet",checkoutController.Wallet)
 router.post("/addmoney",checkoutController.addmoney)
 router.post("/verifyPayment",checkoutController.verifyPayment)
 
-router.get("/ReturnRequest/:id",userContoller.ReturnRequest)
-router.post("/ReturnRequestApOrRe",userContoller.ReturnRequestApOrRe)
+router.get("/ReturnRequest/:id",isLoginORnot,ReturnController.ReturnRequest)
+router.post("/ReturnRequestApOrRe",ReturnController.ReturnRequestApOrRe)
 module.exports=router

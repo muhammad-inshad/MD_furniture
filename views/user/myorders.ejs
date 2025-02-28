@@ -273,9 +273,16 @@ body {
                                         <p><strong>Final Amount:</strong> $<%= order.finalAmount %></p>
                                         <p><strong>purchased Date:</strong> <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
                                         <p><strong>Coupon Applied:</strong> <%= order.couponApplied ? 'Yes' : 'No' %></p>
-                                        <p><strong>Status:</strong> <%= order.status %></p>
+                                        <% if (order.status !== "Rejected") { %>
+                                            <p><strong>Status:</strong> <%= order.status %></p>
+                                        <% } else { %>
+                                            <p style="color: red; font-weight: bold;">Product return request rejected. Any queries? Call us.</p>
+                                        <% } %>
+                                        
                                         <p><strong>Expected On:</strong> <%= order.orderExpectedDate ? order.orderExpectedDate.toISOString().slice(0, 10) : 'N/A' %></p>
                                         <p><strong> Rating:</strong></p>
+                                      
+                                        
                                         <% if ( order.productDetails[0]?.rating &&  order.productDetails[0]?.rating  !== undefined) { %>
                                             <div class="rating">
                                                 <% for (let i = 1; i <= 5; i++) { %>
