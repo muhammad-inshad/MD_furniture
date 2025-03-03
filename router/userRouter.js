@@ -89,6 +89,7 @@ router.post('/incORdec',cartController.incORdec)
 router.get('/checkout',isLoginORnot,isUser,checkoutController.checkout)
 router.post("/checkout",checkoutController.postCkeckout)
 router.get("/myorders",isLoginORnot,uploadFields,checkoutController.myorders)
+router.post("/DownloadPdf/:id",checkoutController.DownloadPdf)
 router.get("/orderCancel/:id",isLoginORnot,checkoutController.orderCancel)
 router.post("/orderCancel",checkoutController.postorderCancel)
 

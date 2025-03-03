@@ -44,15 +44,7 @@ const loginpost = async (req, res) => {
     }
 };
 
-const dashboard=async (req,res)=>{
-        try{
-           return await res.render("dashboard")
-        }
-        catch(error){
-            console.log("error form dashboard ",error)
-            res.status(500).json({success:true,message:"internal server error"})
-        }
-}
+
 
 const logoutPOst=async(req,res)=>{
     try {
@@ -203,6 +195,9 @@ const ReturnRequest=async(req,res)=>{
                     userId: 1,
                     "productDetails.productName": 1 // Fetch only productImages
                 }
+            },
+            {
+                $sort: { _id: -1 } // Sorting in descending order (-1)
             }
         ]);
                
@@ -273,7 +268,6 @@ const rejectReturn=async (req,res)=>{
 module.exports={
     login,
     loginpost,
-    dashboard,
     logoutPOst,
     coupenMenagement,
     addcoupon,

@@ -5,6 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link href="/admin/dashbord.css" rel="stylesheet"> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #121212;
+            color: white;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1e1e1e;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #ffcc00;
+            color: black;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            width: calc(100% - 270px);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #ffcc00;
+        }
+
+        .section {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Charts */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chart-container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -19,18 +120,146 @@
         <a href="/admin/AdminReturnRequest">Return Management</a>
         <a href="/admin/logout">Logout</a>
     </div>
+
     <div class="content">
-       <div>
-           <h1 class="heading">
-               DASHBOARD
-           </h1>
-       </div>
+ 
         <div class="section">
-            <center><h2>MD-FURNITURE</h2></center>
-            <p>"LET’S ACHIEVE OUR DREAM"</p>
+            <h2>MD-FURNITURE</h2>
         </div>
 
+        <div class="section">
+            <h2>Sales Performance</h2>
+            <label for="salesFilter">Filter: </label>
+            <select id="salesFilter">
+                <option value="yearly">Yearly</option>
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+            </select>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <h2>Top 10 Best-Selling Products</h2>
+                <canvas id="bestProductsChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Top 10 Best-Selling Categories</h2>
+                <canvas id="bestCategoriesChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Top 10 Best-Selling Brands</h2>
+                <canvas id="bestBrandsChart"></canvas>
+            </div>
+        </div>
     </div>
-     
+
+    <script>
+        async function fetchSalesData(filter = "yearly") {
+            try {
+                const response = await fetch("/admin/dashboard", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ filter }) 
+                });
+    
+                const salesData = await response.json();
+                console.log("API Response:", salesData); // Debugging
+    
+                if (salesData.labels && salesData.data) {
+                    salesChart.data.labels = salesData.labels;
+                    salesChart.data.datasets[0].data = salesData.data;
+                    salesChart.update();
+                }
+            } catch (error) {
+                console.error("Error fetching sales data:", error);
+            }
+        }
+    
+        const salesFilter = document.getElementById("salesFilter");
+        if (salesFilter) {
+            salesFilter.addEventListener("change", function() {
+                fetchSalesData(this.value);
+            });
+        }
+    
+        // Initialize the sales chart
+        const salesChart = new Chart(document.getElementById('salesChart'), {
+            type: 'bar',
+            data: { 
+                labels: [], 
+                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(255, 99, 132, 0.7)' }] 
+            },
+            options: { responsive: true }
+        });
+    
+        fetchSalesData(); // Load default sales data on page load
+    
+        async function fetchBestSellingData() {
+            try {
+                const response = await fetch("/admin/bestsellers", {
+    method: "POST"
+});
+
+                const data = await response.json();
+                console.log("Received Best-Selling Data:", data);
+    
+                if (data.bestSellingProducts?.labels) {
+                    bestProductsChart.data.labels = data.bestSellingProducts.labels;
+                    bestProductsChart.data.datasets[0].data = data.bestSellingProducts.data;
+                    bestProductsChart.update();
+                }
+    
+                if (data.bestSellingCategories?.labels) {
+                    bestCategoriesChart.data.labels = data.bestSellingCategories.labels;
+                    bestCategoriesChart.data.datasets[0].data = data.bestSellingCategories.data;
+                    bestCategoriesChart.update();
+                }
+    
+                if (data.bestSellingBrands?.labels) {
+                    bestBrandsChart.data.labels = data.bestSellingBrands.labels;
+                    bestBrandsChart.data.datasets[0].data = data.bestSellingBrands.data;
+                    bestBrandsChart.update();
+                }
+            } catch (error) {
+                console.error("Error fetching best-selling data:", error);
+            }
+        }
+    
+        // Initialize charts
+        const bestProductsChart = new Chart(document.getElementById('bestProductsChart'), {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(75, 192, 192, 0.7)' }]
+            },
+            options: { responsive: true }
+        });
+    
+        const bestCategoriesChart = new Chart(document.getElementById('bestCategoriesChart'), {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(255, 159, 64, 0.7)' }]
+            },
+            options: { responsive: true }
+        });
+    
+        const bestBrandsChart = new Chart(document.getElementById('bestBrandsChart'), {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(153, 102, 255, 0.7)' }]
+            },
+            options: { responsive: true }
+        });
+    
+        fetchBestSellingData(); // Fetch best-selling data on page load
+    </script>
+    
+    
+    
 </body>
 </html>

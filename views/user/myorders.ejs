@@ -256,7 +256,7 @@ body {
                                
                                 <li class="order-item">
                                     <div class="product-image-container">
-                                        <a href="/user/showDetailProduct/<%= order.productDetails[0]._id %>">
+                                     
                                         <% if (order.productDetails[0]?.productImages && order.productDetails[0].productImages.length > 0) { %>
                                             <img src="/uploads/<%= order.productDetails[0].productImages[0] %>" alt="Product Image" class="product-image">
                                         <% } else { %>
@@ -269,6 +269,15 @@ body {
                                         <span><strong>Quantity:</strong> <%= order?.orderedItems?.quantity %></span>
                                     </div>
                                     <div class="order-summary">
+                                        <% if (order.status !== "Cancelled" ) { %> 
+                                        
+                                            <form action="/user/DownloadPdf/<%=order._id%>" method="post">
+                                                <div class="container">
+                                                    <button class="btn btn-danger" id="cancelOrderButton">Download data</button>
+                                                </div>
+                                        </form>
+     
+                                        <% } %>
                                         <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
                                         <p><strong>Final Amount:</strong> $<%= order.finalAmount %></p>
                                         <p><strong>purchased Date:</strong> <%= new Date(order.invoiceDate).toLocaleDateString() %></p>

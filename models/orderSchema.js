@@ -76,6 +76,10 @@ const orderSchema=new Schema({
     },
    ReturnReson:{
     type:String
+   },
+   couponRemoved:{
+    type:Boolean,
+    default:false
    }
 })
 

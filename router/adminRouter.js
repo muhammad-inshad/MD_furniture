@@ -4,6 +4,7 @@ const adminController=require('../controllers/admin/adminController')
 const customerController=require('../controllers/admin/customerContollr')
 const productController=require('../controllers/admin/productController')
 const categoryController=require('../controllers/admin/categoryController')
+const dashboardController=require('../controllers/admin/dashboardController')
 const {uploadFields}=require("../middlewares/multer")
 const {isAdmin}=require("../middlewares/auth")
 
@@ -11,7 +12,10 @@ const {isAdmin}=require("../middlewares/auth")
 
 router.get("/login",adminController.login)
 router.post("/login",adminController.loginpost)
-router.get("/dashboard",isAdmin,adminController.dashboard)
+router.get("/dashboard",isAdmin,dashboardController.dashboard)
+router.post("/dashboard",dashboardController.postDashboard)
+router.post("/bestsellers", dashboardController.getBestSellingData);
+
 router.get("/logout",adminController.logoutPOst)
 
 router.get("/userManagement",customerController.userManagement)
@@ -54,5 +58,7 @@ router.post("/ShowTheSalesReport",adminController.ShowTheSalesReport)
 router.get("/AdminReturnRequest",isAdmin,adminController.ReturnRequest)
 router.post("/acceptReturn/:id",adminController.acceptReturn)
 router.post("/rejectReturn/:id",adminController.rejectReturn)
+
+
 
 module.exports=router

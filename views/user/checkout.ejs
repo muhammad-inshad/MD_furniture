@@ -50,6 +50,10 @@
                   <td class="text-black">$<%= subtotal %></td>
               </tr>
               <tr>
+                <td class="text-black font-weight-bold"><strong>Delivery Charge</strong></td>
+                  <td class="text-black">$100</td>
+              </tr>
+              <tr>
                 <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
                 <td class="text-black font-weight-bold">
                   <strong>$<%= total %></strong>
@@ -259,7 +263,7 @@
           Swal.fire({
             icon: "error",
             title: "Order Failed",
-            text: result.error || "Something went wrong!",
+            text: result.message || "Something went wrong!",
           });
         }
       } catch (error) {
@@ -328,15 +332,14 @@
             });
   
             let verifyResult = await verifyResponse.json();
-  
             Swal.fire({
               title: verifyResult.success ? "Payment Verified!" : "Verification Failed!",
               text: verifyResult.message,
               icon: verifyResult.success ? "success" : "error",
               confirmButtonText: "OK"
             }).then(() => {
-              if (verifyResult.success) window.location.href = '/user/myorders';
-            });
+               window.location.href = '/user/myorders';
+            })
           },
           prefill: {
             name: "inshad",
@@ -350,9 +353,16 @@
         rzp.open();
   
         rzp.on('payment.failed', function (response) {
-          console.log(response);
-          alert("Payment Failed");
-        });
+  console.log(response);
+  Swal.fire({
+    icon: "error",
+    title: "Payment Failed",
+    text: response.error.description || "Your payment could not be processed. Please try again.",
+    confirmButtonText: "OK"
+            })
+  });
+
+
   
       } catch (error) {
         console.error("Payment failed:", error);

@@ -192,7 +192,8 @@
     .then(response => response.json())
     .then(data => {
         // Check if there's no sales data
-        if (!data.salesCount && !data.orderAmount && !data.discount) {
+        if(data.salesCount && (!data.orderAmount || data.orderAmount === 0 || data.orderAmount === "") 
+        && (!data.discount || data.discount === 0 || data.discount === "")) {
             Swal.fire({
                 icon: "info",
                 title: "No Sales Data",
