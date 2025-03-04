@@ -16,6 +16,7 @@ const Razorpay=require("razorpay")
 
 const showDetailProduct = async (req, res) => {
     const { id } = req.params
+    console.log(id)
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).send("Invalid product ID.");
     }
@@ -152,7 +153,7 @@ const applycoupon = async (req, res) => {
 
         if (req.session.coupon) {
             delete req.session.coupon;
-            return res.json({ message: "Coupon removed successfully", couponRemoved: true });
+            return res.json({ message: "Coupon removed successfully", couponRemoved: true, finalPrice:req.session.cartTotal});
         }
 
         if (!coupon) {
@@ -195,7 +196,6 @@ const applycoupon = async (req, res) => {
             name: foundCoupon.name,
             discountValue: discountAmount,
         };
-
         res.json({
             message: "Coupon applied successfully!",
             discountAmount,

@@ -89,8 +89,6 @@ const checkout = async (req, res) => {
         const isLogin = req.session.user ? true : false;
 
      
-
-
         // Render the checkout page with calculated values
         return res.render("checkout", {
             isLogin,
@@ -185,7 +183,7 @@ const checkout = async (req, res) => {
                         price: item.product.salePrice || item.product.price,
                     })),
                     totalPrice: subtotal,
-                    finalAmount,
+                    finalAmount:total,
                     address: findAddress._id,
                     invoiceDate: new Date(),
                     status: "pending",

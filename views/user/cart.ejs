@@ -121,7 +121,7 @@
                         <input type="text" class="form-control py-3" id="coupon" placeholder="Coupon Code" value="<%= couponRemoved ? couponName : '' %>">
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-4" id="couponapplyBtn">
                         <% if (couponRemoved) { %>
                             <button class="btn btn-black" id="Remove-Coupon" onclick="ApplyCoupon(true)">Remove Coupon</button>
                         <% } else { %>
@@ -170,11 +170,20 @@
                     </div>
                     <div class="row mb-5">
                         <div class="col-md-6">
+                            <span class="text-black">Coupon Applied</span>
+                        </div>
+                        
+                        <div class="col-md-6 text-right" >
+                            <strong class="text-success total-amount" id="couponField">0</strong>
+                        </div>
+                    </div>
+                    <div class="row mb-5">
+                        <div class="col-md-6">
                             <span class="text-black">Total</span>
                         </div>
                         
                         <div class="col-md-6 text-right">
-                            <strong class="text-black total-amount">$<%= total.toFixed(2) %></strong>
+                            <strong class="text-black" id="totalField">$<%= total.toFixed(2) %></strong>
                         </div>
                     </div>
                     
@@ -343,12 +352,20 @@ async function ApplyCoupon(isRemoving) {
     const totalPrice = document.getElementById("totalPrice").value;
     const applyButton = document.getElementById("Apply-Coupon");
     const removeButton = document.getElementById("Remove-Coupon");
+    const couponField = document.getElementById('couponField');
+    const totalField = document.getElementById('totalField')
+    const couponapplyBtn= document.getElementById('couponapplyBtn')
+    console.log(couponField);
+    console.log(totalField);
+    
 
     let bodyData = {};
 
     if (isRemoving) {
         // User wants to remove the coupon
         bodyData = {};
+        couponapplyBtn.innerHTML=` <button class="btn btn-black" id="Apply-Coupon" onclick="ApplyCoupon(false)">Apply Coupon</button>`
+        couponField.textContent='$0'
     } else {
         if (!couponCode) {
             Swal.fire({
@@ -380,7 +397,15 @@ async function ApplyCoupon(isRemoving) {
                 confirmButtonColor: "#3085d6",
                 confirmButtonText: "OK",
             }).then(() => {
-                location.reload(); // Reload to update UI
+                if(data.couponRemoved===false){
+                couponField.textContent=`-$${data.discountAmount}`
+                totalField.textContent=`$${data.finalPrice.toFixed(2)}`;
+                couponapplyBtn.innerHTML=` <button class="btn btn-black" id="Remove-Coupon" onclick="ApplyCoupon(true)">Remove Coupon</button>`
+                }else{
+                    couponField.textContent=`-$0`
+                    console.log(data)
+                    totalField.textContent=`$${data.finalPrice.toFixed(2)}`;
+                }
             });
         } else {
             Swal.fire({

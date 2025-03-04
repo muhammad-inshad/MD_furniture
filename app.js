@@ -76,10 +76,10 @@ console.log(orderId,'orderId');
     
     if(razorpay_signature===generated_signature){
     await Order.findByIdAndUpdate(orderId,{$set:{status:'paid'}})
-
         res.json({success:true, message:"Payment has been verified"})
     }
     else{
+    console.log("hiiiiiiiiii")
     await Order.findByIdAndUpdate(orderId,{$set:{status:'failed'}})
  
     res.json({success:false, message:"Payment verification failed"})

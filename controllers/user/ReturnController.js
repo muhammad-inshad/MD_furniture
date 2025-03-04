@@ -37,7 +37,26 @@ const ReturnRequestApOrRe=async (req,res)=>{
     }
 }
 
+const pymentfaield=async (req,res)=>{
+    try {
+        const { order, error } = req.body;
+
+    if (!order || !order.receipt) {
+      return res.status(400).json({ success: false, message: "Invalid order data received." });
+    }
+        const findorder= await Order.findOne({_id:order.receipt})
+        findorder.status="failed"
+        findorder.orderExpectedDate=null
+        findorder.save()
+        res.status(200).json({ success: true, message: "Payment failure recorded.", order: findorder });
+    } catch (error) {
+        console.error("Error pymentfaield:", error);
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
+}
+
 module.exports={
     ReturnRequest,
-    ReturnRequestApOrRe
+    ReturnRequestApOrRe,
+    pymentfaield
 }

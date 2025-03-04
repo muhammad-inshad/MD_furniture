@@ -119,6 +119,7 @@ const getCartData = async (req, res) => {
   
 
     const total = subtotal - discountAmount + tax + 100;
+    req.session.cartTotal=total
     
     let cartCount=0
 
@@ -131,7 +132,7 @@ const getCartData = async (req, res) => {
         isLogin,
         couponRemoved,
         couponName,
-        cartCount
+        cartCount,
     });
 };
 

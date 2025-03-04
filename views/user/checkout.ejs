@@ -346,7 +346,8 @@
             email: "johndoe@example.com",
             contact: "9999999999"
           },
-          theme: { color: "#528FF0" }
+          theme: { color: "#528FF0" },
+          retry:{enabled:false}
         };
   
         let rzp = new Razorpay(options);
@@ -359,9 +360,27 @@
     title: "Payment Failed",
     text: response.error.description || "Your payment could not be processed. Please try again.",
     confirmButtonText: "OK"
-            })
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch("/user/pymentfaield", { // Fixed the route name
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          error: response.error, // Send error details
+          order: order // Send order details
+        })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          window.location.href = "/user/myorders"; // Change this to your actual route
+        })
+        .catch((err) => console.error("Error:", err));
+    }
   });
-
+});
 
   
       } catch (error) {
