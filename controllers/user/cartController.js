@@ -51,8 +51,12 @@ const cart = async (req, res) => {
 
 
         if (existingItem) {
-            // If the product exists, update the quantity and total price
+            
             existingItem.quantity += 1;
+            if (existingItem.quantity > 5) {
+                return res.json({ success: false, message: "You cannot add more than 5 items of this product." });
+            }
+            
             existingItem.totalPrice = existingItem.quantity * product.salePrice;
         } else {
             // If the product does not exist, add it to the cart
@@ -198,18 +202,15 @@ const incORdec = async (req, res) => {
             // Increment quantity
             existingItem.quantity += 1;
         } else if (action == "-1") {
-            // Decrement quantity
             if (existingItem.quantity > 1) {
                 existingItem.quantity -= 1;
             } else {
-                // Remove item if quantity reaches 0
                 userCart.items = userCart.items.filter(
                     (item) => !item.productId.equals(productId)
                 );
             }
         }
 
-        // Update total price for the item
         existingItem.totalPrice = existingItem.quantity * product.salePrice;
 
         // Save updated cart

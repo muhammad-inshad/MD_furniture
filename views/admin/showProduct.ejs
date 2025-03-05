@@ -3,117 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="/admin/dashbord.css" rel="stylesheet"> 
+    <title>Admin Dashboard - Product Details</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1a1a1a;
+            padding: 25px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 35px;
+            color: #00d4ff;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #b0b0b0;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: #00d4ff;
+            color: #1a1a1a;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            padding: 10px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger:hover {
+            color: #00aaff;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Product Details Section */
+        .product-details {
+            max-width: 900px;
+            width: 100%;
+            padding: 30px;
+            background: #252525;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .product-details:hover {
+            transform: translateY(-8px);
+        }
+
+        .product-details h2 {
+            color: #e0e0e0;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .product-details p {
+            font-size: 15px;
+            margin-bottom: 15px;
+            color: #b0b0b0;
+        }
+
+        .product-details p strong {
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        .product-details p.cancel-reason {
+            color: #ff6f61;
+            font-weight: bold;
+        }
+
+        /* Image Container */
+        .image-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding: 15px;
+            background: #333333;
+            border: 1px solid #444;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .image-container .product-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .image-container .product-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Back Button */
+        .back-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #6b48ff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #5636d9;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(107, 72, 255, 0.5);
+        }
+
+        .back-button:active {
+            transform: scale(1);
+            box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .product-details {
+                padding: 20px;
+            }
+
+            .product-details p {
+                font-size: 14px;
+            }
+
+            .image-container .product-image {
+                width: 120px;
+                height: 120px;
+            }
+
+            .back-button {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
 </head>
-<style>
-/* Container for the images */
-.image-container {
-    display: flex; /* Use flexbox for horizontal layout */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    gap: 10px; /* Space between images */
-    padding: 10px; /* Add some padding */
-    border: 1px solid #ddd; /* Add a border around the container */
-    border-radius: 8px; /* Rounded corners for the container */
-    background-color: #f9f9f9; /* Light background color */
-    max-width: 100%; /* Ensure the container doesn't exceed its parent's width */
-}
-
-/* Style the image inside the container */
-.image-container .product-image {
-    width: 150px; /* Fixed width for each image */
-    height: 150px; /* Fixed height for each image */
-    object-fit: cover; /* Ensure the image covers the area without distortion */
-    border-radius: 6px; /* Slightly rounded corners for the image */
-    flex-shrink: 0; /* Prevent images from shrinking */
-}
-
-/* Optional: Add a hover effect for the images */
-.image-container .product-image:hover {
-    transform: scale(1.05); /* Slightly enlarge on hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow on hover */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
-
-}
-/* Style for the back button */
-.back-button {
-    display: inline-block; /* Make the link behave like a block element */
-    padding: 10px 20px; /* Add padding for better clickability */
-    background-color: #007bff; /* Blue background color */
-    color: white; /* White text color */
-    text-decoration: none; /* Remove underline */
-    border-radius: 5px; /* Rounded corners */
-    font-size: 16px; /* Font size */
-    font-weight: bold; /* Bold text */
-    text-align: center; /* Center the text */
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
-    border: none; /* Remove border */
-    cursor: pointer; /* Change cursor to pointer */
-}
-
-/* Hover effect for the back button */
-.back-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: translateY(-2px); /* Slight lift effect */
-}
-
-/* Active effect for the back button */
-.back-button:active {
-    background-color: #004080; /* Even darker blue on click */
-    transform: translateY(0); /* Reset lift effect */
-}
-</style>
 <body>
+    <button class="hamburger">☰</button>
     <div class="sidebar">
-        <h2>showProduct</h2>
+        <h2>Product Details</h2>
         <a href="/admin/dashboard">Dashboard</a>
         <a href="/admin/userManagement">Manage Users</a>
         <a href="/admin/CategoryManagement">Category Management</a>
-        <a href="/admin/productManagement">Product Management</a>
+        <a href="/admin/productManagement" class="active">Product Management</a>
         <a href="/admin/ordermanagment">Order Management</a>
         <a href="/admin/coupenMenagement">Coupon Management</a>
         <a href="/admin/SalesReport">Sales Report</a>
         <a href="/admin/AdminReturnRequest">Return Management</a>
         <a href="/admin/logout">Logout</a>
     </div>
+
     <div class="content">
-        <div>
-            <h1 class="heading">DASHBOARD</h1>
-        </div>
-
-        <!-- Product Details Section -->
+        <h1>Product Details</h1>
         <div class="product-details">
-            <h2>Product Details</h2>
-            <div class="product-list">
-                <!-- Example Product Card -->
-                <div class="container">
-                
-                    <div class="product-details">
-                        <p><strong>productName:</strong> <%= product.productName %></p>
-                        <div class="image-container">
-                            <% product.productImages.forEach((image, index) => { %>
-                                <img src="/uploads/<%= image %>" alt="<%= product.name %> - Image <%= index + 1 %>" class="product-image">
-                            <% }) %>
-                        </div>
-                        <h2><%= product.name %></h2>
-                        <p><strong>brand:</strong> <%= product.brand %></p>
-                        <p><strong>quantity:</strong> <%= product.quantity %></p>
-                        <p><strong>Description:</strong> <%= product.description %></p>
-                        <p><strong>Price:</strong> $<%= product.salePrice %></p>
-                        <p><strong>Category:</strong> <%= product.category.name %></p>
-                        <p><strong>Rating:</strong> <%= product.rating %>/5</p>
-                        <% if (order && order.cancelReson) { %>
-                            <p style="color: red;"> <strong>Cancelled Reason : </strong> <%= order.cancelReson || "Not provided" %> </p>
-                        <% } %>
-                        
-                        
-                        
-                    </div>
-                    <a href="/admin/ordermanagment" class="back-button">Back to order Management</a>
-                </div>
-
-                <!-- Add more product cards dynamically here -->
+            <h2><%= product.productName %></h2>
+            <div class="image-container">
+                <% product.productImages.forEach((image, index) => { %>
+                    <img src="/uploads/<%= image %>" alt="<%= product.productName %> - Image <%= index + 1 %>" class="product-image">
+                <% }) %>
             </div>
+            <p><strong>Brand:</strong> <%= product.brand %></p>
+            <p><strong>Quantity:</strong> <%= product.quantity %></p>
+            <p><strong>Description:</strong> <%= product.description %></p>
+            <p><strong>Price:</strong> $<%= product.salePrice %></p>
+            <p><strong>Category:</strong> <%= product.category.name %></p>
+            <p><strong>Rating:</strong> <%= product.rating %>/5</p>
+            <% if (order && order.cancelReson) { %>
+                <p class="cancel-reason"><strong>Cancelled Reason:</strong> <%= order.cancelReson || "Not provided" %></p>
+            <% } %>
+            <a href="/admin/ordermanagment" class="back-button">Back to Order Management</a>
         </div>
     </div>
 </body>

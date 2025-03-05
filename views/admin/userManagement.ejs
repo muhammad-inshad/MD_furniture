@@ -4,12 +4,255 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
-    <link href="/admin/userManagement.css" rel="stylesheet"> 
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            color: #fff;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #252525;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            transition: 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00d4ff;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #ddd;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .sidebar a:hover {
+            background: #00d4ff;
+            color: #1a1a1a;
+            transform: translateX(5px);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1100;
+        }
+
+        /* Content */
+        .content {
+            margin-left: 270px;
+            padding: 30px;
+            width: calc(100% - 270px);
+            transition: 0.3s ease;
+        }
+
+        .heading {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 28px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar input {
+            padding: 12px;
+            width: 300px;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            background: #3a3a3a;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: background 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            background: #444;
+        }
+
+        .search-bar button {
+            padding: 12px 20px;
+            background: #00d4ff;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: #00aaff;
+            transform: scale(1.05);
+        }
+
+        /* Table Container */
+        .table-container {
+            background: #2e2e2e;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .table-container:hover {
+            transform: translateY(-5px);
+        }
+
+        /* User Table */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #252525;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: #34495e;
+            color: #fff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr {
+            transition: background 0.3s ease;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        td {
+            color: #ddd;
+        }
+
+        /* Action Buttons */
+        .block-btn, .unblock-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .block-btn {
+            background: #ff6f61;
+            color: #fff;
+        }
+
+        .block-btn:hover {
+            background: #ff4d3f;
+            transform: scale(1.05);
+        }
+
+        .unblock-btn {
+            background: #00d4ff;
+            color: #1a1a1a;
+        }
+
+        .unblock-btn:hover {
+            background: #00aaff;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: fixed;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .search-bar input {
+                width: 70%;
+            }
+
+            .user-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            th, td {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
 <body>
+    <button class="hamburger">☰</button>
     <div class="sidebar">
-        <h2>USER MANAGEMENT</h2>
+        <h2>User Management</h2>
         <a href="/admin/dashboard">Dashboard</a>
         <a href="/admin/userManagement">Manage Users</a>
         <a href="/admin/CategoryManagement">Category Management</a>
@@ -21,189 +264,190 @@
         <a href="/admin/logout">Logout</a>
     </div>
     <div class="content">
-        <h1 class="heading">USER MANAGEMENT</h1>
-        
+        <h1 class="heading">User Management</h1>
+
         <!-- Search Bar -->
         <div class="search-bar">
-            <div><input type="text" id="search" placeholder="Search users by name, email, or phone..."><button  id="btnsearch" type="submit" class="searchbtn">search</button></div>
+            <input type="text" id="search" placeholder="Search users by name, email, or phone...">
+            <button id="btnsearch" type="button">Search</button>
         </div>
-        
-    <!-- User Table -->
-<div class="table-container">
-    <table class="user-table">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Join Date & Time</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="user-table-body">
-            <% if (userfind.length > 0) { %>
-                <% userfind.forEach(user => { %>
+
+        <!-- User Table -->
+        <div class="table-container">
+            <table class="user-table">
+                <thead>
                     <tr>
-                        <td><%= user.username %></td>
-                        <td><%= user.phone || "N/A" %></td>
-                        <td><%= user.email %></td>
-                        <td>
-                            <%
-                                const createdDate = new Date(user.createdOn);
-                                const day = String(createdDate.getDate()).padStart(2, '0');
-                                const month = String(createdDate.getMonth() + 1).padStart(2, '0'); 
-                                const year = createdDate.getFullYear();
-                                const hours = String(createdDate.getHours()).padStart(2, '0');
-                                const minutes = String(createdDate.getMinutes()).padStart(2, '0');
-                                const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
-                            %>
-                            <%= formattedDate %>
-                        </td>
-                        <td>
-                            <button class="<%= user.isBlocked ? 'unblock-btn' : 'block-btn' %>" 
-                                    data-user-id="<%= user._id %>"
-                                    onclick="toggleUserBlock('<%= user._id %>', '<%= user.isBlocked ? 'true' : 'false' %>')">
-                                <%= user.isBlocked ? 'Unblock' : 'Block' %>
-                            </button>
-                        </td>
-                        
-                        
+                        <th>Username</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Join Date & Time</th>
+                        <th>Action</th>
                     </tr>
-                <% }) %>
-            <% } else { %>
-                <tr>
-                    <td colspan="5">No users found.</td>
-                </tr>
-            <% } %>
-        </tbody>
-        
-    </table>
-</div>
+                </thead>
+                <tbody id="user-table-body">
+                    <% if (userfind.length > 0) { %>
+                        <% userfind.forEach(user => { %>
+                            <tr>
+                                <td><%= user.username %></td>
+                                <td><%= user.phone || "N/A" %></td>
+                                <td><%= user.email %></td>
+                                <td>
+                                    <%
+                                        const createdDate = new Date(user.createdOn);
+                                        const day = String(createdDate.getDate()).padStart(2, '0');
+                                        const month = String(createdDate.getMonth() + 1).padStart(2, '0');
+                                        const year = createdDate.getFullYear();
+                                        const hours = String(createdDate.getHours()).padStart(2, '0');
+                                        const minutes = String(createdDate.getMinutes()).padStart(2, '0');
+                                        const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+                                    %>
+                                    <%= formattedDate %>
+                                </td>
+                                <td>
+                                    <button class="<%= user.isBlocked ? 'unblock-btn' : 'block-btn' %>" 
+                                            data-user-id="<%= user._id %>"
+                                            onclick="toggleUserBlock('<%= user._id %>', '<%= user.isBlocked ? 'true' : 'false' %>')">
+                                        <%= user.isBlocked ? 'Unblock' : 'Block' %>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5">No users found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<script>
-function toggleUserBlock(userId, isBlocked) {
-    isBlocked = isBlocked === "true"; // Convert string to boolean
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Hamburger menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const sidebar = document.querySelector('.sidebar');
+        hamburger.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
 
-    Swal.fire({
-        title: isBlocked ? "Unblock User?" : "Block User?",
-        text: isBlocked 
-            ? "Are you sure you want to unblock this user?" 
-            : "Are you sure you want to block this user?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: isBlocked ? "Yes, Unblock" : "Yes, Block"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/admin/blockUser/${userId}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: isBlocked ? "User Unblocked" : "User Blocked",
-                        text: `The user has been ${isBlocked ? 'unblocked' : 'blocked'} successfully.`,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    const button = document.querySelector(`button[data-user-id="${userId}"]`);
-                    if (button) {
-                        if (isBlocked) {
-                            button.innerText = "Block";
-                            button.classList.remove("unblock-btn");
-                            button.classList.add("block-btn");
-                            button.setAttribute("onclick", `toggleUserBlock('${userId}', 'false')`);
+        // Toggle User Block/Unblock
+        function toggleUserBlock(userId, isBlocked) {
+            isBlocked = isBlocked === "true"; // Convert string to boolean
+
+            Swal.fire({
+                title: isBlocked ? "Unblock User?" : "Block User?",
+                text: isBlocked ? "Are you sure you want to unblock this user?" : "Are you sure you want to block this user?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#00d4ff",
+                cancelButtonColor: "#ff6f61",
+                confirmButtonText: isBlocked ? "Yes, Unblock" : "Yes, Block"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/blockUser/${userId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: isBlocked ? "User Unblocked" : "User Blocked",
+                                text: `The user has been ${isBlocked ? 'unblocked' : 'blocked'} successfully.`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            const button = document.querySelector(`button[data-user-id="${userId}"]`);
+                            if (button) {
+                                if (isBlocked) {
+                                    button.innerText = "Block";
+                                    button.classList.remove("unblock-btn");
+                                    button.classList.add("block-btn");
+                                    button.setAttribute("onclick", `toggleUserBlock('${userId}', 'false')`);
+                                } else {
+                                    button.innerText = "Unblock";
+                                    button.classList.remove("block-btn");
+                                    button.classList.add("unblock-btn");
+                                    button.setAttribute("onclick", `toggleUserBlock('${userId}', 'true')`);
+                                }
+                            }
                         } else {
-                            button.innerText = "Unblock";
-                            button.classList.remove("block-btn");
-                            button.classList.add("unblock-btn");
-                            button.setAttribute("onclick", `toggleUserBlock('${userId}', 'true')`);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Action Failed",
+                                text: "Something went wrong. Please try again."
+                            });
                         }
-                    }
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Action Failed",
-                        text: "Something went wrong. Please try again."
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Failed to process the request."
+                        });
                     });
                 }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Failed to process the request."
-                });
             });
         }
-    });
-}
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-   function displayUsers(users) {
-    console.log("Users to display:", users); // Debugging log
-    const tableBody = document.getElementById("user-table-body");
-    tableBody.innerHTML = ""; // Clear the table before appending new rows
+        // Display Users Function
+        function displayUsers(users) {
+            const tableBody = document.getElementById("user-table-body");
+            tableBody.innerHTML = "";
 
-    users.forEach(user => {
-        const row = document.createElement("tr");
+            if (users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5">No users found.</td></tr>';
+                return;
+            }
 
-        // Format createdOn date
-        const createdDate = new Date(user.createdOn);
-        const formattedDate = createdDate.toLocaleString();
+            users.forEach(user => {
+                const createdDate = new Date(user.createdOn);
+                const formattedDate = `${String(createdDate.getDate()).padStart(2, '0')}/${String(createdDate.getMonth() + 1).padStart(2, '0')}/${createdDate.getFullYear()} ${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
 
-        // Determine block/unblock button
-        const actionButton = user.isBlocked
-            ? `<form action="/admin/blockUser/${user._id}" method="POST" style="display: inline;">
-                    <button type="submit" class="unblock-btn">Unblock</button>
-               </form>`
-            : `<form action="/admin/blockUser/${user._id}" method="POST" style="display: inline;">
-                    <button type="submit" class="block-btn">Block</button>
-               </form>`;
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.phone || "N/A"}</td>
+                    <td>${user.email}</td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <button class="${user.isBlocked ? 'unblock-btn' : 'block-btn'}" 
+                                data-user-id="${user._id}"
+                                onclick="toggleUserBlock('${user._id}', '${user.isBlocked}')">
+                            ${user.isBlocked ? 'Unblock' : 'Block'}
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
 
-        // Populate row
-        row.innerHTML = `
-            <td>${user.username}</td>
-            <td>${user.phone || "N/A"}</td>
-            <td>${user.email}</td>
-            <td>${formattedDate}</td>
-            <td>${actionButton}</td>
-        `;
+        // Search Functionality
+        document.getElementById("btnsearch").addEventListener("click", () => {
+            const inputValue = document.getElementById("search").value;
 
-        tableBody.appendChild(row);
-    });
-}
-
-    document.getElementById("btnsearch").addEventListener("click", () => {
-        const inputValue = document.getElementById("search").value;
-       
-        fetch("/admin/search", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ searchKey: inputValue }),
-        })
+            fetch("/admin/search", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ searchKey: inputValue })
+            })
             .then(response => response.json())
             .then(data => {
-                console.log("Fetched Data:", data); // Debugging
                 if (data.success) {
                     displayUsers(data.result);
                 } else {
                     console.error("Search failed:", data.message);
+                    displayUsers([]);
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
+                displayUsers([]);
             });
-    });
-</script> 
+        });
+    </script>
 </body>
 </html>

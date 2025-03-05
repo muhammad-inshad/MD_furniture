@@ -1,22 +1,188 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Update Product</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-        
-        <style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Update Product</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0px;
-                padding: 0;
-                background-color: #f4f4f4;
-            }
-            
-            
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1a1a1a;
+            padding: 25px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 35px;
+            color: #00d4ff;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #b0b0b0;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: #00d4ff;
+            color: #1a1a1a;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            padding: 10px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger:hover {
+            color: #00aaff;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Form Container */
+        .form-container {
+            max-width: 1000px;
+            width: 100%;
+            padding: 30px;
+            background: #252525;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .form-container:hover {
+            transform: translateY(-8px);
+        }
+
+        .form-container h2 {
+            color: #e0e0e0;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            background: #333333;
+            color: #e0e0e0;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[readonly] {
+            background: #3a3a3a;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #00d4ff;
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Image Preview */
+        #imagePreview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
         .image-container {
             position: relative;
             display: inline-block;
@@ -27,15 +193,21 @@
             height: 100px;
             object-fit: cover;
             border-radius: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .preview-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0, 212, 255, 0.3);
         }
 
         .delete-button {
             position: absolute;
             top: 5px;
             right: 5px;
-            background-color: #ff4d4d;
-            color: white;
+            background: #ff6f61;
+            color: #fff;
             border: none;
             border-radius: 50%;
             width: 25px;
@@ -45,344 +217,451 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .delete-button:hover {
-            background-color: #e60000;
+            background: #ff4d3f;
+            transform: scale(1.1);
         }
 
+        /* Cropper Container */
+        #cropperContainer {
+            background: #333333;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
 
-/* 
-            .container {
-                max-width: 600px;
-                margin: 50px auto;
-                background: #fff;
+        #cropImage {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        #cropButton {
+            padding: 10px 15px;
+            background: #6b48ff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
+        }
+
+        #cropButton:hover {
+            background: #5636d9;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(107, 72, 255, 0.5);
+        }
+
+        /* Submit Button */
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px 20px;
+            background: #6b48ff;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
+        }
+
+        button[type="submit"]:hover {
+            background: #5636d9;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(107, 72, 255, 0.5);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
                 padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgb(30, 255, 1);
-            } */
+            }
 
-            h1 {
-                text-align: center;
-                margin-bottom: 20px;
+            .hamburger {
+                display: block;
+            }
+
+            .form-container {
+                padding: 20px;
             }
 
             form {
-                width: 1000px;
-                display: flex;
-                margin: 50px auto;
-                flex-direction: column;
+                width: 100%;
             }
 
-            label {
-                margin-bottom: 8px;
-                font-weight: bold;
-            }
-
-            input, select, textarea, button {
-                margin-bottom: 15px;
-                padding: 10px;
-                font-size: 16px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
+            input, textarea, select {
+                font-size: 14px;
             }
 
             button {
-                background-color: #007BFF;
-                color: #fff;
-                border: none;
-                cursor: pointer;
-                transition: background-color 0.3s;
+                font-size: 14px;
             }
 
-            button:hover {
-                background-color: #0056b3;
+            .preview-image {
+                width: 80px;
+                height: 80px;
             }
-        </style>
-    <link href="/admin/updateProdect.css" rel="stylesheet"> 
-    </head>
-    <body>
-        <div class="sidebar">
-            <h2>updateProdect</h2>
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/userManagement">Manage Users</a>
-            <a href="/admin/CategoryManagement">Category Management</a>
-            <a href="/admin/productManagement">Product Management</a>
-            <a href="/admin/ordermanagment">Order Management</a>
-            <a href="/admin/coupenMenagement">Coupon Management</a>
-            <a href="/admin/SalesReport">Sales Report</a>
-            <a href="/admin/AdminReturnRequest">Return Management</a>
-            <a href="/admin/logout">Logout</a>
-        </div>
-        <div class="container">
-            <h1>Update Product</h1>
-            <form id="updateProduct" enctype="multipart/form-data" method="POST">
 
-                <!-- Name -->
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" value="<%= findUPproduct.productName %>" required>
-
-                <!-- Description -->
-                <label for="description">Description</label>
-                <textarea id="description" name="description" rows="4" required><%= findUPproduct.description %></textarea>
-
-                <!-- Brand -->
-                <label for="brand">Brand</label>
-                <input type="text" id="brand" name="brand" value="<%= findUPproduct.brand %>" required>
-
-                <!-- Category -->
-                <label for="category">Category</label>
-                
-                <input type="text" id="categoryDisplay" name="categoryDisplay" value="<%= findUPproduct.category.name %>" readonly>
-
-                <!-- Sale Price -->
-                <label for="salePrice">Sale Price</label>
-                <input type="number" id="salePrice" name="salePrice" value="<%= findUPproduct.salePrice %>" required>
-
-                <!-- Product Offer -->
-                <label for="productOffer">Product Offer</label>
-                <input type="text" id="productOffer" name="productOffer" value="<%= findUPproduct.productOffer %>">
-
-                <!-- Stock -->
-                <label for="stock">Stock</label>
-                <input type="number" id="stock" name="stock" value="<%= findUPproduct.quantity %>" required>
-
-                <!-- Product Images -->
-            <div id="imagePreview">
-                <% if (findUPproduct.productImages.length > 0) { %>
-                    <% findUPproduct.productImages.forEach(image => { %>
-                        <div class="image-container" id="image-<%= image %>">
-                            <img src="/uploads/<%= image %>" alt="Product Image" class="preview-image">
-                            <button type="button" class="delete-button" onclick="deleteImage('<%= findUPproduct._id %>', '<%= image %>', event)">X</button>
-                        </div>
-                    <% }); %>
-                <% } else { %>
-                    <p>No images available for this product.</p>
-                <% } %>
-            </div>
-                
-                <!-- File Upload -->
-    <input type="file" id="upload" multiple accept="image/*" onchange="handleImage(event)" />
-
-    <!-- Image Cropping Container -->
-    <div id="cropperContainer" style="display: none;">
-       <div > <img id="cropImage" alt="Image to crop"></div>
-        <button type="button" id="cropButton" class="btn btn-primary">Crop & Save</button>
-    </div>
-
-
-                <!-- Status -->
-                <label for="status">Status:</label>
-                <select id="status" name="status" required>
-                    <option value="Available" <%= findUPproduct.status === 'Available' ? 'selected' : '' %>>Available</option>
-                    <option value="out of stock" <%= findUPproduct.status === 'out of stock' ? 'selected' : '' %>>Out of Stock</option>
-                    <option value="Discontinued" <%= findUPproduct.status === 'Discontinued' ? 'selected' : '' %>>Discontinued</option>
-                </select>
-
-                <!-- Submit Button -->
-                <button type="submit" id="updateProduct">Update Product</button>
-            </form>
-            
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    </div>
-
-<script>
-function deleteImage(productId, imageName, event) {
-    event.preventDefault(); // Prevent default action
-
-    console.log("Attempting to delete:", productId, imageName); // Debugging
-
-    fetch(`/admin/deleteProductImage/${productId}/${encodeURIComponent(imageName)}`, {
-        method: "POST", // Fix: Change to DELETE method
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Response Data:", data); // Debugging
-        if (data.success) {
-            // Remove the image from the frontend without refreshing
-            document.getElementById(`image-${imageName}`).remove();
-            Swal.fire("Deleted!", "Image has been deleted.", "success");
-        } else {
-            Swal.fire("Error!", data.message || "Failed to delete image.", "error");
+            #imagePreview {
+                gap: 10px;
+            }
         }
-    })
-    .catch(error => {
-        console.error("Fetch Error:", error);
-        Swal.fire("Error!", "An error occurred while deleting the image.", "error");
-    });
-}
+    </style>
+</head>
+<body>
+    <button class="hamburger">☰</button>
+    <div class="sidebar">
+        <h2>Update Product</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement" class="active">Product Management</a>
+        <a href="/admin/ordermanagment">Order Management</a>
+        <a href="/admin/coupenMenagement">Coupon Management</a>
+        <a href="/admin/SalesReport">Sales Report</a>
+        <a href="/admin/AdminReturnRequest">Return Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
 
-</script>
+    <div class="content">
+        <h1>Update Product</h1>
+        <div class="form-container">
+            <h2>Update Product Details</h2>
+            <form id="updateProduct" enctype="multipart/form-data" method="POST">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" value="<%= findUPproduct.productName %>" required>
+                </div>
 
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" required><%= findUPproduct.description %></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="brand">Brand</label>
+                    <input type="text" id="brand" name="brand" value="<%= findUPproduct.brand %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryDisplay">Category</label>
+                    <input type="text" id="categoryDisplay" name="categoryDisplay" value="<%= findUPproduct.category.name %>" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="salePrice">Sale Price</label>
+                    <input type="number" id="salePrice" name="salePrice" value="<%= findUPproduct.salePrice %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="productOffer">Product Offer</label>
+                    <input type="text" id="productOffer" name="productOffer" value="<%= findUPproduct.productOffer %>">
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock</label>
+                    <input type="number" id="stock" name="stock" value="<%= findUPproduct.quantity %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Current Images</label>
+                    <div id="imagePreview">
+                        <% if (findUPproduct.productImages.length > 0) { %>
+                            <% findUPproduct.productImages.forEach(image => { %>
+                                <div class="image-container" id="image-<%= image %>">
+                                    <img src="/uploads/<%= image %>" alt="Product Image" class="preview-image">
+                                    <button type="button" class="delete-button" onclick="deleteImage('<%= findUPproduct._id %>', '<%= image %>', event)">X</button>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p>No images available for this product.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="upload">Add New Images</label>
+                    <input type="file" id="upload" multiple accept="image/*" onchange="handleImage(event)" />
+                </div>
+
+                <div id="cropperContainer" style="display: none;">
+                    <img id="cropImage" alt="Image to crop">
+                    <button type="button" id="cropButton">Crop & Save</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" required>
+                        <option value="Available" <%= findUPproduct.status === 'Available' ? 'selected' : '' %>>Available</option>
+                        <option value="out of stock" <%= findUPproduct.status === 'out of stock' ? 'selected' : '' %>>Out of Stock</option>
+                        <option value="Discontinued" <%= findUPproduct.status === 'Discontinued' ? 'selected' : '' %>>Discontinued</option>
+                    </select>
+                </div>
+
+                <button type="submit">Update Product</button>
+            </form>
+        </div>
+    </div>
 
     <script>
-let cropper;
-const cropperContainer = document.getElementById("cropperContainer");
-const cropImage = document.getElementById("cropImage");
-const cropButton = document.getElementById("cropButton");
-const croppedImages = []; // To store cropped image files
+        let cropper;
+        const cropperContainer = document.getElementById("cropperContainer");
+        const cropImage = document.getElementById("cropImage");
+        const cropButton = document.getElementById("cropButton");
+        const croppedImages = [];
 
-function handleImage(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            cropImage.src = e.target.result;
-            cropperContainer.style.display = "block";
+        function handleImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    cropImage.src = e.target.result;
+                    cropperContainer.style.display = "block";
 
-            // Initialize Cropper.js
-            if (cropper) {
-                cropper.destroy();
-            }
-            cropper = new Cropper(cropImage, {
-                aspectRatio: 1, // Adjust as needed
-                viewMode: 2,
-                autoCropArea: 1,
-            });
-        };
-        reader.readAsDataURL(file);
-    }
-}
+                    if (cropper) cropper.destroy();
 
-cropButton.addEventListener("click", () => {
-    const croppedCanvas = cropper.getCroppedCanvas({
-        width: 300,
-        height: 300,
-    });
-
-    // Convert canvas to Blob
-    croppedCanvas.toBlob((blob) => {
-        // Create a File instance from the Blob
-        const file = new File([blob], `cropped_image_${Date.now()}.jpg`, { type: blob.type });
-
-        // Append the file to the croppedImages array
-        croppedImages.push(file);
-
-        // Optionally preview the cropped image
-        const previewImage = document.createElement("img");
-        previewImage.src = URL.createObjectURL(blob);
-        previewImage.classList.add("preview-image");
-        document.getElementById("imagePreview").appendChild(previewImage);
-
-        // Hide the cropper container
-        cropperContainer.style.display = "none";
-        cropper.destroy();
-        cropper = null;
-    });
-});
-function validateForm() {
-    let name = document.getElementById("name").value.trim();
-    let description = document.getElementById("description").value.trim();
-    let brand = document.getElementById("brand").value.trim();
-    let salePrice = document.getElementById("salePrice").value.trim();
-    let stock = document.getElementById("stock").value.trim();
-    let productOffer = document.getElementById("productOffer").value.trim();
-    let status = document.getElementById("status").value;
-    let imageUpload = document.getElementById("upload");
-
-    if (name === "" || description === "" || brand === "" || salePrice === "" || stock === "") {
-        Swal.fire("Error!", "Please fill in all required fields.", "error");
-        return false;
-    }
-
-    if (isNaN(salePrice) || salePrice <= 0) {
-        Swal.fire("Error!", "Sale Price must be a valid positive number.", "error");
-        return false;
-    }
-
-    if (productOffer !== "" && isNaN(productOffer)) {
-        Swal.fire("Error!", "Product Offer must be a valid number.", "error");
-        return false;
-    }
-
-    if (isNaN(stock) || stock < 0) {
-        Swal.fire("Error!", "Stock must be a valid non-negative number.", "error");
-        return false;
-    }
-
-    if (status === "") {
-        Swal.fire("Error!", "Please select a product status.", "error");
-        return false;
-    }
-
-    // Validate uploaded images (if required)
-    if (imageUpload.files.length > 0) {
-        for (let file of imageUpload.files) {
-            let fileType = file.type;
-            if (!["image/jpeg", "image/png", "image/webp"].includes(fileType)) {
-                Swal.fire("Error!", "Only JPG, PNG, and WEBP images are allowed.", "error");
-                return false;
+                    cropper = new Cropper(cropImage, {
+                        aspectRatio: 1,
+                        viewMode: 2,
+                        autoCropArea: 1,
+                    });
+                };
+                reader.readAsDataURL(file);
             }
         }
-    }
 
-    return true;
-}
+        cropButton.addEventListener("click", () => {
+            const croppedCanvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300,
+            });
 
-document.getElementById("updateProduct").addEventListener("submit", (e) => {
-    e.preventDefault(); // Prevent default submission
+            croppedCanvas.toBlob((blob) => {
+                const file = new File([blob], `cropped_image_${Date.now()}.jpg`, { type: blob.type });
+                croppedImages.push(file);
 
-    if (!validateForm()) {
-        return; // Stop execution if validation fails
-    }
+                const previewImage = document.createElement("img");
+                previewImage.src = URL.createObjectURL(blob);
+                previewImage.classList.add("preview-image");
+                document.getElementById("imagePreview").appendChild(previewImage);
 
-    const formData = new FormData();
-
-    // Append other form fields
-    formData.append("name", document.getElementById("name").value);
-    formData.append("description", document.getElementById("description").value);
-    formData.append("brand", document.getElementById("brand").value);
-    formData.append("category", document.getElementById("categoryDisplay").value);
-    formData.append("salePrice", document.getElementById("salePrice").value);
-    formData.append("productOffer", document.getElementById("productOffer").value);
-    formData.append("stock", document.getElementById("stock").value);
-    formData.append("status", document.getElementById("status").value);
-
-    // Ensure `croppedImages` is defined before using
-    if (typeof croppedImages !== "undefined" && Array.isArray(croppedImages)) {
-        croppedImages.forEach((image) => {
-            formData.append("productImages", image);
+                cropperContainer.style.display = "none";
+                cropper.destroy();
+                cropper = null;
+            });
         });
-    } else {
-        Swal.fire("Error!", "No images selected or processed.", "error");
-        return;
-    }
 
-    // Submit the form
-    fetch(`/admin/updateProduct/<%= findUPproduct._id %>`, {
-        method: "POST",
-        body: formData,
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("Failed to update product");
+        function deleteImage(productId, imageName, event) {
+            event.preventDefault();
+
+            fetch(`/admin/deleteProductImage/${productId}/${encodeURIComponent(imageName)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`image-${imageName}`).remove();
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Image has been deleted.",
+                        icon: "success",
+                        background: '#252525',
+                        color: '#e0e0e0',
+                        confirmButtonColor: '#00d4ff'
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error!",
+                        text: data.message || "Failed to delete image.",
+                        icon: "error",
+                        background: '#252525',
+                        color: '#e0e0e0',
+                        confirmButtonColor: '#ff6f61'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                Swal.fire({
+                    title: "Error!",
+                    text: "An error occurred while deleting the image.",
+                    icon: "error",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+            });
+        }
+
+        function validateForm() {
+            let name = document.getElementById("name").value.trim();
+            let description = document.getElementById("description").value.trim();
+            let brand = document.getElementById("brand").value.trim();
+            let salePrice = document.getElementById("salePrice").value.trim();
+            let stock = document.getElementById("stock").value.trim();
+            let productOffer = document.getElementById("productOffer").value.trim();
+            let status = document.getElementById("status").value;
+            let imageUpload = document.getElementById("upload");
+
+            if (name === "" || description === "" || brand === "" || salePrice === "" || stock === "") {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Please fill in all required fields.",
+                    icon: "error",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+                return false;
             }
-            return response.json();
-        })
-        .then(() => {
-            Swal.fire({
-                title: "Success!",
-                text: "Product updated successfully!",
-                icon: "success",
-            }).then(() => {
-                window.location.href = "/admin/productManagement";
-            });
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-            Swal.fire({
-                title: "Error!",
-                text: "Failed to update product. Please try again.",
-                icon: "error",
+
+            if (isNaN(salePrice) || salePrice <= 0) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Sale Price must be a valid positive number.",
+                    icon: "error",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+                return false;
+            }
+
+            if (productOffer !== "" && isNaN(productOffer)) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Product Offer must be a valid number.",
+                    icon: "error",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+                return false;
+            }
+
+            if (isNaN(stock) || stock < 0) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Stock must be a valid non-negative number.",
+                    icon: "error",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+                return false;
+            }
+
+            if (status === "") {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Please select a product status.",
+                    icon: "error",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+                return false;
+            }
+
+            if (imageUpload.files.length > 0) {
+                for (let file of imageUpload.files) {
+                    let fileType = file.type;
+                    if (!["image/jpeg", "image/png", "image/webp"].includes(fileType)) {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Only JPG, PNG, and WEBP images are allowed.",
+                            icon: "error",
+                            background: '#252525',
+                            color: '#e0e0e0',
+                            confirmButtonColor: '#ff6f61'
+                        });
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        document.getElementById("updateProduct").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("name", document.getElementById("name").value);
+            formData.append("description", document.getElementById("description").value);
+            formData.append("brand", document.getElementById("brand").value);
+            formData.append("category", document.getElementById("categoryDisplay").value);
+            formData.append("salePrice", document.getElementById("salePrice").value);
+            formData.append("productOffer", document.getElementById("productOffer").value);
+            formData.append("stock", document.getElementById("stock").value);
+            formData.append("status", document.getElementById("status").value);
+
+            if (croppedImages && Array.isArray(croppedImages)) {
+                croppedImages.forEach((image) => {
+                    formData.append("productImages", image);
+                });
+            }
+
+            fetch(`/admin/updateProduct/<%= findUPproduct._id %>`, {
+                method: "POST",
+                body: formData,
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to update product");
+                }
+                return response.json();
+            })
+            .then(() => {
+                Swal.fire({
+                    title: "Success!",
+                    text: "Product updated successfully!",
+                    icon: "success",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#00d4ff'
+                }).then(() => {
+                    window.location.href = "/admin/productManagement";
+                });
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                Swal.fire({
+                    title: "Error!",
+                    text: "Failed to update product. Please try again.",
+                    icon: "error",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
             });
         });
-});
-
-
     </script>
-    </body>
-    </html>
+</body>
+</html>

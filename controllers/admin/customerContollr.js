@@ -57,7 +57,7 @@ const searchUSer = async (req, res) => {
 const ordermanagment = async (req, res) => {
     try {
         let page = parseInt(req.query.page) || 1; // Get page number from query params (default to 1)
-        let limit = 3; // Number of orders per page
+        let limit = 5; // Number of orders per page
         let skip = (page - 1) * limit; // Calculate the number of documents to skip
 
         const orders = await Order.aggregate([
@@ -87,11 +87,16 @@ const ordermanagment = async (req, res) => {
             { $skip: skip }, // Skip documents for pagination
             { $limit: limit }, // Limit the number of documents per page
         ]);
-
-        // Count total orders to calculate total pages
+        let username=''
+        if (orders.length > 0 && orders[0].userDetails) {
+            const findusername = await Address.findOne({ userId: orders[0]?.userDetails?._id });
+            const name = findusername?.address[0]?.name;
+            username=name
+        }
+        
         const totalOrders = await Order.countDocuments();
         const totalPages = Math.ceil(totalOrders / limit); // Calculate total pages
-        res.render('ordermanagement', { orders, currentPage: page, totalPages });
+        res.render('ordermanagement', { orders, currentPage: page, totalPages,username});
    
     } catch (error) {
         console.error('Error in order management:', error);
@@ -100,22 +105,25 @@ const ordermanagment = async (req, res) => {
 };
 
 
-
-const orderupdate=async (req,res)=>{
+const orderupdate = async (req, res) => {
     try {
-        const {id}=req.params
-        const {status}=req.body
-        const order=await Order.findById(id)
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const order = await Order.findById(id);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
         order.status = status;
         await order.save();
-  
-        return res.redirect("/admin/ordermanagment")
-       
+
+        return res.status(200).json({ success: true, message: 'Order status updated successfully' });
     } catch (error) {
         console.error('Error in orderupdate:', error);
-        res.status(500).json({ success: false, message: 'Failed to orderupdate' });
+        return res.status(500).json({ success: false, message: 'Failed to update order status' });
     }
-}
+};
 
 const userAddress = async (req, res) => {
     try {

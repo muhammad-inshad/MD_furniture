@@ -4,179 +4,346 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Coupon Management</title>
-    <link href="/admin/coupen.css" rel="stylesheet"> 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1a1a1a;
+            padding: 25px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 35px;
+            color: #00d4ff;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #b0b0b0;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: #00d4ff;
+            color: #1a1a1a;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            padding: 10px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger:hover {
+            color: #00aaff;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Form Container */
         .form-container {
             max-width: 600px;
-            margin: auto;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #252525;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
 
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
+        .form-container:hover {
+            transform: translateY(-8px);
         }
+
+        .form-container h2 {
+            color: #e0e0e0;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
         label {
-            font-weight: bold;
+            font-weight: 600;
             display: block;
-            margin-top: 10px;
+            margin-top: 15px;
+            color: #b0b0b0;
+            font-size: 14px;
         }
+
         input, select {
             width: 100%;
-            padding: 10px;
+            padding: 12px 15px;
             margin-top: 5px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            background: #333333;
+            color: #e0e0e0;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
         }
+
+        input:focus, select:focus {
+            border-color: #00d4ff;
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        }
+
         button {
-            background-color: #2e5418;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
+            width: 100%;
+            padding: 12px 20px;
+            background: #6b48ff;
+            color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s, transform 0.2s;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
         }
+
         button:hover {
-            background-color: #444;
+            background: #5636d9;
             transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(107, 72, 255, 0.5);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            input, select {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
+    <button class="hamburger">☰</button>
     <div class="sidebar">
-        <h2>Add coupen</h2>
+        <h2>Coupon Management</h2>
         <a href="/admin/dashboard">Dashboard</a>
         <a href="/admin/userManagement">Manage Users</a>
         <a href="/admin/CategoryManagement">Category Management</a>
         <a href="/admin/productManagement">Product Management</a>
         <a href="/admin/ordermanagment">Order Management</a>
-        <a href="/admin/coupenMenagement">Coupon Management</a>
+        <a href="/admin/coupenMenagement" class="active">Coupon Management</a>
         <a href="/admin/SalesReport">Sales Report</a>
         <a href="/admin/AdminReturnRequest">Return Management</a>
         <a href="/admin/logout">Logout</a>
     </div>
+
     <div class="content">
-       <div>
-           <h2 class="heading">Coupon Management</h2>
-       </div>
-<body>
-    <div class="form-container">
-        <h2>Create Coupon</h2>
-        <form id="couponForm">
-            <label for="name">Coupon Code</label>
-            <input type="text" id="name" name="name" required>
+        <h1>Coupon Management</h1>
+        <div class="form-container">
+            <h2>Create Coupon</h2>
+            <form id="couponForm">
+                <label for="name">Coupon Code</label>
+                <input type="text" id="name" name="name" required>
 
-            <label for="discountType">Discount Type</label>
-            <select id="discountType" name="discountType" required>
-                <option value="percentage">Percentage</option>
-                <option value="fixed">Fixed Amount</option>
-            </select>
+                <label for="discountType">Discount Type</label>
+                <select id="discountType" name="discountType" required>
+                    <option value="percentage">Percentage</option>
+                    <option value="fixed">Fixed Amount</option>
+                </select>
 
-            <label for="discountValue">Discount Value</label>
-            <input type="number" id="discountValue" name="discountValue" required>
+                <label for="discountValue">Discount Value</label>
+                <input type="number" id="discountValue" name="discountValue" required>
 
-            <label for="minPurchase">Minimum Purchase</label>
-            <input type="number" id="minPurchase" name="minPurchase" required>
+                <label for="minPurchase">Minimum Purchase</label>
+                <input type="number" id="minPurchase" name="minPurchase" required>
 
-            <label for="maxDiscount">Max Discount (optional)</label>
-            <input type="number" id="maxDiscount" name="maxDiscount">
+                <label for="maxDiscount">Max Discount (optional)</label>
+                <input type="number" id="maxDiscount" name="maxDiscount">
 
-            <label for="usageLimit">Usage Limit</label>
-            <input type="number" id="usageLimit" name="usageLimit" required>
+                <label for="usageLimit">Usage Limit</label>
+                <input type="number" id="usageLimit" name="usageLimit" required>
 
-            <label for="expiryDate">Expiry Date</label>
-            <input type="date" id="expiryDate" name="expiryDate" required>
+                <label for="expiryDate">Expiry Date</label>
+                <input type="date" id="expiryDate" name="expiryDate" required>
 
-            <button type="submit">Create Coupon</button>
-        </form>
+                <button type="submit">Create Coupon</button>
+            </form>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
-       document.getElementById("couponForm").addEventListener("submit", async function(event) {
-    event.preventDefault(); 
-    const name = document.getElementById("name").value.trim();
-    const discountType = document.getElementById("discountType").value;
-    const discountValue = document.getElementById("discountValue").value.trim();
-    const minPurchase = document.getElementById("minPurchase").value.trim();
-    const maxDiscount = document.getElementById("maxDiscount").value.trim();
-    const usageLimit = document.getElementById("usageLimit").value.trim();
-    const expiryDate = document.getElementById("expiryDate").value;
+        document.getElementById("couponForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
 
-    const discountValueNum = parseFloat(discountValue);
-    const minPurchaseNum = parseFloat(minPurchase);
-    const maxDiscountNum = maxDiscount ? parseFloat(maxDiscount) : null;
-    const usageLimitNum = parseInt(usageLimit);
+            const name = document.getElementById("name").value.trim();
+            const discountType = document.getElementById("discountType").value;
+            const discountValue = document.getElementById("discountValue").value.trim();
+            const minPurchase = document.getElementById("minPurchase").value.trim();
+            const maxDiscount = document.getElementById("maxDiscount").value.trim();
+            const usageLimit = document.getElementById("usageLimit").value.trim();
+            const expiryDate = document.getElementById("expiryDate").value;
 
+            const discountValueNum = parseFloat(discountValue);
+            const minPurchaseNum = parseFloat(minPurchase);
+            const maxDiscountNum = maxDiscount ? parseFloat(maxDiscount) : null;
+            const usageLimitNum = parseInt(usageLimit);
 
-    if (
-        name === "" || discountValue === "" || minPurchase === "" || usageLimit === "" || expiryDate === "" ||
-        isNaN(discountValueNum) || isNaN(minPurchaseNum) || isNaN(usageLimitNum) || (maxDiscount !== "" && isNaN(maxDiscountNum)) ||
-        discountValueNum < 0 || minPurchaseNum < 0 || (maxDiscountNum !== null && maxDiscountNum < 0) || usageLimitNum < 0
-    ) {
-        Swal.fire({
-            icon: "error",
-            title: "Invalid Input",
-            text: "Fields cannot be empty, contain spaces only, or have negative values. Please enter valid numbers.",
-            confirmButtonColor: "#d33"
+            if (
+                name === "" || discountValue === "" || minPurchase === "" || usageLimit === "" || expiryDate === "" ||
+                isNaN(discountValueNum) || isNaN(minPurchaseNum) || isNaN(usageLimitNum) || (maxDiscount !== "" && isNaN(maxDiscountNum)) ||
+                discountValueNum < 0 || minPurchaseNum < 0 || (maxDiscountNum !== null && maxDiscountNum < 0) || usageLimitNum < 0
+            ) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid Input",
+                    text: "Fields cannot be empty, contain spaces only, or have negative values. Please enter valid numbers.",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+                return;
+            }
+
+            const formData = {
+                name,
+                discountType,
+                discountValue: discountValueNum,
+                minPurchase: minPurchaseNum,
+                maxDiscount: maxDiscountNum,
+                usageLimit: usageLimitNum,
+                expiryDate
+            };
+
+            try {
+                const response = await fetch("/admin/addcouponPost", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success!",
+                        text: "Coupon created successfully!",
+                        background: '#252525',
+                        color: '#e0e0e0',
+                        confirmButtonColor: '#00d4ff',
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        window.location.href = "/admin/coupenMenagement";
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: data.message || "Failed to create coupon.",
+                        background: '#252525',
+                        color: '#e0e0e0',
+                        confirmButtonColor: '#ff6f61'
+                    });
+                }
+            } catch (error) {
+                console.error("Error submitting coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "An error occurred. Please try again.",
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61'
+                });
+            }
         });
-        return; // Stop execution if validation fails
-    }
-
-    const formData = {
-        name: document.getElementById("name").value.trim(),
-        discountType: document.getElementById("discountType").value,
-        discountValue: parseFloat(document.getElementById("discountValue").value),
-        minPurchase: parseFloat(document.getElementById("minPurchase").value),
-        maxDiscount: document.getElementById("maxDiscount").value ? parseFloat(document.getElementById("maxDiscount").value) : null,
-        usageLimit: parseInt(document.getElementById("usageLimit").value),
-        expiryDate: document.getElementById("expiryDate").value
-    };
-
-    try {
-        const response = await fetch("/admin/addcouponPost", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            Swal.fire({
-    icon: "success",
-    title: "Success!",
-    text: "Coupon created successfully!",
-    confirmButtonColor: "#3085d6",
-    confirmButtonText: "OK"
-}).then(() => {
-    window.location.href = "/admin/coupenMenagement"; 
-});
-
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: data.message,
-                confirmButtonColor: "#d33"
-            });
-        }
-    } catch (error) {
-        console.error("Error submitting coupon:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "An error occurred. Please try again.",
-            confirmButtonColor: "#d33"
-        });
-    }
-});
-
-        </script>
-        
+    </script>
 </body>
 </html>

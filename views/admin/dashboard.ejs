@@ -4,89 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link href="/admin/dashbord.css" rel="stylesheet"> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            color: #fff;
             display: flex;
-            background-color: #121212;
-            color: white;
+            min-height: 100vh;
         }
 
         /* Sidebar */
         .sidebar {
             width: 250px;
-            background: #1e1e1e;
+            background: #252525;
             padding: 20px;
             position: fixed;
             height: 100vh;
             top: 0;
             left: 0;
-            overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(255, 255, 255, 0.1);
+            transition: 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
         }
 
         .sidebar h2 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #ffcc00;
+            margin-bottom: 30px;
+            color: #00d4ff;
+            font-size: 24px;
+            letter-spacing: 1px;
         }
 
         .sidebar a {
-            display: block;
-            color: white;
+            display: flex;
+            align-items: center;
+            color: #ddd;
             text-decoration: none;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 5px;
-            transition: 0.3s;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 16px;
         }
 
         .sidebar a:hover {
-            background: #ffcc00;
-            color: black;
+            background: #00d4ff;
+            color: #1a1a1a;
+            transform: translateX(5px);
+        }
+
+        /* Hamburger Menu for Mobile */
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px;
         }
 
         /* Content Area */
         .content {
             margin-left: 270px;
-            padding: 20px;
+            padding: 30px;
             width: calc(100% - 270px);
+            transition: 0.3s ease;
         }
 
         h1, h2 {
+            color: #00d4ff;
             text-align: center;
-            color: #ffcc00;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
 
         .section {
-            background: #222;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            background: #2e2e2e;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
         }
 
-        /* Charts */
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Filter Dropdown */
+        .filter-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: #3a3a3a;
+            color: #fff;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        select:hover {
+            background: #103a43;
+            color: #1a1a1a;
+        }
+
+        /* Chart Grid */
         .chart-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
             padding: 20px;
         }
 
         .chart-container {
-            background: #1e1e1e;
+            background: #252525;
             padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: scale(1.02);
         }
 
         canvas {
@@ -94,20 +147,37 @@
             height: auto !important;
         }
 
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
-                position: relative;
+                height: auto;
+                position: fixed;
+                z-index: 1000;
+                transform: translateX(-100%);
             }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
             .content {
                 margin-left: 0;
                 width: 100%;
+            }
+
+            .hamburger {
+                display: block;
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 1100;
             }
         }
     </style>
 </head>
 <body>
+    <button class="hamburger">☰</button>
     <div class="sidebar">
         <h2>Admin Dashboard</h2>
         <a href="/admin/dashboard">Dashboard</a>
@@ -122,19 +192,20 @@
     </div>
 
     <div class="content">
- 
         <div class="section">
-            <h2>MD-FURNITURE</h2>
+            <h1>MD-FURNITURE</h1>
         </div>
 
         <div class="section">
             <h2>Sales Performance</h2>
-            <label for="salesFilter">Filter: </label>
-            <select id="salesFilter">
-                <option value="yearly">Yearly</option>
-                <option value="monthly">Monthly</option>
-                <option value="weekly">Weekly</option>
-            </select>
+            <div class="filter-container">
+                <label for="salesFilter">Filter: </label>
+                <select id="salesFilter">
+                    <option value="yearly">Yearly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                </select>
+            </div>
             <div class="chart-container">
                 <canvas id="salesChart"></canvas>
             </div>
@@ -157,17 +228,22 @@
     </div>
 
     <script>
+        // Hamburger menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const sidebar = document.querySelector('.sidebar');
+        hamburger.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Fetch sales data
         async function fetchSalesData(filter = "yearly") {
             try {
                 const response = await fetch("/admin/dashboard", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ filter }) 
+                    body: JSON.stringify({ filter })
                 });
-    
                 const salesData = await response.json();
-                console.log("API Response:", salesData); // Debugging
-    
                 if (salesData.labels && salesData.data) {
                     salesChart.data.labels = salesData.labels;
                     salesChart.data.datasets[0].data = salesData.data;
@@ -177,47 +253,56 @@
                 console.error("Error fetching sales data:", error);
             }
         }
-    
+
         const salesFilter = document.getElementById("salesFilter");
         if (salesFilter) {
-            salesFilter.addEventListener("change", function() {
+            salesFilter.addEventListener("change", function () {
                 fetchSalesData(this.value);
             });
         }
-    
-        // Initialize the sales chart
+
+        // Initialize sales chart
         const salesChart = new Chart(document.getElementById('salesChart'), {
             type: 'bar',
-            data: { 
-                labels: [], 
-                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(255, 99, 132, 0.7)' }] 
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sales',
+                    data: [],
+                    backgroundColor: '#003b4a',
+                    borderColor: '#00aaff',
+                    borderWidth: 1
+                }]
             },
-            options: { responsive: true }
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    x: { grid: { display: false } }
+                }
+            }
         });
-    
-        fetchSalesData(); // Load default sales data on page load
-    
+
+        fetchSalesData();
+
+        // Fetch best-selling data
         async function fetchBestSellingData() {
             try {
-                const response = await fetch("/admin/bestsellers", {
-    method: "POST"
-});
-
+                const response = await fetch("/admin/bestsellers", { method: "POST" });
                 const data = await response.json();
-                console.log("Received Best-Selling Data:", data);
-    
+
                 if (data.bestSellingProducts?.labels) {
                     bestProductsChart.data.labels = data.bestSellingProducts.labels;
                     bestProductsChart.data.datasets[0].data = data.bestSellingProducts.data;
                     bestProductsChart.update();
                 }
-    
+
                 if (data.bestSellingCategories?.labels) {
                     bestCategoriesChart.data.labels = data.bestSellingCategories.labels;
                     bestCategoriesChart.data.datasets[0].data = data.bestSellingCategories.data;
                     bestCategoriesChart.update();
                 }
-    
+
                 if (data.bestSellingBrands?.labels) {
                     bestBrandsChart.data.labels = data.bestSellingBrands.labels;
                     bestBrandsChart.data.datasets[0].data = data.bestSellingBrands.data;
@@ -227,39 +312,62 @@
                 console.error("Error fetching best-selling data:", error);
             }
         }
-    
-        // Initialize charts
+
+        // Initialize best-selling charts
+        const chartOptions = {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+                x: { grid: { display: false } }
+            }
+        };
+
         const bestProductsChart = new Chart(document.getElementById('bestProductsChart'), {
             type: 'bar',
             data: {
                 labels: [],
-                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(75, 192, 192, 0.7)' }]
+                datasets: [{
+                    label: 'Sales',
+                    data: [],
+                    backgroundColor: '#ff6f61',
+                    borderColor: '#ff4d3f',
+                    borderWidth: 1
+                }]
             },
-            options: { responsive: true }
+            options: chartOptions
         });
-    
+
         const bestCategoriesChart = new Chart(document.getElementById('bestCategoriesChart'), {
             type: 'bar',
             data: {
                 labels: [],
-                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(255, 159, 64, 0.7)' }]
+                datasets: [{
+                    label: 'Sales',
+                    data: [],
+                    backgroundColor: '#6b48ff',
+                    borderColor: '#5636d9',
+                    borderWidth: 1
+                }]
             },
-            options: { responsive: true }
+            options: chartOptions
         });
-    
+
         const bestBrandsChart = new Chart(document.getElementById('bestBrandsChart'), {
             type: 'bar',
             data: {
                 labels: [],
-                datasets: [{ label: 'Sales', data: [], backgroundColor: 'rgba(153, 102, 255, 0.7)' }]
+                datasets: [{
+                    label: 'Sales',
+                    data: [],
+                    backgroundColor: '#ffd700',
+                    borderColor: '#e6c200',
+                    borderWidth: 1
+                }]
             },
-            options: { responsive: true }
+            options: chartOptions
         });
-    
-        fetchBestSellingData(); // Fetch best-selling data on page load
+
+        fetchBestSellingData();
     </script>
-    
-    
-    
 </body>
 </html>

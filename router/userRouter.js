@@ -31,6 +31,7 @@ router.post('/verifyOtpForgotPassword',userContoller.verifyOtpForgotPassword)
 router.get("/changepassword",userContoller.changepassword)
 router.post("/changepassword",userContoller.postChangepassword)
 router.post("/allsearch/:id",userContoller.allsearch)
+router.get("/aboutus",userContoller.aboutus)
 
 router.get("/PriceLowToHigh/:name",userContoller.PriceLowToHigh)
 router.get("/PriceHighToLow/:name",userContoller.PriceHighToLow)

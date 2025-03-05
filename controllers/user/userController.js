@@ -624,6 +624,14 @@ const allsearch = async (req, res) => {
     }
 };
 
+const aboutus=async(req,res)=>{
+    try {
+        res.render("aboutus")
+    } catch (error) {
+        console.error("Error in aboutus:", error);
+        res.redirect("/user/pageNotFound");
+    }
+}
 
 const popularity = async (req, res) => {
     try {
@@ -926,4 +934,5 @@ module.exports = {
     wishlist,
     showWishlist,
     WishlistToggle,
+    aboutus
 }

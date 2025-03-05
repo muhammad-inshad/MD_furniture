@@ -3,207 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="/admin/addcategory.css" rel="stylesheet"> 
-    
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .form-container {
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-      background: #ffffff;
-      border-radius: 20px;
-      box-shadow: 0 2px 10px rgb(176, 0, 0);
-      margin-left: inherit;
-    }
-    .form-group {
-      margin-bottom: 15px;
-      position: relative;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    input, textarea, select, button {
-      width: 97%;
-      padding: 10px;
-      border: 1px solid #004ef5;
-      border-radius: 5px;
-    }
-    .error-message {
-      color: red;
-      font-size: 12px;
-      margin-top: 5px;
-      display: block;
-    }
-    button {
-      background-color: #007bff;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    h2 {
-      text-align: center;
-    }
-  </style>
+    <title>Admin Dashboard - Add Category</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1a1a1a;
+            padding: 25px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 35px;
+            color: #00d4ff;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #b0b0b0;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: #00d4ff;
+            color: #1a1a1a;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            padding: 10px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger:hover {
+            color: #00aaff;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Form Container */
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 30px;
+            background: #252525;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .form-container:hover {
+            transform: translateY(-8px);
+        }
+
+        .form-container h2 {
+            color: #e0e0e0;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            background: #333333;
+            color: #e0e0e0;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #00d4ff;
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        }
+
+        .error-message {
+            color: #ff6f61;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            background: #6b48ff;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(107, 72, 255, 0.3);
+        }
+
+        button:hover {
+            background: #5636d9;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(107, 72, 255, 0.5);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            input, textarea, select {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <body>
+    <button class="hamburger">☰</button>
     <div class="sidebar">
-      <h2>Add category</h2>
-      <a href="/admin/dashboard">Dashboard</a>
-      <a href="/admin/userManagement">Manage Users</a>
-      <a href="/admin/CategoryManagement">Category Management</a>
-      <a href="/admin/productManagement">Product Management</a>
-      <a href="/admin/ordermanagment">Order Management</a>
-      <a href="/admin/coupenMenagement">Coupon Management</a>
-      <a href="/admin/SalesReport">Sales Report</a>
-      <a href="/admin/AdminReturnRequest">Return Management</a>
-      <a href="/admin/logout">Logout</a>
-  </div>
-  <div class="content">
-   <div>
-       <h1 class="heading">
-           Add Product
-       </h1>
-   </div>
-  <div class="form-container">
-    <h2>ADD</h2>
-    <form id="updateForm">
-      <!-- Name -->
-      <div class="form-group">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" placeholder="Enter name" required>
-        <span class="error-message" id="nameError"></span>
-      </div>
-      
-      <!-- Description -->
-      <div class="form-group">
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="3" placeholder="Enter description" required></textarea>
-        <span class="error-message" id="descriptionError"></span>
-      </div>
-      
-      <!-- Offer Price -->
-      <div class="form-group">
-        <label for="offerPrice">Offer Price:</label>
-        <input type="number" id="offerPrice" name="offerPrice" placeholder="Enter offer price" required>
-        <span class="error-message" id="offerPriceError"></span>
-      </div>
-      
-      <!-- Status -->
-      <div class="form-group">
-        <label for="status">Status:</label>
-        <select id="status" name="status" required>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-      </div>
-      
-      <!-- Submit Button -->
-      <button type="submit">Update</button>
-    </form>
-  </div>
+        <h2>Add Category</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement" class="active">Category Management</a>
+        <a href="/admin/productManagement">Product Management</a>
+        <a href="/admin/ordermanagment">Order Management</a>
+        <a href="/admin/coupenMenagement">Coupon Management</a>
+        <a href="/admin/SalesReport">Sales Report</a>
+        <a href="/admin/AdminReturnRequest">Return Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-      function validateForm() {
-        let isValid = true;
+    <div class="content">
+        <h1>Add Category</h1>
+        <div class="form-container">
+            <h2>Add New Category</h2>
+            <form id="updateForm">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" placeholder="Enter name" required>
+                    <span class="error-message" id="nameError"></span>
+                </div>
 
-        const name = document.getElementById("name").value;
-        const description = document.getElementById("description").value;
-        const offerPrice = document.getElementById('offerPrice').value;
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" rows="3" placeholder="Enter description" required></textarea>
+                    <span class="error-message" id="descriptionError"></span>
+                </div>
 
-        const nameError = document.getElementById("nameError");
-        const descriptionError = document.getElementById("descriptionError");
-        const offerPriceError = document.getElementById("offerPriceError");
+                <div class="form-group">
+                    <label for="offerPrice">Offer Price:</label>
+                    <input type="number" id="offerPrice" name="offerPrice" placeholder="Enter offer price" required>
+                    <span class="error-message" id="offerPriceError"></span>
+                </div>
 
-        nameError.textContent = "";
-        descriptionError.textContent = "";
-        offerPriceError.textContent = "";
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
 
-        if (!/^[a-zA-Z]+$/.test(name)) {
-          nameError.textContent = "Name should not contain spaces or numbers.";
-          isValid = false;
+                <button type="submit">Add Category</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            let isValid = true;
+
+            const name = document.getElementById("name").value;
+            const description = document.getElementById("description").value;
+            const offerPrice = document.getElementById('offerPrice').value;
+
+            const nameError = document.getElementById("nameError");
+            const descriptionError = document.getElementById("descriptionError");
+            const offerPriceError = document.getElementById("offerPriceError");
+
+            nameError.textContent = "";
+            descriptionError.textContent = "";
+            offerPriceError.textContent = "";
+
+            if (!/^[a-zA-Z]+$/.test(name)) {
+                nameError.textContent = "Name should not contain spaces or numbers.";
+                isValid = false;
+            }
+
+            if (/\s/.test(description)) {
+                descriptionError.textContent = "Description should not contain spaces.";
+                isValid = false;
+            }
+
+            if (offerPrice <= 0) {
+                offerPriceError.textContent = "Offer Price should be a positive number.";
+                isValid = false;
+            }
+
+            return isValid;
         }
 
-        if (/\s/.test(description)) {
-          descriptionError.textContent = "Description should not contain spaces.";
-          isValid = false;
-        }
+        document.getElementById('updateForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-        if (offerPrice <= 0) {
-          offerPriceError.textContent = "Offer Price should be a positive number.";
-          isValid = false;
-        }
+            if (!validateForm()) {
+                return;
+            }
 
-        return isValid;
-      }
-    
-    document.getElementById('updateForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // Prevent the default form submission
-      if (!validateForm()) {
-        return; // Stop form submission if validation fails
-      }
-      
-      // Collect form data
-      const formData = {
-        name: document.getElementById('name').value,
-        description: document.getElementById('description').value,
-        offerPrice: document.getElementById('offerPrice').value,
-        status: document.getElementById('status').value,
-      };
+            const formData = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                offerPrice: document.getElementById('offerPrice').value,
+                status: document.getElementById('status').value,
+            };
 
-      // Send data via fetch
-      fetch('/admin/addPost', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json(); // Parse JSON response
-      })
-      .then((data) => {
-        Swal.fire({
-          title: 'Success!',
-          text: 'Category added successfully!',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = '/admin/CategoryManagement'; // Redirect
-          }
+            try {
+                const response = await fetch('/admin/addPost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Category added successfully!',
+                    icon: 'success',
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#00d4ff',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/admin/CategoryManagement';
+                    }
+                });
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: `Error adding category: ${error.message}`,
+                    icon: 'error',
+                    background: '#252525',
+                    color: '#e0e0e0',
+                    confirmButtonColor: '#ff6f61',
+                    confirmButtonText: 'Try Again'
+                });
+            }
         });
-      })
-      .catch((error) => {
-        Swal.fire({
-          title: 'Error!',
-          text: `Error adding category: ${error.message}`,
-          icon: 'error',
-          confirmButtonText: 'Try Again',
-        });
-      });
-    });
-  </script>
+    </script>
 </body>
 </html>
