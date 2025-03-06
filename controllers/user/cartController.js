@@ -31,11 +31,15 @@ const cart = async (req, res) => {
         if (product.quantity < 1) {
             return res.redirect("/user/shop?error=outOfStock");
         }
-
+      
 
         // Check if a cart already exists for the user
         let userCart = await Cart.findOne({ userId });
-
+        if (userCart.items.some(item => item.quantity > 5)) {
+            return res.redirect("/user/cart?error=You can't buy more than 5 items of a product");
+        }
+        
+        
         if (!userCart) {
             // If no cart exists, create a new one
             userCart = new Cart({
@@ -54,7 +58,7 @@ const cart = async (req, res) => {
             
             existingItem.quantity += 1;
             if (existingItem.quantity > 5) {
-                return res.json({ success: false, message: "You cannot add more than 5 items of this product." });
+                return res.redirect("/user/cart?error=You can't buy more than 5 items of a product");
             }
             
             existingItem.totalPrice = existingItem.quantity * product.salePrice;
@@ -172,12 +176,13 @@ const remove = async (req, res) => {
 const incORdec = async (req, res) => {
     try {
         const { productId, action } = req.body;
-        const userId = req.session.user.id; // Assuming userId is in the session or request
+        const userId = req.session.user.id;
         const product = await Product.findById(productId);
 
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
+
         const AvailableQuantity = product.quantity;
         let userCart = await Cart.findOne({ userId });
 
@@ -185,29 +190,32 @@ const incORdec = async (req, res) => {
             return res.status(404).json({ success: false, message: "Cart not found" });
         }
 
-        const existingItem = userCart.items.find((item) =>
-            item.productId.equals(productId)
-        );
+        const existingItem = userCart.items.find((item) => item.productId.equals(productId));
 
         if (!existingItem) {
             return res.status(404).json({ success: false, message: "Item not found in cart" });
         }
-        if (action == "1" && existingItem.quantity + 1 > AvailableQuantity) {
-            return res.status(400).json({
-                success: false,
-                message: `We only have ${AvailableQuantity} units in stock. Please buy fewer.`
-            });
-        }
+
         if (action == "1") {
-            // Increment quantity
+            if (existingItem.quantity + 1 > AvailableQuantity) {
+                return res.status(400).json({
+                    success: false,
+                    message: `We only have ${AvailableQuantity} units in stock. Please buy fewer.`
+                });
+            }
+            if (existingItem.quantity + 1 > 5) {
+                return res.status(400).json({
+                    success: false,
+                    message: `'You can only buy up to 5 units of this product.',`
+                });
+            }
             existingItem.quantity += 1;
         } else if (action == "-1") {
             if (existingItem.quantity > 1) {
                 existingItem.quantity -= 1;
             } else {
-                userCart.items = userCart.items.filter(
-                    (item) => !item.productId.equals(productId)
-                );
+                // Remove item from cart if quantity is 1 and user decrements
+                userCart.items = userCart.items.filter(item => !item.productId.equals(productId));
             }
         }
 
@@ -228,6 +236,7 @@ const incORdec = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
 
 module.exports={
     cart,

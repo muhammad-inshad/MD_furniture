@@ -87,16 +87,11 @@ const ordermanagment = async (req, res) => {
             { $skip: skip }, // Skip documents for pagination
             { $limit: limit }, // Limit the number of documents per page
         ]);
-        let username=''
-        if (orders.length > 0 && orders[0].userDetails) {
-            const findusername = await Address.findOne({ userId: orders[0]?.userDetails?._id });
-            const name = findusername?.address[0]?.name;
-            username=name
-        }
+       
         
         const totalOrders = await Order.countDocuments();
         const totalPages = Math.ceil(totalOrders / limit); // Calculate total pages
-        res.render('ordermanagement', { orders, currentPage: page, totalPages,username});
+        res.render('ordermanagement', { orders, currentPage: page, totalPages});
    
     } catch (error) {
         console.error('Error in order management:', error);

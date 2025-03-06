@@ -218,19 +218,18 @@
         const decreaseButton = rowElement.querySelector(".decrease"); // Get the minus button
 
         // Prevent decrementing if quantity is 1
-        if (action === -1 && parseInt(quantityInput.value) <= 1) {
-            return; // Stop execution if already at 1
-        }
-        if(parseInt(quantityInput.value) > 4){
-          Swal.fire({
-        title: 'Oops!',
-        text: 'You can only buy up to 5 units of this product.',
-        icon: 'warning',
-        confirmButtonText: 'OK'
-    });
-    return;
-          return;
-        }
+    //     if (action === -1 && parseInt(quantityInput.value) <= 1) {
+    //         return; // Stop execution if already at 1
+    //     }
+    //     if(parseInt(quantityInput.value) > 4){
+    //       Swal.fire({
+    //     title: 'Oops!',
+    //     text: 'You can only buy up to 5 units of this product.',
+    //     icon: 'warning',
+    //     confirmButtonText: 'OK'
+    // });
+    // return;
+    //     }
 
         
 
@@ -428,7 +427,26 @@ async function ApplyCoupon(isRemoving) {
 
 
 </script>
-
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorMessage = urlParams.get("error");
+        
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorMessage,
+                confirmButtonColor: '#d33'
+            });
+  
+            // Remove the error message from the URL after showing the alert
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    });
+  </script>
+  
 
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="js/tiny-slider.js"></script>
