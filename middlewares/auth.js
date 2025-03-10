@@ -55,25 +55,37 @@ const isAdmin = (req, res, next) => {
         res.redirect("/user/home"); // Redirect on error as fallback
     }
 };
-
-const cartValidation= async (req,res,next)=>{
+const cartValidation = async (req, res, next) => {
     try {
-        const{cartVersion}= req.body
-        if(!cartVersion) {
-            next();
-        }
-        const cart= await Cart.findOne({userId:req.session.user.id})
-        const previousCartversion = cart.versionKey
-        if(previousCartversion!==parseInt(cartVersion)){
-           
-          return res.status(409).json({message:"Cart Updated"})
-        }
-        next();
-
+      const { cartVersion } = req.body;
+      
+      if (!cartVersion) {
+        return next();
+      }
+      
+  
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "User not logged in" });
+      }
+      
+      const cart = await Cart.findOne({ userId: req.session.user.id });
+      
+  
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      
+     
+      if (cart.__v !== parseInt(cartVersion)) {
+        return res.status(409).json({ message: "Cart has been updated" });
+      }
+      
+      next();
     } catch (error) {
-        console.log(error)
+      console.log(error);
+      return res.status(500).json({ message: "Server error during cart validation" });
     }
-}
+  };
 
 
 module.exports={

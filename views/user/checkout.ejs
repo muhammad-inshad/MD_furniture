@@ -413,35 +413,7 @@
       }
     }
   </script>
-<!-- 
-<script>
- let previousVersion = null;
-const itemquantity=document.getElementById("itemquantity")
-async function checkCartVersion() {
-    try {
-        const response = await fetch('/user/Cartversion');
-        const data = await response.json();
 
-        if (previousVersion !== null && previousVersion !== data.version) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Cart Updated!',
-                text: 'Your cart has changed. Please review before proceeding.',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.reload(); 
-            });
-        }
-
-        previousVersion = data.version; 
-    } catch (error) {
-        console.error("Error checking cart version:", error);
-    }
-}
-
-
-</script>  -->
-  
 <br > <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/tiny-slider.js"></script>
   <script src="js/custom.js"></script>

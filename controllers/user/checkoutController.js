@@ -173,15 +173,14 @@ const checkout = async (req, res) => {
                 }
         
                 let finalAmount = total;
-                console.log(finalAmount)
-                // Apply coupon if available
+               
                 if ( req.session.coupon) {
                     const coupon = await Coupon.findOne({ name: req.session.coupon.name });
                     if (coupon) {
                         finalAmount -= coupon.discountValue;
                     }
                 }
-                console.log(finalAmount)
+               
                 const newOrder = new Order({
                     orderedItems: detailedCart.items.map((item) => ({
                         product: item.product._id,

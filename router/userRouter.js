@@ -86,10 +86,10 @@ router.post("/cart",uploadFields,cartController.cart)
 router.get('/cart' ,cartController.getCartData);
 router.post('/cartremove',cartController.remove)
 router.post('/incORdec',cartController.incORdec)
-router.get('/Cartversion',cartController.Cartversion)
+
 
 router.get('/checkout',isLoginORnot,isUser,checkoutController.checkout)
-router.post("/checkout",checkoutController.postCkeckout)
+router.post("/checkout",cartValidation,checkoutController.postCkeckout)
 router.get("/myorders",isLoginORnot,uploadFields,checkoutController.myorders)
 router.post("/DownloadPdf/:id",checkoutController.DownloadPdf)
 router.get("/orderCancel/:id",isLoginORnot,checkoutController.orderCancel)

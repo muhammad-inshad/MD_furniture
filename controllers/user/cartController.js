@@ -233,29 +233,6 @@ const incORdec = async (req, res) => {
     }
 };
 
-const Cartversion = async (req, res) => {
-    try {
-        const userId = req.session.user?.id;
-        if (!userId) {
-            return res.json({ success: false, message: "User not logged in" });
-        }
-        
-        const cart = await Cart.findOneAndUpdate(
-            { userId }, 
-            { $inc: { versionKey: 1 } },
-            { new: true } 
-        );
-        if (!cart) {
-            return res.json({ success: false, message: "Cart not found" });
-        }
-console.log(cart)
-        res.json({ success: true, version: cart.versionKey }); 
-    } catch (error) {
-        console.error("Error in Cartversion:", error);
-        res.status(500).json({ success: false, message: "Server error" });
-    }
-};
-
   
 
 module.exports={
@@ -263,5 +240,4 @@ module.exports={
     getCartData,
     remove,
     incORdec,
-    Cartversion
 }
