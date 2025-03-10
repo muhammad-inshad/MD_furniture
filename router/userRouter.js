@@ -8,7 +8,7 @@ const checkoutController=require("../controllers/user/checkoutController")
 const cartController=require("../controllers/user/cartController")
 const ReturnController=require("../controllers/user/ReturnController")
 const {uploadFields}=require("../middlewares/multer")
-const {isUser,isLoginORnot}=require("../middlewares/auth");
+const {isUser,isLoginORnot,cartValidation}=require("../middlewares/auth");
 const passport = require("passport");
 const User=require("../models/userSchema");
 const { route } = require("./adminRouter");
@@ -86,6 +86,7 @@ router.post("/cart",uploadFields,cartController.cart)
 router.get('/cart' ,cartController.getCartData);
 router.post('/cartremove',cartController.remove)
 router.post('/incORdec',cartController.incORdec)
+router.get('/Cartversion',cartController.Cartversion)
 
 router.get('/checkout',isLoginORnot,isUser,checkoutController.checkout)
 router.post("/checkout",checkoutController.postCkeckout)

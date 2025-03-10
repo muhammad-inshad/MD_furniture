@@ -243,6 +243,7 @@
             if (data.success) {
                 if (data.newQuantity > 0) {
                     // Update quantity and total price for the specific row
+                    console.log(data)
                     quantityInput.value = data.newQuantity;
                     totalPriceElement.textContent = `$${data.newTotalPrice}`;
 

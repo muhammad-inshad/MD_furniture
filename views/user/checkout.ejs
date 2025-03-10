@@ -40,6 +40,7 @@
               <% let totalAmount = 0; %>
               <% detailedCart[0].items.forEach(item => { %>
                   <tr>
+                    <input type="hidden" value="item.quantity" name="itemquantity" id="itemquantity">
                       <td><%= item.product.productName %></td>
                       <td>$<%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
                   </tr>
@@ -149,6 +150,7 @@
   
 
   <script>
+    let cartVersion='<%=cartVersion%>'
     document.querySelector("form").addEventListener("submit", function (event) {
       event.preventDefault(); // Stop default submission
   
@@ -212,11 +214,22 @@
           window.location.href = "/user/myorders"; // Redirect to orders page
         });
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Order Failed",
-          text: result.error || result.message || "Something went wrong!",
-        });
+        if(response.status==409){
+            Swal.fire({
+                icon: 'info',
+                title: 'Cart Updated!',
+                text: 'Your cart has changed. Please review before proceeding.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload(); 
+            });
+          }else{
+          Swal.fire({
+            icon: "error",
+            title: "Order Failed",
+            text: result.message || "Something went wrong!",
+          });
+        }
       }
     } catch (error) {
       console.error("Error in wallet function:", error);
@@ -246,11 +259,11 @@
             total: value,
             paymentMethod,
             address,
+            cartVersion
           }),
         });
-  
+
         const result = await response.json();
-  
         if (response.ok) {
           Swal.fire({
             icon: "success",
@@ -260,11 +273,22 @@
             window.location.href = "/user/myorders"; // Redirect to orders page
           });
         } else {
+          if(response.status==409){
+            Swal.fire({
+                icon: 'info',
+                title: 'Cart Updated!',
+                text: 'Your cart has changed. Please review before proceeding.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload(); 
+            });
+          }else{
           Swal.fire({
             icon: "error",
             title: "Order Failed",
             text: result.message || "Something went wrong!",
           });
+        }
         }
       } catch (error) {
         console.error("Error in COD function:", error);
@@ -310,6 +334,7 @@
             total: value,
             paymentMethod,
             address,
+            
           }),
         });
   
@@ -317,7 +342,7 @@
   
         let options = {
           key: "rzp_test_dDhywmKqhJmLtU",
-          amount: order.amount,
+          amount: order?.amount,
           currency: order.currency,
           name: "MD_FURNITURE",
           description: "Test Transaction",
@@ -388,6 +413,34 @@
       }
     }
   </script>
+<!-- 
+<script>
+ let previousVersion = null;
+const itemquantity=document.getElementById("itemquantity")
+async function checkCartVersion() {
+    try {
+        const response = await fetch('/user/Cartversion');
+        const data = await response.json();
+
+        if (previousVersion !== null && previousVersion !== data.version) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Cart Updated!',
+                text: 'Your cart has changed. Please review before proceeding.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload(); 
+            });
+        }
+
+        previousVersion = data.version; 
+    } catch (error) {
+        console.error("Error checking cart version:", error);
+    }
+}
+
+
+</script>  -->
   
 <br > <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/tiny-slider.js"></script>

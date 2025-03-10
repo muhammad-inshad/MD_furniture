@@ -17,11 +17,12 @@ const Razorpay=require("razorpay")
 const cart = async (req, res) => {
     try {
         const id = req.body.productId;
-        const userId = req.session.user.id;
+        const userId = req.session.user?.id; // Ensure user ID exists
         if (!userId) {
             return res.redirect('/user/login');
         }
-        const trimmedId = id.trim(); // Ensure ID is properly trimmed
+
+        const trimmedId = id?.trim(); // Ensure ID is properly trimmed
         const product = await Product.findById(trimmedId); // Find the product
 
         if (!product) {
@@ -31,21 +32,19 @@ const cart = async (req, res) => {
         if (product.quantity < 1) {
             return res.redirect("/user/shop?error=outOfStock");
         }
-      
 
         // Check if a cart already exists for the user
         let userCart = await Cart.findOne({ userId });
-        if (userCart.items.some(item => item.quantity > 5)) {
-            return res.redirect("/user/cart?error=You can't buy more than 5 items of a product");
-        }
-        
-        
+
         if (!userCart) {
-            // If no cart exists, create a new one
             userCart = new Cart({
                 userId,
                 items: [],
             });
+        }
+
+        if (userCart.items.some(item => item.quantity > 5)) {
+            return res.redirect("/user/cart?error=You can't buy more than 5 items of a product");
         }
 
         // Check if the product is already in the cart
@@ -53,14 +52,11 @@ const cart = async (req, res) => {
             item.productId.equals(trimmedId)
         );
 
-
         if (existingItem) {
-            
             existingItem.quantity += 1;
             if (existingItem.quantity > 5) {
                 return res.redirect("/user/cart?error=You can't buy more than 5 items of a product");
             }
-            
             existingItem.totalPrice = existingItem.quantity * product.salePrice;
         } else {
             // If the product does not exist, add it to the cart
@@ -72,16 +68,14 @@ const cart = async (req, res) => {
             });
         }
 
-        // Save the cart
         await userCart.save();
-
-        // Render the cart page with updated data
         res.redirect("/user/cart");
     } catch (error) {
         console.error("Error in cart:", error);
         return res.redirect("/user/login?error=loginRequired");
     }
 };
+
 const getCartData = async (req, res) => {
     const userId = req?.session?.user?.id;
     const isLogin = req.session.user ? true : false;
@@ -107,7 +101,8 @@ const getCartData = async (req, res) => {
                 as: 'productDetails'
             }
         },
-        { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } }
+        { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } },
+        { $match: { 'productDetails.isDeleted': { $ne: true } } }
     ]);
 
     const subtotal = userCart.reduce((sum, item) => {
@@ -220,6 +215,7 @@ const incORdec = async (req, res) => {
         }
 
         existingItem.totalPrice = existingItem.quantity * product.salePrice;
+        userCart.versionKey+=1   
 
         // Save updated cart
         await userCart.save();
@@ -237,10 +233,35 @@ const incORdec = async (req, res) => {
     }
 };
 
+const Cartversion = async (req, res) => {
+    try {
+        const userId = req.session.user?.id;
+        if (!userId) {
+            return res.json({ success: false, message: "User not logged in" });
+        }
+        
+        const cart = await Cart.findOneAndUpdate(
+            { userId }, 
+            { $inc: { versionKey: 1 } },
+            { new: true } 
+        );
+        if (!cart) {
+            return res.json({ success: false, message: "Cart not found" });
+        }
+console.log(cart)
+        res.json({ success: true, version: cart.versionKey }); 
+    } catch (error) {
+        console.error("Error in Cartversion:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+  
 
 module.exports={
     cart,
     getCartData,
     remove,
-    incORdec
+    incORdec,
+    Cartversion
 }

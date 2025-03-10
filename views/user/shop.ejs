@@ -198,6 +198,7 @@
 											<div class="row">
 												<% if (typeof findProduct !== 'undefined') { %>
 													<% findProduct.forEach(product => { %>
+                            <% if (!product.isDeleted) { %>
 														<div class="col-12 col-md-4 col-lg-3 mb-5">
 															<a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
 																<div class="product-card position-relative">
@@ -241,9 +242,10 @@
 																	<img src="/images/cross.svg" class="img-fluid">
 																</span>
 															</a>
-														</div>
+														</div><% } %>
 													<% }); %>
 												<% } %>
+                        
 											</div>
 										</div>
 									</div>

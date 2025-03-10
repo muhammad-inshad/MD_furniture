@@ -1,5 +1,6 @@
 
 const User=require("../models/userSchema")
+const Cart= require('../models/cartSchema')
 
 const isUser = async (req, res, next) => {
     try {
@@ -55,9 +56,29 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+const cartValidation= async (req,res,next)=>{
+    try {
+        const{cartVersion}= req.body
+        if(!cartVersion) {
+            next();
+        }
+        const cart= await Cart.findOne({userId:req.session.user.id})
+        const previousCartversion = cart.versionKey
+        if(previousCartversion!==parseInt(cartVersion)){
+           
+          return res.status(409).json({message:"Cart Updated"})
+        }
+        next();
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 
 module.exports={
     isAdmin,
     isUser,
-    isLoginORnot
+    isLoginORnot,
+    cartValidation
 }

@@ -13,23 +13,47 @@ const Razorpay=require("razorpay")
 
 
 
-
 const showDetailProduct = async (req, res) => {
-    const { id } = req.params
-    console.log(id)
+    const { id } = req.params;
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).send("Invalid product ID.");
     }
+
     try {
-        const findProduct = await Product.findById(id).populate("category")
-        const isLogin = req.session.user ? true : false
-        res.render("showDetailProduct", { findProduct, isLogin })
+        const findProduct = await Product.aggregate([
+            { 
+                $match: { 
+                    _id: new mongoose.Types.ObjectId(id) 
+                } 
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: "_id",
+                    as: 'categoryDetails'
+                }
+            },
+            {
+                $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true }
+            }
+        ]);
+
+        if (findProduct.length === 0 || findProduct[0].isDeleted) {
+            return res.redirect("/user/shop"); // Redirect if product is not found or deleted
+        }
+
+        const isLogin = req.session.user ? true : false;
+        res.render("showDetailProduct", { findProduct: findProduct[0], isLogin });
+
     } catch (error) {
-        console.error(error);
+        console.error("Error fetching product details:", error);
         res.status(500).send("Server error.");
     }
+};
 
-}
+
 
 const sofa = async (req, res) => {
     try {
@@ -57,7 +81,7 @@ const sofa = async (req, res) => {
 
             if (wishlist) {
                 countWishlist = wishlist.products.length;
-                wishlistProductIds = wishlist.products.map(item => item.productId.toString()); // ✅ Extract product IDs
+                wishlistProductIds = wishlist.products.map(item => item.productId.toString()); 
             }
         }
 

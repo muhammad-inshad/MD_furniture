@@ -10,7 +10,8 @@ const Order = require("../../models/orderSchema")
 const Wishlist = require("../../models/wishlistSchema")
 const Coupon = require("../../models/coupnSchema")
 const PDFDocument = require("pdfkit");
-const Razorpay=require("razorpay")
+const Razorpay=require("razorpay");
+const { Cartversion } = require('./cartController');
 
 const checkout = async (req, res) => {
     try {
@@ -53,12 +54,14 @@ const checkout = async (req, res) => {
                     $group: {
                         _id: "$_id",
                         userId: { $first: "$userId" },
+                        versionKey: { $first: "$versionKey" },
                         items: {
                             $push: {
                                 product: "$productDetails",
                                 quantity: "$items.quantity",
                             },
                         },
+                        
                     },
                 },
             ]);
@@ -87,7 +90,9 @@ const checkout = async (req, res) => {
         }
 
         const isLogin = req.session.user ? true : false;
+// pass currentCartVersion for validation
 
+    const cartVersion= detailedCart[0].versionKey
      
         // Render the checkout page with calculated values
         return res.render("checkout", {
@@ -97,6 +102,7 @@ const checkout = async (req, res) => {
             subtotal,
             discountAmount,
             total,
+            cartVersion
         });
     } catch (error) {
         console.error("Error in checkout:", error);
@@ -167,15 +173,15 @@ const checkout = async (req, res) => {
                 }
         
                 let finalAmount = total;
-        
+                console.log(finalAmount)
                 // Apply coupon if available
-                if (req.session.coupon) {
+                if ( req.session.coupon) {
                     const coupon = await Coupon.findOne({ name: req.session.coupon.name });
                     if (coupon) {
                         finalAmount -= coupon.discountValue;
                     }
                 }
-        
+                console.log(finalAmount)
                 const newOrder = new Order({
                     orderedItems: detailedCart.items.map((item) => ({
                         product: item.product._id,
@@ -190,7 +196,7 @@ const checkout = async (req, res) => {
                     couponApplied: !!req.session.coupon,
                     userId: userId,
                 });
-        
+             
                 // Check stock before placing order
                 for (const item of newOrder.orderedItems) {
                     const currentProduct = await Product.findById(item.product);
@@ -207,12 +213,12 @@ const checkout = async (req, res) => {
                 expectedDate.setDate(expectedDate.getDate() + 5);
                 newOrder.orderExpectedDate = expectedDate.toDateString();
                 newOrder.paymentType = paymentMethod;
-        
+      
                 // **Handle Payment Methods**
                 if (paymentMethod === "onlinePayment") {
                     try {
                         const order = await razorpayInstance.orders.create({
-                            amount: parseInt(finalAmount * 100),
+                            amount: Math.round(Number(finalAmount) * 100),
                             currency: "INR",
                             receipt: newOrder._id.toString(),
                             notes: { info: "Test payment" },

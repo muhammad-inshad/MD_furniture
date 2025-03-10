@@ -169,125 +169,122 @@
 								  </div>
 
 
-<% if (typeof findProduct !=='undefined'){ %>
-<% if (findProduct&& findProduct.length > 0) { %>
-  <div class="untree_co-section product-section before-footer-section">
-    <div class="container">
-      <div class="row">
-        <% findProduct.forEach(product => { %>
-          <div class="col-12 col-md-4 col-lg-3 mb-5">
-            <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
-              
-              <div class="product-card position-relative">
-                <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
-                
-                <!-- Heart Icon Positioned in Top-Right Corner -->
-                <!-- Wishlist Icon with dynamic class -->
-                <% if (isLogin) { %>
-                  <i class="bi wishlist-icon <%= wishlistProductIds.includes(product._id.toString()) ? 'bi-suit-heart-fill' : 'bi-suit-heart' %>" 
-                     data-product-id="<%= product._id %>"></i>
-                <% } else { %>
-                  <i class="bi bi-suit-heart wishlist-icon" onclick="showLoginPopup()"></i>
-                <% } %>
-                
-
-              
-              
-
-            </div>
-            
-
-              <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
-
-              <% if (product.quantity < 1) { %>
-                <strong class="product-price" style="color: red;">Out of Stock</strong>
-              <% } else { %>
-                <strong class="product-price">$<%= product.salePrice %></strong>
-              <% } %>
-
-              <% if (product?.rating) { %>
-                <div class="rating">
-                    <% for (let i = 1; i <= 5; i++) { %>
-                        <% if (i <= product.rating) { %>
-                            <span class="star filled">★</span>  <!-- Filled star for rating -->
-                        <% } else { %>
-                            <span class="star">☆</span>  <!-- Empty star for remaining rating -->
-                        <% } %>
+                  <% if (typeof findProduct !== 'undefined') { %>
+                    <% if (findProduct && findProduct.length > 0) { %>
+                      <div class="untree_co-section product-section before-footer-section">
+                        <div class="container">
+                          <div class="row">
+                            <% findProduct.forEach(product => { %>
+                              <% if (!product.isDeleted) { %>  <!-- Ensuring deleted products are not displayed -->
+                                <div class="col-12 col-md-4 col-lg-3 mb-5">
+                                  <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
+                                    <div class="product-card position-relative">
+                                      <img src="/uploads/<%= product.productImages[0] %>" 
+                                           class="img-fluid product-thumbnail product-thumbnail-fixed" 
+                                           alt="<%= product.productName %>">
+                                      
+                                      <!-- Wishlist Icon -->
+                                      <% if (isLogin) { %>
+                                        <i class="bi wishlist-icon <%= wishlistProductIds.includes(product._id.toString()) ? 'bi-suit-heart-fill' : 'bi-suit-heart' %>" 
+                                           data-product-id="<%= product._id %>"></i>
+                                      <% } else { %>
+                                        <i class="bi bi-suit-heart wishlist-icon" onclick="showLoginPopup()"></i>
+                                      <% } %>
+                                    </div>
+                  
+                                    <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
+                  
+                                    <% if (product.quantity < 1) { %>
+                                      <strong class="product-price" style="color: red;">Out of Stock</strong>
+                                    <% } else { %>
+                                      <strong class="product-price">$<%= product.salePrice %></strong>
+                                    <% } %>
+                  
+                                    <% if (product?.rating) { %>
+                                      <div class="rating">
+                                        <% for (let i = 1; i <= 5; i++) { %>
+                                          <% if (i <= product.rating) { %>
+                                            <span class="star filled">★</span>  
+                                          <% } else { %>
+                                            <span class="star">☆</span>  
+                                          <% } %>
+                                        <% } %>
+                                      </div>
+                                    <% } %>
+                  
+                                    <span class="icon-cross">
+                                      <img src="/images/cross.svg" class="img-fluid">
+                                    </span>
+                                  </a>
+                                </div>
+                              <% } %>  <!-- Closing the isDeleted condition -->
+                            <% }); %>  <!-- Moving this inside the row to properly iterate products -->
+                          </div>
+                        </div>
+                      </div>
+                    <% } else { %>
+                      <p>No products found.</p>
                     <% } %>
-                </div>
-            <% } %>
-              <span class="icon-cross">
-                <img src="/images/cross.svg" class="img-fluid">
-              </span>
-            </a>
-          </div>
-        <% }); %>
-      </div>
-    </div>
-  </div>
-<% } else { %>
-  <p>No products found.</p>
-<% } %>
-<% } %>
-
-<% if (typeof findPrice !=='undefined'){ %>
-<% if ( findPrice  && findPrice.length > 0) { %>
-  <div class="untree_co-section product-section before-footer-section">
-    <div class="container">
-      <div class="row">
-        <% findPrice.forEach(product => { %>
-          <div class="col-12 col-md-4 col-lg-3 mb-5">
-            <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
-           
-              <div class="product-card position-relative">
-                <img src="/uploads/<%= product.productImages[0] %>" class="img-fluid product-thumbnail product-thumbnail-fixed" alt="<%= product.productName %>">
-                
-                
-                <!-- Wishlist Icon with dynamic class -->
-<% if (isLogin) { %>
-  <i class="bi wishlist-icon <%= wishlistProductIds.includes(product._id.toString()) ? 'bi-suit-heart-fill' : 'bi-suit-heart' %>" 
-     data-product-id="<%= product._id %>"></i>
-<% } else { %>
-  <i class="bi bi-suit-heart wishlist-icon" onclick="showLoginPopup()"></i>
-<% } %>
-
-                
-              
-              </div>
-
-              <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
-
-              <% if (product.quantity < 1) { %>
-                <strong class="product-price" style="color: red;">Out of Stock</strong>
-              <% } else { %>
-                <strong class="product-price">$<%= product.salePrice %></strong>
-              <% } %>
-              <% if (product?.rating) { %>
-                <div class="rating">
-                    <% for (let i = 1; i <= 5; i++) { %>
-                        <% if (i <= product.rating) { %>
-                            <span class="star filled">★</span>  <!-- Filled star for rating -->
-                        <% } else { %>
-                            <span class="star">☆</span>  <!-- Empty star for remaining rating -->
-                        <% } %>
+                  <% } %>
+                  
+                  <% if (typeof findPrice !== 'undefined') { %>
+                    <% if (findPrice && findPrice.length > 0) { %>
+                      <div class="untree_co-section product-section before-footer-section">
+                        <div class="container">
+                          <div class="row">
+                            <% findPrice.forEach(product => { %>
+                              <% if (!product.isDeleted) { %>  
+                                <div class="col-12 col-md-4 col-lg-3 mb-5">
+                                  <a class="product-item" href="/user/showDetailProduct/<%= product._id %>">
+                                    <div class="product-card position-relative">
+                                      <img src="/uploads/<%= product.productImages[0] %>" 
+                                           class="img-fluid product-thumbnail product-thumbnail-fixed" 
+                                           alt="<%= product.productName %>">
+                                      
+                                      <!-- Wishlist Icon -->
+                                      <% if (isLogin) { %>
+                                        <i class="bi wishlist-icon <%= wishlistProductIds.includes(product._id.toString()) ? 'bi-suit-heart-fill' : 'bi-suit-heart' %>" 
+                                           data-product-id="<%= product._id %>"></i>
+                                      <% } else { %>
+                                        <i class="bi bi-suit-heart wishlist-icon" onclick="showLoginPopup()"></i>
+                                      <% } %>
+                                    </div>
+                  
+                                    <h3 class="product-title" style="font-size:13px;"><%= product.productName %></h3>
+                  
+                                    <% if (product.quantity < 1) { %>
+                                      <strong class="product-price" style="color: red;">Out of Stock</strong>
+                                    <% } else { %>
+                                      <strong class="product-price">$<%= product.salePrice %></strong>
+                                    <% } %>
+                  
+                                    <% if (product?.rating) { %>
+                                      <div class="rating">
+                                        <% for (let i = 1; i <= 5; i++) { %>
+                                          <% if (i <= product.rating) { %>
+                                            <span class="star filled">★</span>  
+                                          <% } else { %>
+                                            <span class="star">☆</span>  
+                                          <% } %>
+                                        <% } %>
+                                      </div>
+                                    <% } %>
+                  
+                                    <span class="icon-cross">
+                                      <img src="/images/cross.svg" class="img-fluid">
+                                    </span>
+                                  </a>
+                                </div>
+                              <% } %>  <!-- Closing `if (!product.isDeleted)` here -->
+                            <% }); %>  <!-- Moving this inside the row -->
+                          </div>
+                        </div>
+                      </div>
+                    <% } else { %>
+                      <p>No products available at the moment.</p>
                     <% } %>
-                </div>
-            <% } %>
-              <span class="icon-cross">
-                <img src="/images/cross.svg" class="img-fluid">
-              </span>
-            </a>
-          </div>
-        <% }); %>
-      </div>
-    </div>
-  </div>
-<% } else { %>
-  <p>No products available at the moment.</p>
-<% } %>
-
-<% } %>
-
+                  <% } %>
+                  
 
 <% if (typeof results !=='undefined'){ %>
   <% if ( results  && results.length > 0) { %>

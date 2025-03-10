@@ -415,37 +415,39 @@
         }
 
         function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-            doc.setFontSize(20);
-            doc.setTextColor(0, 212, 255);
-            doc.text("Sales Report", 20, 20);
+    doc.setFontSize(20);
+    doc.setTextColor(0, 212, 255);
+    doc.text("Sales Report", 20, 20);
 
-            doc.setFontSize(12);
-            doc.setTextColor(255, 255, 255);
-            const overallSalesCount = document.getElementById("overallSalesCount").innerText;
-            const overallOrderAmount = document.getElementById("overallOrderAmount").innerText;
-            const overallDiscount = document.getElementById("overallDiscount").innerText;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Change text color to black
 
-            if (overallSalesCount === "0") {
-                Swal.fire({
-                    icon: "error",
-                    title: "No Data Available",
-                    text: "There is no data to generate the sales report.",
-                    background: '#252525',
-                    color: '#e0e0e0',
-                    confirmButtonColor: '#ff6f61'
-                });
-                return;
-            }
+    const overallSalesCount = document.getElementById("overallSalesCount")?.innerText.trim() || "N/A";
+    const overallOrderAmount = document.getElementById("overallOrderAmount")?.innerText.trim() || "N/A";
+    const overallDiscount = document.getElementById("overallDiscount")?.innerText.trim() || "N/A";
 
-            doc.text(`Overall Sales Count: ${overallSalesCount}`, 20, 30);
-            doc.text(`Overall Order Amount: ${overallOrderAmount}`, 20, 40);
-            doc.text(`Overall Discount: ${overallDiscount}`, 20, 50);
+    if (overallSalesCount === "0") {
+        Swal.fire({
+            icon: "error",
+            title: "No Data Available",
+            text: "There is no data to generate the sales report.",
+            background: '#252525',
+            color: '#e0e0e0',
+            confirmButtonColor: '#ff6f61'
+        });
+        return;
+    }
 
-            doc.save("sales_report.pdf");
-        }
+    doc.text(`Overall Sales Count: ${overallSalesCount}`, 20, 30);
+    doc.text(`Overall Order Amount: ${overallOrderAmount}`, 20, 40);
+    doc.text(`Overall Discount: ${overallDiscount}`, 20, 50);
+
+    doc.save("sales_report.pdf");
+}
+
 
         function downloadExcel() {
             const overallSalesCount = document.getElementById("overallSalesCount").innerText.trim();
