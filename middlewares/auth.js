@@ -58,11 +58,9 @@ const isAdmin = (req, res, next) => {
 const cartValidation = async (req, res, next) => {
     try {
       const { cartVersion } = req.body;
-      
       if (!cartVersion) {
         return next();
       }
-      
   
       if (!req.session || !req.session.user) {
         return res.status(401).json({ message: "User not logged in" });
@@ -70,14 +68,15 @@ const cartValidation = async (req, res, next) => {
       
       const cart = await Cart.findOne({ userId: req.session.user.id });
       
-  
       if (!cart) {
         return res.status(404).json({ message: "Cart not found" });
       }
-      
-     
-      if (cart.__v !== parseInt(cartVersion)) {
-        return res.status(409).json({ message: "Cart has been updated" });
+
+      if (cart.versionKey !== parseInt(cartVersion)) {
+        return res.status(409).json({ 
+          message: "Cart has been updated",
+          currentVersion: cart.cartVersion
+        });
       }
       
       next();
@@ -85,8 +84,7 @@ const cartValidation = async (req, res, next) => {
       console.log(error);
       return res.status(500).json({ message: "Server error during cart validation" });
     }
-  };
-
+};
 
 module.exports={
     isAdmin,

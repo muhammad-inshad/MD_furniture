@@ -233,7 +233,9 @@ const checkout = async (req, res) => {
                 
                 else if (paymentMethod === "wallet") {
                     try {
-                        let User = await User.findById(userId);
+                       
+                        let User = await user.findById(userId);
+                  
                         if (!User) {
                             return res.status(400).json({ success: false, message: "User not found" });
                         }
