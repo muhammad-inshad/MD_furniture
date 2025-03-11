@@ -364,7 +364,7 @@
                                         <input type="hidden" value="<%= order._id %>" name="id">
                                         <select name="status" id="status-<%= order._id %>">
                                             <% 
-                                                const statuses = ['paid', 'pending', 'Processing', 'shipped', 'Delivered', 'Cancelled', 'Returned'];
+                                                const statuses = ['paid', 'pending', 'Processing', 'shipped', 'Delivered', 'Cancelled', 'Returned','failed'];
                                                 const selectedStatus = order?.status;
                                             %>
                                             <option value="<%= selectedStatus %>" selected><%= selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1) %></option>

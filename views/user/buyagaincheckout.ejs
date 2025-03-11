@@ -1,0 +1,401 @@
+<%- include("../../views/partials/user/top") %>
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="/css/style.css" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<title>MD Furniture - Checkout</title>
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="display-6 fw-bold text-dark mb-4">Your Order</h2>
+
+    <!-- Order Summary -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <table class="table table-borderless mb-0">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!address) { %>
+              <script>
+                Swal.fire({
+                  title: "No Address Found",
+                  text: "Please add an address before proceeding.",
+                  icon: "warning",
+                  confirmButtonText: "OK",
+                  allowOutsideClick: false
+                }).then(() => {
+                  window.location.href = "/user/add_address";
+                });
+              </script>
+            <% } %>
+
+            <% if (detailedCart && detailedCart.length > 0) { %>
+              <% let totalAmount = 0; %>
+              <% detailedCart[0].items.forEach(item => { %>
+                <tr>
+                  <td><%= item.product.productName %></td>
+                  <td class="text-end">$<%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
+                </tr>
+                <% totalAmount += (item.product.price * item.quantity); %>
+              <% }) %>
+              <tr>
+                <input type="hidden" value="<%=orderId%>" id="orderId">
+                <td class="fw-bold">Cart Subtotal</td>
+                <td class="text-end">$<%= subtotal %></td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Delivery Charge</td>
+                <td class="text-end">$100</td>
+              </tr>
+              <tr>
+                <td class="fw-bold text-primary">Order Total</td>
+                <td class="text-end text-primary fw-bold">$<%= total %></td>
+                <input type="hidden" id="totalInput" name="total" value="<%= total %>">
+              </tr>
+            <% } else { %>
+              <tr>
+                <td colspan="2" class="text-center text-muted">No items in the cart.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Address Selection -->
+    <form>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h3 class="h5 mb-3">Select Address</h3>
+          <% if (address && address.length > 0) { %>
+            <% address.forEach((addr, index) => { %>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="address" id="address<%= index %>" value="<%= addr._id %>" required>
+                <label class="form-check-label" for="address<%= index %>">
+                  <%= addr.name %>, <%= addr.City %>, <%= addr.state %> - <%= addr.pincode %>
+                </label>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-muted">No addresses available</p>
+          <% } %>
+          <div class="mt-3">
+            <a href="/user/address" class="text-primary text-decoration-none">Edit Address</a>
+            <span class="mx-2">|</span>
+            <a href="/user/add_address" class="text-primary text-decoration-none">Add New Address</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h3 class="h5 mb-3">Select Payment Method</h3>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="COD" value="cod">
+            <label class="form-check-label" for="COD">Cash on Delivery</label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="Cheque" value="onlinePayment">
+            <label class="form-check-label" for="Cheque">Online Payment</label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="wallet" value="wallet">
+            <label class="form-check-label" for="wallet">Wallet</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Place Order Button -->
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary btn-lg px-5 py-3">Place Order</button>
+      </div>
+    </form>
+  </div>
+
+  
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  
+
+  <script>
+    let cartVersion='<%=cartVersion%>'
+    document.querySelector("form").addEventListener("submit", function (event) {
+      event.preventDefault(); // Stop default submission
+  
+      let addressChecked = document.querySelector('input[name="address"]:checked');
+      let paymentChecked = document.querySelector('input[name="paymentMethod"]:checked');
+  
+      if (!addressChecked || !paymentChecked) {
+        Swal.fire({
+          icon: "warning",
+          title: "Selection Required",
+          text: "Please select an address and a payment method before proceeding.",
+        });
+        return; // Stop execution if validation fails
+      }
+  
+      let selectedPaymentMethod = paymentChecked.value;
+  
+      if (selectedPaymentMethod === "onlinePayment") {
+        makePayment(); // Call online payment function
+      }
+      else if(selectedPaymentMethod === "wallet"){
+              wallet()
+      }
+       else
+       {
+        COD(); // Call COD function
+      }
+    });
+  </script>
+
+<script>
+  async function wallet() {
+    try {
+      const orderId=document.getElementById("orderId").value
+      const value = document.getElementById("totalInput")?.value;
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+      const address = document.querySelector('input[name="address"]:checked')?.value;
+
+      if (!value || !paymentMethod || !address) {
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please ensure all fields are selected before proceeding.",
+        });
+        return;
+      }
+
+      const response = await fetch("/user/buyagaincheckout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ total: value, paymentMethod, address,orderId}),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Order Placed!",
+          text: "Your order has been placed successfully.",
+        }).then(() => {
+          window.location.href = "/user/myorders"; // Redirect to orders page
+        });
+      } else {
+        if(response.status==409){
+            Swal.fire({
+                icon: 'info',
+                title: 'Cart Updated!',
+                text: 'Your cart has changed. Please review before proceeding.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload(); 
+            });
+          }else{
+          Swal.fire({
+            icon: "error",
+            title: "Order Failed",
+            text: result.message || "Something went wrong!",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error in wallet function:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: "Please try again later.",
+      });
+    }
+  }
+</script>
+
+    
+  <script>
+    async function COD() {
+      try {
+        const orderId=document.getElementById("orderId").value
+        const value = document.getElementById("totalInput").value;
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const address = document.querySelector("input[name='address']:checked").value;
+  
+        const response = await fetch("/user/buyagaincheckout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            total: value,
+            paymentMethod,
+            address,
+            cartVersion,
+            orderId
+          }),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Order Placed!",
+            text: "Your order has been placed successfully.",
+          }).then(() => {
+            window.location.href = "/user/myorders"; // Redirect to orders page
+          });
+        } else {
+          if(response.status==409){
+            Swal.fire({
+                icon: 'info',
+                title: 'Cart Updated!',
+                text: 'Your cart has changed. Please review before proceeding.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload(); 
+            });
+          }else{
+          Swal.fire({
+            icon: "error",
+            title: "Order Failed",
+            text: result.message || "Something went wrong!",
+          });
+        }
+        }
+      } catch (error) {
+        console.error("Error in COD function:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Network Error",
+          text: "Please try again later.",
+        });
+      }
+    }
+  </script>
+  
+  <script>
+    async function makePayment() {
+      Swal.fire({
+        title: "Processing Payment...",
+        text: "Please wait while we process your order.",
+        icon: "info",
+        showConfirmButton: false,
+        allowOutsideClick: false
+      });
+  
+      try {
+        const orderId=document.getElementById("orderId").value
+        const value = document.getElementById("totalInput").value;
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const address = document.querySelector("input[name='address']:checked").value;
+
+          if (value < 1) {
+    Swal.fire({
+        title: "Invalid Amount",
+        text: "The money must be greater than 1.",
+        icon: "error",
+        confirmButtonText: "OK",
+        allowOutsideClick: false
+    });
+}
+
+  
+        let response = await fetch("http://localhost:5000/user/buyagaincheckout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            total: value,
+            paymentMethod,
+            address,
+            orderId
+          }),
+        });
+  
+        let order = await response.json();
+  
+        let options = {
+          key: "rzp_test_dDhywmKqhJmLtU",
+          amount: order?.amount,
+          currency: order.currency,
+          name: "MD_FURNITURE",
+          description: "Test Transaction",
+          order_id: order.id,
+          handler: async function (response) {
+            console.log("Payment Successful", response);
+  
+            let verifyResponse = await fetch("http://localhost:5000/verifyOrder", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...response, orderId: order.receipt })
+            });
+  
+            let verifyResult = await verifyResponse.json();
+            Swal.fire({
+              title: verifyResult.success ? "Payment Verified!" : "Verification Failed!",
+              text: verifyResult.message,
+              icon: verifyResult.success ? "success" : "error",
+              confirmButtonText: "OK"
+            }).then(() => {
+               window.location.href = '/user/myorders';
+            })
+          },
+          prefill: {
+            name: "inshad",
+            email: "johndoe@example.com",
+            contact: "9999999999"
+          },
+          theme: { color: "#528FF0" },
+          retry:{enabled:false}
+        };
+  
+        let rzp = new Razorpay(options);
+        rzp.open();
+  
+        rzp.on('payment.failed', function (response) {
+  console.log(response);
+  Swal.fire({
+    icon: "error",
+    title: "Payment Failed",
+    text: response.error.description || "Your payment could not be processed. Please try again.",
+    confirmButtonText: "OK"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch("/user/pymentfaield", { // Fixed the route name
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          error: response.error, // Send error details
+          order: order // Send order details
+        })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          window.location.href = "/user/myorders"; // Change this to your actual route
+        })
+        .catch((err) => console.error("Error:", err));
+    }
+  });
+});
+
+  
+      } catch (error) {
+        console.error("Payment failed:", error);
+      }
+    }
+  </script>
+
+<br > <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/tiny-slider.js"></script>
+  <script src="js/custom.js"></script>
+<%- include("../../views/partials/user/footer") %>

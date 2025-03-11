@@ -12,21 +12,32 @@ const Address = require('../../models/addressSchema');
 const mongoose = require("mongoose");
 
 
-
-const userManagement=async(req,res)=>{
+const userManagement = async (req, res) => {
     try {
-        if( req.session.admin){
-            const userfind = await User.find().sort({_id:-1});
-        res.render("userManagement",{userfind})}
-        else{
-            res.redirect("/user/home")
+        let page = parseInt(req.query.page) || 1; 
+        let limit = 5; 
+        let skip = (page - 1) * limit;
+
+        const totalUsers = await User.countDocuments();
+        const totalPages = Math.ceil(totalUsers / limit);
+
+        const userfind = await User.find()
+    .skip(skip)
+    .limit(limit)
+    .sort({ _id: -1 }); // Sort by newest users first
+
+
+        if (req.session.admin) {
+            res.render("userManagement", { userfind , page, totalPages });
+        } else {
+            res.redirect("/user/home");
         }
     } catch (error) {
-        console.log("userManagement error", error)
+        console.error("userManagement error", error);
         res.status(500).send("Error in user management");
-
     }
-}
+};
+
 
 const blockUser=async (req,res)=>{
       try {

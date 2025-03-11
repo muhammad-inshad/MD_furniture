@@ -44,14 +44,29 @@ const showDetailProduct = async (req, res) => {
             return res.redirect("/user/shop"); // Redirect if product is not found or deleted
         }
 
+        const categoryId = findProduct[0].category; // Get the category ID of the current product
+        
+        // Fetch related products from the same category (excluding the current product)
+        const relatedProducts = await Product.find({
+            category: categoryId,
+            _id: { $ne: id },  // Exclude the currently viewed product
+            isDeleted: false   // Ensure only active products are fetched
+        }).limit(4); // Limit the number of related products displayed
+
         const isLogin = req.session.user ? true : false;
-        res.render("showDetailProduct", { findProduct: findProduct[0], isLogin });
+        
+        res.render("showDetailProduct", { 
+            findProduct: findProduct[0], 
+            relatedProducts, 
+            isLogin 
+        });
 
     } catch (error) {
         console.error("Error fetching product details:", error);
         res.status(500).send("Server error.");
     }
 };
+
 
 
 

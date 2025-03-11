@@ -276,6 +276,16 @@ body {
                                     </form>
  
                                     <% } %>
+                                    <% if (order.status == "failed" ) { %> 
+                                        
+                                        <form action="/user/buyagain/<%= order.productDetails[0]?._id %>/<%=order._id%>" method="post">
+
+                                            <div class="container">
+                                                <button class="btn btn-danger" id="buyagain">Buy Again</button>
+                                            </div>
+                                    </form>
+ 
+                                    <% } %>
                                     <div>
                                         <span class="product-name"><strong>Product:</strong> <%= order.productDetails[0]?.productName %></span><br>
                                         <span><strong>Quantity:</strong> <%= order?.orderedItems?.quantity %></span>

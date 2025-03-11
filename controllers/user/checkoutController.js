@@ -279,6 +279,176 @@ const checkout = async (req, res) => {
             }
         };
         
+        const buyagain = async (req, res) => {
+            try {
+                // Validate user session
+                if (!req.session.user) {
+                    return res.redirect("/user/login");
+                }
+        const {orderId}=req.params
+       
+                const userId = req.session.user.id;
+                if (!mongoose.Types.ObjectId.isValid(userId)) {
+                    throw new Error("Invalid User ID");
+                }
+        
+                // Check if address exists
+                const findAddress = await Address.findOne({ userId });
+                if (!findAddress) {
+                    console.log("No address found for the given userId");
+                    return res.redirect("/user/add_address");
+                }
+        
+                const address = findAddress.address;
+        
+                // Get product ID from request
+                const productId = req.params.productId || req.body.productId;
+                if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+                    throw new Error("Invalid Product ID");
+                }
+        
+                // Fetch the product
+                const product = await Product.findById(productId);
+                if (!product) {
+                    console.log("Product not found with ID:", productId);
+                    throw new Error("Product not found");
+                }
+        
+                // Constants for tax and shipping
+                const TAX_RATE = 0.1;
+                const SHIPPING_FEE = 100;
+        
+                // Prepare cart details
+                const detailedCart = [{
+                    _id: new mongoose.Types.ObjectId(),
+                    userId: userId, // No need to wrap in ObjectId again
+                    cartVersion: Date.now().toString(), // Rename from `versionKey`
+                    items: [{
+                        product,
+                        quantity: 1
+                    }]
+                }];
+        
+                // Calculate pricing
+                let subtotal = product.salePrice || product.price;
+                const tax = TAX_RATE * subtotal;
+                let discountAmount = 0;
+                let total = subtotal + tax + SHIPPING_FEE;
+        
+                // Apply discount if a coupon is in session
+                if (req.session.coupon) {
+                    discountAmount = (req.session.coupon.discountValue / 100) * subtotal;
+                    total -= discountAmount;
+                }
+        
+                // Render checkout page
+                return res.render("buyagaincheckout", {
+                    isLogin: true,
+                    address,
+                    detailedCart,
+                    subtotal,
+                    discountAmount,
+                    total,
+                    orderId,
+                    cartVersion: 1
+                });
+        
+            } catch (error) {
+                console.error("Error in buyagain:", error);
+                res.status(500).render("pageNotFound");
+            }
+        };
+        
+ const buyagaincheckout = async (req, res) => {
+            try {
+                if (!req.session || !req.session.user) {
+                    return res.status(401).send("User not logged in");
+                }
+        
+            
+                const { orderId, paymentMethod, total } = req.body; // Accept orderId from frontend
+           
+                const userId = req.session.user.id;
+
+                // Find existing order
+                const order = await Order.findById(orderId);
+               
+                if (!order) {
+                    return res.status(404).send("Order not found");
+                }
+        
+                // Update order payment type and reset status
+                order.paymentType = paymentMethod;
+                const currentDate = new Date();
+order.orderExpectedDate = new Date(currentDate.setDate(currentDate.getDate() + 5));
+
+                let finalAmount = total;
+        
+                // Handle Payment Methods
+                if (paymentMethod === "onlinePayment") {
+                    try {
+                        const razorpayOrder = await razorpayInstance.orders.create({
+                            amount: Math.round(Number(finalAmount) * 100),
+                            currency: "INR",
+                            receipt: order._id.toString(),
+                            notes: { info: "Reattempting payment" },
+                        });
+                        order.status='paid'
+                        await order.save();
+                        return res.json(razorpayOrder);
+                    } catch (err) {
+                        console.error("Online Payment Error:", err);
+                        return res.status(500).json({ error: err });
+                    }
+                } 
+        
+                else if (paymentMethod === "wallet") {
+                    try {
+                        let User = await user.findById(userId);
+                        if (!User) {
+                            return res.status(400).json({ success: false, message: "User not found" });
+                        }
+        
+                        if (User.wallet < finalAmount) {
+                            return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
+                        }
+        
+                        // Deduct from wallet and update order
+                        User.wallet -= finalAmount;
+                        order.status = "paid"; // Update order status
+                        await User.save();
+                        await order.save();
+        
+                        return res.status(200).json({ success: true, message: "Payment successful via wallet" });
+                    } catch (error) {
+                        console.error("Wallet Payment Error:", error);
+                        return res.status(500).json({ success: false, message: "Server error" });
+                    }
+                } 
+        
+                else {
+                    // COD Payment
+                    if (finalAmount > 1000) {
+                        return res.status(400).json({
+                            success: false,
+                            message: "COD is not available for orders above 1000. Use wallet or online payment.",
+                        });
+                    }
+        
+                    order.status ="pending"; // Update order status for COD
+                    await order.save();
+        
+                    return res.json({
+                        success: true,
+                        message: "Order placed successfully via COD",
+                    });
+                }
+            } catch (error) {
+                console.error("Error in buyagaincheckout:", error);
+                res.status(500).render("pageNotFound");
+            }
+        };
+        
 
 const myorders = async (req, res) => {
     try {
@@ -529,7 +699,9 @@ module.exports={checkout,
     DownloadPdf,
     postorderCancel,
     orderCancel,
+    buyagain,
     Wallet,
     addmoney,
+    buyagaincheckout,
     verifyPayment
 }

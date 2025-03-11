@@ -213,6 +213,7 @@
                     </div>
     
                     <button class="wishlist-remove" data-product-id="<%= item.productId._id %>">Remove</button>
+                    <button class="addcart" data-product-id="<%= item.productId._id %>">ADD CART</button>
                 </div>
             <% } else { %>
                 <p>Product details not available.</p>
@@ -225,7 +226,40 @@
     
 </div></div>
 <br><br><br>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".addcart").forEach(button => {
+        button.addEventListener("click", function () {
+            const productId = this.getAttribute("data-product-id");
+
+            // Show SweetAlert confirmation
+            Swal.fire({
+                icon: "success",
+                title: "Added to Cart!",
+                text: "Your product has been added successfully.",
+                showConfirmButton: false,
+                timer: 1500 // Auto-close after 1.5 seconds
+            });
+
+            // Send request in the background
+            fetch("/user/cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId })
+            }).catch(error => console.error("Error adding item to cart:", error));
+
+            // Reload the page after a short delay
+            setTimeout(() => {
+                location.reload();
+            }, 1600); // Reload after Swal closes
+        });
+    });
+});
+
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".wishlist-remove").forEach(button => {

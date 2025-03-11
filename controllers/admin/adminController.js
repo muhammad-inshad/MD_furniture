@@ -59,14 +59,29 @@ const logoutPOst=async(req,res)=>{
         console.log("error from logout ",error)
     }
 }
-const coupenMenagement=async (req,res)=>{
+const coupenMenagement = async (req, res) => {
     try {
-        const coupon= await Coupon.find()
-        res.render("CouponManagemen",{coupon})
+        let page = parseInt(req.query.page) || 1; // Get page number from URL, default to 1
+        let limit = 5; // Number of coupons per page
+        let skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Count total number of coupons in the database
+        const totalUsers = await Coupon.countDocuments();
+        const totalPages = Math.ceil(totalUsers / limit); // Calculate total pages
+        
+        // Fetch paginated coupon data
+        const coupon = await Coupon.find()
+            .skip(skip)  // Apply pagination
+            .limit(limit)
+            .sort({ _id: -1 }); // Optional: Sort newest first
+
+        res.render("CouponManagemen", { coupon, page, totalPages });
     } catch (error) {
-        console.log("coupenMenagement get",error)
+        console.log("coupenMenagement error:", error);
+        res.status(500).send("Internal Server Error"); // Better error handling
     }
-}
+};
+
 
 const addcoupon=async (req,res)=>{
     try {
@@ -167,14 +182,26 @@ const ShowTheSalesReport = async (req, res) => {
         res.status(500).json({ message: "Internal server error." });
     }
 };
-
-const ReturnRequest=async(req,res)=>{
+const ReturnRequest = async (req, res) => {
     try {
+        let page = parseInt(req.query.page) || 1; 
+        let limit = 5; 
+        let skip = (page - 1) * limit;
+
+        // Count only return requests for pagination
+        const totalUsers = await Order.countDocuments({
+            status: { $in: ["ReturnRequst", "Rejected", "Returned"] }
+        });
+        const totalPages = Math.ceil(totalUsers / limit);
+        
         const returnRequests = await Order.aggregate([
             {
                 $match: {
                     status: { $in: ["ReturnRequst", "Rejected", "Returned"] }
                 }
+            },
+            {
+                $unwind: "$orderedItems"  // Unwind orderedItems array first
             },
             {
                 $lookup: {
@@ -193,21 +220,30 @@ const ReturnRequest=async(req,res)=>{
                     ReturnReson: 1,
                     status: 1,
                     userId: 1,
-                    "productDetails.productName": 1 // Fetch only productImages
+                    "productDetails.productName": 1 // Fetch only product name
                 }
             },
             {
                 $sort: { _id: -1 } // Sorting in descending order (-1)
+            },
+            {
+                $skip: skip  // Apply pagination
+            },
+            {
+                $limit: limit
             }
         ]);
-               
-        res.render("AdminReturnRequst", { returnRequests });
-        
+       
+
+
+        res.render("AdminReturnRequst", { returnRequests, page, totalPages });
+
     } catch (error) {
         console.error("Error ReturnRequest:", error);
         res.status(500).json({ message: "Internal server error." });
     }
-}
+};
+
 
 const acceptReturn = async (req, res) => {
     const { id } = req.params;

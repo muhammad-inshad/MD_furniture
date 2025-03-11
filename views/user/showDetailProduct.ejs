@@ -1,49 +1,68 @@
-
-
 <%-include("../../views/partials/user/top")%>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
   body {
-    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f5f5f5;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: #333;
+    overflow-x: hidden;
   }
 
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px 20px;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
 
   .product-details {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 30px;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    transition: transform 0.3s ease;
+  }
+
+  .product-details:hover {
+    transform: translateY(-5px);
   }
 
   .product-images {
     flex: 1;
     min-width: 300px;
+    position: relative;
   }
 
   .main-image {
     width: 100%;
     max-height: 400px;
     object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .main-image:hover {
+    transform: scale(1.05);
   }
 
   .thumbnail-container {
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 15px;
+    margin-top: 15px;
+    justify-content: center;
   }
 
   .thumbnail {
@@ -51,16 +70,17 @@
     height: 80px;
     object-fit: cover;
     border: 2px solid transparent;
-    border-radius: 4px;
-    opacity: 0.6;
-    transition: all 0.3s;
+    border-radius: 8px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
     cursor: pointer;
   }
 
   .thumbnail.active,
   .thumbnail:hover {
     opacity: 1;
-    border-color: #007bff;
+    border-color: #ff6f61;
+    transform: scale(1.1);
   }
 
   .product-info {
@@ -69,119 +89,239 @@
   }
 
   .product-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #444;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #222;
+    background: linear-gradient(90deg, #ff6f61, #ff9f43);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .product-price {
-    color: #007bff;
-    font-size: 24px;
-    margin: 10px 0;
-    font-weight: bold;
+    color: #ff6f61;
+    font-size: 28px;
+    margin: 15px 0;
+    font-weight: 600;
   }
 
   .product-description {
     font-size: 16px;
-    line-height: 1.6;
-    color: #555;
-    margin: 15px 0;
+    line-height: 1.8;
+    color: #666;
+    margin: 20px 0;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
   }
 
   .product-specs {
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background: linear-gradient(135deg, #f9f9f9 0%, #e0e0e0 100%);
+    border-radius: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
   }
 
   .specs-title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
   }
 
   .details p {
     font-size: 16px;
-    line-height: 1.5;
-    margin: 8px 0;
+    line-height: 1.6;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
   }
 
-  .product-offer {
-    color: #ff5722;
-    font-weight: bold;
-  }
-
-  .product-stock {
-    color: #1976d2;
-  }
-
-  .product-category {
-    color: #795548;
-  }
-
-  .product-brand {
-    color: #5d4037;
-  }
-
-  .product-status {
-    color: #f44336;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
+  .product-offer { color: #ff9f43; font-weight: 600; }
+  .product-stock { color: #28c76f; }
+  .product-category { color: #6b7280; }
+  .product-brand { color: #5d4037; }
+  .product-status { color: #f44336; font-weight: 600; text-transform: uppercase; }
 
   .buy-button,
   .back-button {
     display: inline-block;
-    margin: 10px;
-    padding: 12px 20px;
+    margin: 15px 5px;
+    padding: 12px 30px;
     font-size: 16px;
+    font-weight: 500;
     color: #fff;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 25px;
     text-align: center;
-    background-color: #007bff;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .buy-button {
+    background: linear-gradient(90deg, #ff6f61, #ff9f43);
   }
 
   .buy-button:hover {
-    background-color: #28a745;
+    background: linear-gradient(90deg, #ff9f43, #ff6f61);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   }
 
   .back-button {
-    background-color: #6c757d;
+    background: linear-gradient(90deg, #6c757d, #495057);
   }
 
   .back-button:hover {
-    background-color: #5a6268;
+    background: linear-gradient(90deg, #495057, #6c757d);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   }
+
   .image-zoom-container {
     position: relative;
     overflow: hidden;
     width: 100%;
     max-height: 400px;
-    cursor: zoom-in; /* Indicate zoom capability */
+    cursor: zoom-in;
   }
 
   .image-zoom-container img {
     width: 100%;
-    transition: transform 0.3s ease; /* Smooth zoom effect */
+    transition: transform 0.5s ease;
   }
 
   .image-zoom-container.zoomed img {
-    transform: scale(2); /* Adjust the zoom level */
-    cursor: zoom-out; /* Indicate zoom-out on click */
+    transform: scale(2.5);
+    cursor: zoom-out;
   }
-  .star {
-    font-size: 20px;
-    color: #dcdcdc;  /* Light gray for empty stars */
-}
 
-.star.filled {
-    color: gold;  /* Gold color for filled stars */
-}
+  .star {
+    font-size: 24px;
+    color: #dcdcdc;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .star.filled {
+    color: #ffd700;
+  }
+
+  .star:hover,
+  .star.filled:hover {
+    transform: scale(1.2);
+  }
+
+  .rating {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  /* Related Products Styles */
+  .related-products-section {
+    margin-top: 40px;
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .related-products-section h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #222;
+    background: linear-gradient(90deg, #ff6f61, #ff9f43);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+  }
+
+  .related-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .related-product-card {
+    background: #f9f9f9;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+
+  .related-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .related-product-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+  }
+
+  .related-product-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 10px 0;
+    color: #333;
+  }
+
+  .related-product-card p {
+    font-size: 14px;
+    color: #ff6f61;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .related-product-card .add-to-cart {
+    display: inline-block;
+    padding: 8px 15px;
+    background: linear-gradient(90deg, #ff6f61, #ff9f43);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .related-product-card .add-to-cart:hover {
+    background: linear-gradient(90deg, #ff9f43, #ff6f61);
+    transform: translateY(-2px);
+  }
+
+  /* Optional Slider Styles (if using Swiper.js) */
+  .swiper-container {
+    width: 100%;
+    padding: 20px 0;
+  }
+
+  .swiper-slide {
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .related-products-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .related-product-card img {
+      height: 120px;
+    }
+
+    .related-product-card h3 {
+      font-size: 14px;
+    }
+
+    .related-product-card p {
+      font-size: 12px;
+    }
+  }
 </style>
 
 </head>
@@ -190,16 +330,16 @@
   <div class="container">
     <div class="product-details">
       <!-- Product Images -->
-       <div>
-      <div class="product-images image-zoom-container">
-        <img src="/uploads/<%= findProduct.productImages[0] %>" alt="<%= findProduct.productName %>" class="main-image" id="mainImage">
-      </div>
-        <div class="thumbnail-container ">
+      <div>
+        <div class="product-images image-zoom-container">
+          <img src="/uploads/<%= findProduct.productImages[0] %>" alt="<%= findProduct.productName %>" class="main-image" id="mainImage">
+        </div>
+        <div class="thumbnail-container">
           <% findProduct.productImages.forEach((img, index) => { %>
             <img src="/uploads/<%= img %>" alt="Thumbnail <%= index + 1 %>" class="thumbnail <%= index === 0 ? 'active' : '' %>" data-img="/uploads/<%= img %>">
           <% }); %>
+        </div>
       </div>
-    </div>
       <!-- Product Info -->
       <div class="product-info">
         <h1 class="product-title"><%= findProduct.productName %></h1>
@@ -209,43 +349,62 @@
           <p class="product-description"><%= findProduct.description %></p>
         </div><br>
         <div class="details">
-          <p class="product-offer">Offer: <%= findProduct.productOffer %>%</p>
-          <p class="product-price">Price: $<%= findProduct.salePrice %></p>
-          <p class="product-stock">Current Stock: <%= findProduct.quantity %></p>
-          <p class="product-category">Category: <%= findProduct.categoryDetails.name %></p>
-          <p class="product-brand">Brand: <%= findProduct.brand %></p>
-          <p class="product-status">Status: <%= findProduct.status %></p>
-          <p><strong> Rating:</strong></p>
+          <p class="product-offer"><span style="font-weight: 600;">Offer:</span>&nbsp;<%= findProduct.productOffer %>%</p>
+          <p class="product-price"><span style="font-weight: 600;">Price:</span>&nbsp;$<%= findProduct.salePrice %></p>
+          <p class="product-stock"><span style="font-weight: 600;">Current Stock:</span>&nbsp;<%= findProduct.quantity %></p>
+          <p class="product-category"><span style="font-weight: 600;">Category:</span>&nbsp;<%= findProduct.categoryDetails.name %></p>
+          <p class="product-brand"><span style="font-weight: 600;">Brand:</span>&nbsp;<%= findProduct.brand %></p>
+          <p class="product-status"><span style="font-weight: 600;">Status:</span>&nbsp;<%= findProduct.status %></p>
+          <p><strong>Rating:</strong></p>
           <% if (findProduct?.rating) { %>
             <div class="rating">
-                <% for (let i = 1; i <= 5; i++) { %>
-                    <% if (i <= findProduct.rating) { %>
-                     
-                        <span class="star filled">★</span>  <!-- Filled star for rating -->
-                    <% } else { %>
-                        <span class="star">☆</span>  <!-- Empty star for remaining rating -->
-                    <% } %>
+              <% for (let i = 1; i <= 5; i++) { %>
+                <% if (i <= findProduct.rating) { %>
+                  <span class="star filled">★</span>
+                <% } else { %>
+                  <span class="star">☆</span>
                 <% } %>
+              <% } %>
             </div>
-        <% } %>
+          <% } %>
         </div>
-
-
-       
-       
         <form action="/user/cart" method="POST">
           <input type="hidden" name="productId" value="<%= findProduct._id %>">
-          <input type="hidden" name="quantity" value="1"> <!-- You can dynamically set the quantity if needed -->
+          <input type="hidden" name="quantity" value="1">
           <center>
-            <button type="submit" class="buy-button">ADD TO CART</button>
+            <button type="submit" class="buy-button">Add to Cart</button>
           </center>
         </form>
-           </div>
+      </div>
     </div>
+
+    <!-- Related Products Section -->
+    <div class="related-products-section">
+      <h2>You Might Also Like</h2>
+      <div class="related-products-grid">
+        <% if (relatedProducts.length > 0) { %>
+          <% relatedProducts.forEach(product => { %>
+            <div class="related-product-card">
+              <img src="/uploads/<%= product.productImages[0] %>" alt="<%= product.productName %>">
+              <h3><%= product.productName %></h3>
+              <p>$<%= product.salePrice.toFixed(2) %></p>
+              <a href="/user/showDetailProduct/<%= product._id %>" class="view-details">View Details</a>
+              <form action="/user/cart" method="POST">
+                <input type="hidden" name="productId" value="<%= product._id %>">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="add-to-cart">Add to Cart</button>
+              </form>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p>No related products found.</p>
+        <% } %>
+      </div>
+    </div>
+    
 
     <a href="/user/shop" class="back-button">Back to Products</a>
   </div>
-  
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -260,34 +419,30 @@
         });
       });
     });
+
     document.addEventListener('DOMContentLoaded', () => {
-    const zoomContainer = document.querySelector('.image-zoom-container');
-    const mainImage = document.getElementById('mainImage');
+      const zoomContainer = document.querySelector('.image-zoom-container');
+      const mainImage = document.getElementById('mainImage');
 
-    zoomContainer.addEventListener('click', () => {
-      if (zoomContainer.classList.contains('zoomed')) {
-        // Zoom out
-        zoomContainer.classList.remove('zoomed');
-        zoomContainer.style.cursor = 'zoom-in';
-      } else {
-        // Zoom in
-        zoomContainer.classList.add('zoomed');
-        zoomContainer.style.cursor = 'zoom-out';
-      }
+      zoomContainer.addEventListener('click', () => {
+        if (zoomContainer.classList.contains('zoomed')) {
+          zoomContainer.classList.remove('zoomed');
+          zoomContainer.style.cursor = 'zoom-in';
+        } else {
+          zoomContainer.classList.add('zoomed');
+          zoomContainer.style.cursor = 'zoom-out';
+        }
+      });
+
+      zoomContainer.addEventListener('mousemove', (e) => {
+        if (zoomContainer.classList.contains('zoomed')) {
+          const rect = zoomContainer.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          mainImage.style.transformOrigin = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
+        }
+      });
     });
-
-    zoomContainer.addEventListener('mousemove', (e) => {
-      if (zoomContainer.classList.contains('zoomed')) {
-        const rect = zoomContainer.getBoundingClientRect();
-        const x = e.clientX - rect.left; // Get X-coordinate
-        const y = e.clientY - rect.top;  // Get Y-coordinate
-
-        // Adjust the transform-origin for the zoom effect
-        mainImage.style.transformOrigin = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
-      }
-    });
-  });
   </script>
 
- 
 <%-include("../../views/partials/user/footer")%>

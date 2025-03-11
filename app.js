@@ -79,7 +79,6 @@ console.log(orderId,'orderId');
         res.json({success:true, message:"Payment has been verified"})
     }
     else{
-    console.log("hiiiiiiiiii")
     await Order.findByIdAndUpdate(orderId,{$set:{status:'failed'}})
  
     res.json({success:false, message:"Payment verification failed"})

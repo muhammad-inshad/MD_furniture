@@ -90,6 +90,8 @@ router.post('/incORdec',cartController.incORdec)
 
 router.get('/checkout',isLoginORnot,isUser,checkoutController.checkout)
 router.post("/checkout",cartValidation,checkoutController.postCkeckout)
+router.post("/buyagain/:productId/:orderId",checkoutController.buyagain)
+router.post("/buyagaincheckout",checkoutController.buyagaincheckout)
 router.get("/myorders",isLoginORnot,uploadFields,checkoutController.myorders)
 router.post("/DownloadPdf/:id",checkoutController.DownloadPdf)
 router.get("/orderCancel/:id",isLoginORnot,checkoutController.orderCancel)
@@ -106,4 +108,5 @@ router.post("/verifyPayment",checkoutController.verifyPayment)
 router.get("/ReturnRequest/:id",isLoginORnot,ReturnController.ReturnRequest)
 router.post("/ReturnRequestApOrRe",ReturnController.ReturnRequestApOrRe)
 router.post("/pymentfaield",ReturnController.pymentfaield)
+
 module.exports=router

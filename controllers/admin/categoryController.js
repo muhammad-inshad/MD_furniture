@@ -13,20 +13,32 @@ const mongoose = require("mongoose");
 
 
 
-
-const CategoryManagement=async(req,res)=>{
+const CategoryManagement = async (req, res) => {
     try {
-        if( req.session.admin){
-        const category = await Category.find({});
-        res.render("categoryM", {category})
-        }
-        else{
-            res.redirect("/user/home")
+        if (req.session.admin) {
+            let page = parseInt(req.query.page) || 1; 
+            let limit = 5; 
+            let skip = (page - 1) * limit;
+
+            const totalCategories = await Category.countDocuments(); // Corrected variable name
+            const totalPages = Math.ceil(totalCategories / limit);
+
+            // Apply pagination and sorting
+            const category = await Category.find()
+                .skip(skip)
+                .limit(limit)
+                
+
+            res.render("categoryM", { category, page, totalPages });
+        } else {
+            res.redirect("/user/home");
         }
     } catch (error) {
-        console.log("errror from CategoryManagement", errror)
+        console.log("Error from CategoryManagement:", error); // Fixed variable name
+        res.status(500).send("Internal Server Error");
     }
-}
+};
+
 
 const updatecategory=async (req,res)=>{
     try {

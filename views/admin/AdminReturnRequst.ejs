@@ -237,6 +237,48 @@
                 margin: 5px 0;
             }
         }
+        
+        /* Pagination */
+        #pagination-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        #pagination-form button {
+            background: #00d4ff;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        #pagination-form button:hover {
+            background: #00aaff;
+            transform: scale(1.05);
+        }
+
+        #pagination-form button:disabled {
+            background: #3a3a3a;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #page-number {
+            padding: 8px 15px;
+            background: #3a3a3a;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
     </style>
 </head>
 <body>
@@ -299,9 +341,42 @@
                         </tr>
                     <% } %>
                 </tbody>
+                       
             </table>
+            <form id="pagination-form" method="get" action="/admin/AdminReturnRequest">
+                <button type="button" id="prev-btn" onclick="setPage(currentPage - 1)">Previous</button>
+                <span id="page-number">1</span>  <!-- Initially set to 1 -->
+                <button type="button" id="next-btn" onclick="setPage(currentPage + 1)">Next</button>
+            </form>
         </div>
     </div>
+    <script>
+ let urlParams = new URLSearchParams(window.location.search);
+    let currentPage = parseInt(urlParams.get("page")) || 1; // Default to page 1
+    let totalPages = <%= totalPages %>; // Dynamically set from backend
+    function setPage(page) {
+        if (page < 1 || page > totalPages) return; // Prevent invalid pages
+
+        currentPage = page;
+        document.getElementById("page-number").textContent = currentPage;
+
+        // Disable buttons when out of range
+        document.getElementById("prev-btn").disabled = currentPage === 1;
+        document.getElementById("next-btn").disabled = currentPage === totalPages;
+
+        // Update URL and submit form
+        window.location.href = `/admin/AdminReturnRequest?page=${currentPage}`;
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+    let urlParams = new URLSearchParams(window.location.search);
+    let currentPage = parseInt(urlParams.get("page")) || 1; // Get updated page from URL
+
+    document.getElementById("page-number").textContent = currentPage; // Update displayed page number
+    document.getElementById("prev-btn").disabled = currentPage === 1;
+    document.getElementById("next-btn").disabled = currentPage === totalPages;
+});
+
+    </script>
 
     <script>
         // Hamburger menu toggle
