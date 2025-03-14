@@ -1,14 +1,18 @@
-const mongoose=require("mongoose")
-const env=require("dotenv").config();
+const mongoose = require("mongoose");
+require("dotenv").config(); // No need to assign it to a variable
 
-
-const connectDb=()=>{
+const connectDb = async () => {
     try {
-        mongoose.connect(process.env.MONGODB_URI)
-        console.log("DB connected")
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true, 
+            useUnifiedTopology: true,
+            tlsAllowInvalidCertificates: true // Helps with SSL issues
+        });
+        console.log("✅ DB connected successfully");
     } catch (error) {
-        console.log("DB not connected ",error)
-        process.exit(1)
+        console.error("❌ DB connection failed:", error);
+        process.exit(1);
     }
-}
-module.exports=connectDb;
+};
+
+module.exports = connectDb;
