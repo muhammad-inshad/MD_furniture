@@ -8,9 +8,9 @@ const connectDb = async () => {
             useUnifiedTopology: true,
             tlsAllowInvalidCertificates: true // Helps with SSL issues
         });
-        console.log("✅ DB connected successfully");
+        console.log("DB connected successfully");
     } catch (error) {
-        console.error("❌ DB connection failed:", error);
+        console.error(" DB connection failed:", error);
         process.exit(1);
     }
 };
