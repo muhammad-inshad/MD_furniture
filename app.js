@@ -13,7 +13,6 @@ const pymentRoute=require("./router/paymentRouter")
 const MongoStore = require("connect-mongo");
 const crypto = require("crypto");
 const Order = require("./models/orderSchema");
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 
 
@@ -39,34 +38,7 @@ app.use(session({
     }),
 }))
 
-passport.use(
-    new GoogleStrategy(
-      {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://ec2-16-170-146-245.eu-north-1.compute.amazonaws.com/user/auth/google/callback", // Must match Google Console
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          let user = await User.findOne({ googleId: profile.id });
-          if (user) {
-            return done(null, user);
-          } else {
-            user = new User({
-              name: profile.displayName,
-              email: profile.emails[0].value,
-              googleId: profile.id,
-            });
-            await user.save();
-            return done(null, user);
-          }
-        } catch (error) {
-          return done(error, null);
-        }
-      }
-    )
-  );
-  
+
 app.use(passport.initialize());
 app.use(passport.session());
 
