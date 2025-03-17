@@ -51,7 +51,9 @@ app.use(express.static(path.join(__dirname,"public")))
 app.use("/user",userRouter);
 app.use('/admin',adminRouter);
 
-
+app.use("/auth/google/callback",(req,res) => {
+  res.send('reaching hereeeeeeeeeeeeeeeee===============>')
+})
 //Inside app.js
 app.post('/verifyOrder', async (req, res)=>{ 
     
