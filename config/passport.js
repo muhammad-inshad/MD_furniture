@@ -7,7 +7,7 @@ const env=require("dotenv").config
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://mdfurniture.zapto.org/auth/google/callback"  // Need a specific path
+  callbackURL: "http://mdfurniture.zapto.org/user/home"  // Need a specific path
 }, 
 
 async(accessToken,refreshToken,profile,done)=>{
