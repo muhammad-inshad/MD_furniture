@@ -36,24 +36,16 @@ app.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'em
 app.get("/auth/google/callback", 
     passport.authenticate("google", { failureRedirect: '/user/signup' }), 
     async (req, res) => {
-        console.log("Callback reached with query:", req.query); // Debugging
+        console.log("Callback reached with query:", req.query, "user:", req.user);
         try {
             const findemail = await User.findOne({ email: req.user.email });
-            if (!findemail) {
-                return res.status(401).json({ success: false, message: "Invalid email or password." });
-            }
-            if (findemail.isBlocked === true) {
-                return res.status(400).json({ success: false, message: "This user is blocked" });
-            }
-            req.session.user = {
-                id: findemail._id,
-                email: findemail.email,
-                isBlocked: findemail.isBlocked
-            };
-            return res.render("home", { success: true, message: "Login successful", isLogin: true });
+            if (!findemail) return res.status(401).json({ success: false, message: "Invalid email or password." });
+            if (findemail.isBlocked) return res.status(400).json({ success: false, message: "This user is blocked" });
+            req.session.user = { id: findemail._id, email: findemail.email, isBlocked: findemail.isBlocked };
+            res.render("home", { success: true, message: "Login successful", isLogin: true });
         } catch (error) {
             console.error("Google OAuth Error:", error);
-            return res.status(500).json({ success: false, message: "Internal Server Error" });
+            res.status(500).json({ success: false, message: "Internal Server Error" });
         }
     }
 );
