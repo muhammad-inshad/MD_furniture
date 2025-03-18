@@ -31,10 +31,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get("/test", (req, res) => {
-    console.log("Test route hit");
-    res.send("Test route working");
-});
+
 
 app.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
 

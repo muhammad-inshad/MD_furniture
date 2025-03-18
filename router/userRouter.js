@@ -45,22 +45,23 @@ router.get("/showWishlist",isLoginORnot,userContoller.showWishlist)
 router.post("/WishlistToggle",userContoller.WishlistToggle)
 
 router.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
-router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: '/user/signup' }), async (req, res) => {
-    const findemail = await User.findOne({ email: req.user.email });
-    if (findemail.isBlocked === true) {
-        return res.status(400).json({ success: false, message: "this user is blocked" });
-    }
-    if (!findemail) {
-        return res.status(401).json({ success: false, message: "Invalid email or password." });
-    }
-    req.session.user = {
-        id: findemail._id,
-        email: findemail.email,
-        isBlocked: findemail.isBlocked
-    };
-    return res.render("home", { success: true, message: "Login successful", isLogin: true });
-});
 
+router.get("/auth/google/callback", 
+    passport.authenticate("google", { failureRedirect: '/user/signup' }), 
+    async (req, res) => {
+        console.log("Callback reached with query:", req.query, "user:", req.user);
+        try {
+            const findemail = await User.findOne({ email: req.user.email });
+            if (!findemail) return res.status(401).json({ success: false, message: "Invalid email or password." });
+            if (findemail.isBlocked) return res.status(400).json({ success: false, message: "This user is blocked" });
+            req.session.user = { id: findemail._id, email: findemail.email, isBlocked: findemail.isBlocked };
+            res.render("home", { success: true, message: "Login successful", isLogin: true });
+        } catch (error) {
+            console.error("Google OAuth Error:", error);
+            res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+    }
+);
 router.get("/chair",isUser,uploadFields,chairControler.chair)
 router.get("/showDetailProduct/:id",isUser,uploadFields,sofaController.showDetailProduct)
 
