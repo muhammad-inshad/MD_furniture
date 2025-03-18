@@ -31,16 +31,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Initial Google OAuth route
-app.get("/auth/google", 
-    passport.authenticate("google", { scope: ['profile', 'email'] })
-);
+app.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
 
-// Callback route (only one definition, with debugging)
 app.get("/auth/google/callback", 
     passport.authenticate("google", { failureRedirect: '/user/signup' }), 
     async (req, res) => {
-        console.log("Callback reached with query:", req.query, "user:", req.user); // Debugging
+        console.log("Callback reached with query:", req.query, "user:", req.user);
         try {
             const findemail = await User.findOne({ email: req.user.email });
             if (!findemail) {
@@ -62,6 +58,9 @@ app.get("/auth/google/callback",
     }
 );
 
+app.get("/test", (req, res) => {
+    res.send("Test route working");
+});
 app.set("view engine", "ejs");
 app.set("views", [path.join(__dirname, 'views/user'), path.join(__dirname, 'views/admin')]);
 app.use(express.static(path.join(__dirname, "public")));
