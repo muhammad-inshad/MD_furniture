@@ -43,7 +43,9 @@ router.get("/ZtoA/:id",userContoller.ZtoA)
 router.post("/wishlist",userContoller.wishlist)
 router.get("/showWishlist",isLoginORnot,userContoller.showWishlist)
 router.post("/WishlistToggle",userContoller.WishlistToggle)
-
+router.get("/testauth", (req, res) => {
+    res.send("Auth route test working");
+  });
 // Google OAuth routes (no middleware like isUser here)
 router.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
 
