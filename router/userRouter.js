@@ -44,6 +44,7 @@ router.post("/wishlist",userContoller.wishlist)
 router.get("/showWishlist",isLoginORnot,userContoller.showWishlist)
 router.post("/WishlistToggle",userContoller.WishlistToggle)
 
+// Google OAuth routes (no middleware like isUser here)
 router.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
 
 router.get("/auth/google/callback", 
