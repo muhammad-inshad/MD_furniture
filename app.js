@@ -69,6 +69,22 @@ app.get("/auth/google/callback",
         }
 });
 
+app.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
+app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: '/user/signup' }), async (req, res) => {
+    const findemail = await User.findOne({ email: req.user.email });
+    if (findemail.isBlocked === true) {
+        return res.status(400).json({ success: false, message: "this user is blocked" });
+    }
+    if (!findemail) {
+        return res.status(401).json({ success: false, message: "Invalid email or password." });
+    }
+    req.session.user = {
+        id: findemail._id,
+        email: findemail.email,
+        isBlocked: findemail.isBlocked
+    };
+    return res.render("home", { success: true, message: "Login successful", isLogin: true });
+});
 
 app.set("view engine","ejs")
 app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
