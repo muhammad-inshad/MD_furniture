@@ -33,7 +33,7 @@ app.use(passport.session());
 
 
 
-app.get("/user/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
+app.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'email'] }));
 
 app.get("/auth/google/callback", 
     passport.authenticate("google", { failureRedirect: '/user/signup' }), 
