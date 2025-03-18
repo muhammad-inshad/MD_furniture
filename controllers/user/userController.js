@@ -96,37 +96,19 @@ function generateOtp() {
 async function sentVerificationEmail(email, otp) {
     try {
         console.log("NODEMAILER_EMAIL:", process.env.NODEMAILER_EMAIL); 
-        console.log("NODEMAILER_PASSWORD length:", process.env.NODEMAILER_PASSWORD?.length);
-        
+        console.log("NODEMAILER_PASSWORD:", process.env.NODEMAILER_PASSWORD);
         const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
+            service: 'gmail',
             port: 587,
             secure: false,
+            requireTLS: true,
             auth: {
                 user: process.env.NODEMAILER_EMAIL,
                 pass: process.env.NODEMAILER_PASSWORD
-            },
-            debug: true // Enable debug output
+            }
         });
         
-        // Verify connection configuration
-        await transporter.verify();
-        console.log("SMTP connection verified successfully");
-        
-        const info = await transporter.sendMail({
-            from: `"MD_FURNITURE" <${process.env.NODEMAILER_EMAIL}>`,
-            to: email,
-            subject: "Verify Your Account",
-            text: `Your OTP is ${otp}`,
-            html: `<b>Your OTP is: ${otp}</b>`
-        });
-        return info.accepted.length > 0;
-    } catch (error) {
-        console.error("Detailed email error:", error.message);
-        console.error("Full error object:", JSON.stringify(error, null, 2));
-        return false;
-    }
-}
+
         const info = await transporter.sendMail({
             from: `"MD_FURNITURE" <${process.env.NODEMAILER_EMAIL}>`,
             to: email,
