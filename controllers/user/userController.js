@@ -3,11 +3,13 @@ const env = require('dotenv').config();
 const bcrypt = require("bcrypt")
 const { json } = require("express")
 const nodemailer = require("nodemailer")
-const { session } = require("passport")
+const session = require("express-session");
 const Product = require("../../models/productSchema")
 const Cart=require("../../models/cartSchema")
 const Wishlist=require("../../models/wishlistSchema")
 const Order = require("../../models/orderSchema")
+const passport = require("passport");
+
 
 const login = async (req, res) => {
     try {
@@ -93,8 +95,6 @@ function generateOtp() {
 }
 async function sentVerificationEmail(email, otp) {
     try {
-        console.log("NODEMAILER_EMAIL:", process.env.NODEMAILER_EMAIL);
-        console.log("NODEMAILER_PASSWORD:", process.env.NODEMAILER_PASSWORD);
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             port: 587,
@@ -105,6 +105,7 @@ async function sentVerificationEmail(email, otp) {
                 pass: process.env.NODEMAILER_PASSWORD
             }
         });
+        
 
         const info = await transporter.sendMail({
             from: `"MD_FURNITURE" <${process.env.NODEMAILER_EMAIL}>`,
@@ -113,8 +114,6 @@ async function sentVerificationEmail(email, otp) {
             text: `Your OTP is ${otp}`,
             html: `<b>Your OTP is: ${otp}</b>`
         });
-
-        console.log("Email sent successfully:", info.messageId);
         return info.accepted.length > 0;
     } catch (error) {
         console.error("Error sending email:", error);
@@ -141,7 +140,7 @@ const singupPOst = async (req, res) => {
             return res.render('userSingup', { message: "it already exist" })
         }
         const otp = generateOtp();
-        
+      
         const emailsent = await sentVerificationEmail(email, otp)
         
         
@@ -284,8 +283,6 @@ const postforgetpassword = async (req, res) => {
         }
         // Generate OTP
         const otp = generateOtp();
-
-
         // Send OTP to the user's email
         const emailsent = await sentVerificationEmail(email, otp);
 
