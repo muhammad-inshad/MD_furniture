@@ -1,5 +1,5 @@
 const User = require("../../models/userSchema")
-const env = require("dotenv").config()
+const env = require('dotenv').config();
 const bcrypt = require("bcrypt")
 const { json } = require("express")
 const nodemailer = require("nodemailer")
@@ -91,18 +91,18 @@ const singup = async (req, res) => {
 function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
-
-
 async function sentVerificationEmail(email, otp) {
     try {
+        console.log("NODEMAILER_EMAIL:", process.env.NODEMAILER_EMAIL);
+        console.log("NODEMAILER_PASSWORD:", process.env.NODEMAILER_PASSWORD);
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             port: 587,
-            secure: false, // Use TLS
+            secure: false,
             requireTLS: true,
             auth: {
-                user: process.env.NODEMAILER_EMAIL, // minshad430@gmail.com
-                pass: process.env.NODEMAILER_PASSWORD // tblp ipsv bktg nfca
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD
             }
         });
 
@@ -114,6 +114,7 @@ async function sentVerificationEmail(email, otp) {
             html: `<b>Your OTP is: ${otp}</b>`
         });
 
+        console.log("Email sent successfully:", info.messageId);
         return info.accepted.length > 0;
     } catch (error) {
         console.error("Error sending email:", error);
@@ -121,11 +122,6 @@ async function sentVerificationEmail(email, otp) {
     }
 }
 
-// Test the function (remove this in production)
-(async () => {
-    const result = await sentVerificationEmail('test@example.com', '123456');
-    console.log("Email sent:", result);
-})();
 
 const singupPOst = async (req, res) => {
 
@@ -147,7 +143,8 @@ const singupPOst = async (req, res) => {
         const otp = generateOtp();
         
         const emailsent = await sentVerificationEmail(email, otp)
-
+        
+        
         if (!emailsent) {
             return res.json({ message: 'email-error' })
         }
