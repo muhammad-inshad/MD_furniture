@@ -97,6 +97,7 @@ async function sentVerificationEmail(email, otp) {
     try {
         console.log("NODEMAILER_EMAIL:", process.env.NODEMAILER_EMAIL); 
         console.log("NODEMAILER_PASSWORD:", process.env.NODEMAILER_PASSWORD);
+        
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             port: 587,
@@ -107,7 +108,6 @@ async function sentVerificationEmail(email, otp) {
                 pass: process.env.NODEMAILER_PASSWORD
             }
         });
-        
 
         const info = await transporter.sendMail({
             from: `"MD_FURNITURE" <${process.env.NODEMAILER_EMAIL}>`,
@@ -116,12 +116,17 @@ async function sentVerificationEmail(email, otp) {
             text: `Your OTP is ${otp}`,
             html: `<b>Your OTP is: ${otp}</b>`
         });
+
+        console.log("Email sent successfully:", info);
         return info.accepted.length > 0;
+
     } catch (error) {
-        console.error("Error sending email:", error);
+        console.error("Detailed email error:", error.message);
+        console.error("Full error object:", JSON.stringify(error, null, 2));
         return false;
     }
 }
+
 
 
 const singupPOst = async (req, res) => {
