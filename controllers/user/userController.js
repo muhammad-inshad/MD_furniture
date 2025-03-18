@@ -92,32 +92,40 @@ function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+
 async function sentVerificationEmail(email, otp) {
     try {
-        const transpoter = nodemailer.createTransport({
+        const transporter = nodemailer.createTransport({
             service: 'gmail',
             port: 587,
-            secure: false,
+            secure: false, // Use TLS
             requireTLS: true,
             auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD
+                user: process.env.NODEMAILER_EMAIL, // minshad430@gmail.com
+                pass: process.env.NODEMAILER_PASSWORD // tblp ipsv bktg nfca
             }
-        })
-        const info = await transpoter.sendMail({
-            from: process.env.NODEMAILER_EMAIL,
+        });
+
+        const info = await transporter.sendMail({
+            from: `"MD_FURNITURE" <${process.env.NODEMAILER_EMAIL}>`,
             to: email,
-            subject: "veryfy your account",
-            text: `your OTP is ${otp}`,
-            html: `<b>your OTP is :${otp}</b>`
-        })
-        return info.accepted.length > 0
+            subject: "Verify Your Account",
+            text: `Your OTP is ${otp}`,
+            html: `<b>Your OTP is: ${otp}</b>`
+        });
+
+        return info.accepted.length > 0;
     } catch (error) {
-        console.log("HOME NOT FOUNT", error)
+        console.error("Error sending email:", error);
         return false;
     }
-
 }
+
+// Test the function (remove this in production)
+(async () => {
+    const result = await sentVerificationEmail('test@example.com', '123456');
+    console.log("Email sent:", result);
+})();
 
 const singupPOst = async (req, res) => {
 
@@ -137,6 +145,7 @@ const singupPOst = async (req, res) => {
             return res.render('userSingup', { message: "it already exist" })
         }
         const otp = generateOtp();
+        
         const emailsent = await sentVerificationEmail(email, otp)
 
         if (!emailsent) {
