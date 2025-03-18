@@ -36,7 +36,7 @@ app.get("/auth/google", passport.authenticate("google", { scope: ['profile', 'em
 app.get("/auth/google/callback", 
     passport.authenticate("google", { failureRedirect: '/user/signup' }), 
     async (req, res) => {
-        console.log("Callback reached with query:", req.query, "user:", req.user);
+        console.log("Callback reached with query:", req.query); // Debugging
         try {
             const findemail = await User.findOne({ email: req.user.email });
             if (!findemail) {
