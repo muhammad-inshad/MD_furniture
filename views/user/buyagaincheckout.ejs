@@ -308,7 +308,7 @@
 }
 
   
-        let response = await fetch("http://localhost:5000/user/buyagaincheckout", {
+        let response = await fetch("http://mdfurniture.zapto.org/buyagaincheckout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -331,7 +331,7 @@
           handler: async function (response) {
             console.log("Payment Successful", response);
   
-            let verifyResponse = await fetch("http://localhost:5000/verifyOrder", {
+            let verifyResponse = await fetch("http://mdfurniture.zapto.org/buyagaincheckout", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ ...response, orderId: order.receipt })
