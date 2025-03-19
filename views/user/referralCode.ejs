@@ -1,0 +1,201 @@
+<%- include("../../views/partials/user/top") %>
+<title>User Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+    .dashboard-container {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .dashboard {
+        display: flex;
+        min-height: 100vh;
+    }
+    .sidebar {
+        width: 250px;
+        background-color: #d7dee5;
+        color: #000;
+        padding: 20px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .sidebar a {
+        display: block;
+        text-decoration: none;
+        color: #000;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+        background-color: #0056b3;
+        color: #fff;
+    }
+    .content {
+        flex: 1;
+        padding: 20px;
+        background-color: #fff;
+    }
+    .referral-section {
+        margin: 30px auto;
+        max-width: 600px;
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .referral-section h3 {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    .referral-code {
+        font-size: 20px;
+        font-weight: bold;
+        background: #e9ecef;
+        padding: 10px 20px;
+        border-radius: 8px;
+        display: inline-block;
+        margin-bottom: 10px; /* Adjusted for layout */
+    }
+    .referral-input {
+        width: 70%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+    .referral-input:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    .referral-btn {
+        background: linear-gradient(135deg, #28a745, #218838);
+        color: white;
+        padding: 12px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .referral-btn:hover {
+        background: linear-gradient(135deg, #218838, #1e7e34);
+        transform: scale(1.05);
+    }
+    .copy-btn {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 1px 20px; /* Adjusted padding for better alignment */
+        font-size: 14px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px; /* Matched with other buttons */
+        cursor: pointer;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+    }
+    .copy-btn:hover {
+        background: linear-gradient(135deg, #0056b3, #003d80);
+        transform: scale(1.05);
+    }
+</style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard">
+            <div class="sidebar">
+                <h2>Referral-Code</h2>
+                <a href="/user/profile">Profile</a>
+                <a href="/user/myorders">My Orders</a>
+                <a href="/user/address">Address</a>
+                <a href="/user/Wallet">Wallet</a>
+                <a href="/user/showWishlist">Wishlist</a>
+                <a href="/user/referralCode">Referral-Code</a>
+                <a href="/user/home">Back</a>
+            </div>
+            <div class="content">
+                <div class="referral-section">
+                    <h3>Your Referral Code</h3>
+                    <div class="referral-code" id="referralCode">
+                        <%=finduser.referalCode%>
+                    </div>
+                    <button class="copy-btn" onclick="copyReferral()">Copy</button>
+                    <br><br>
+                    <% if (!finduser.referalCodeApplied) { %>
+                        <input type="text" class="referral-input" id="referralInput" placeholder="Enter a referral code (e.g., kmn123uo)">
+                        <button class="referral-btn" onclick="submitReferral()">Submit Referral Code</button>
+                    <% } else { %> 
+                        <h6>You already used a referral code. You can only apply it once.</h6>
+                    <% } %>
+                    <h1 style="color: lightgreen;">referralCount <%=finduser.referralCount%></h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function copyReferral() {
+            const referralCode = document.getElementById('referralCode').innerText;
+            navigator.clipboard.writeText(referralCode)
+                .then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Copied!',
+                        text: `'${referralCode}' has been copied to your clipboard.`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                })
+                .catch(err => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to copy the referral code.',
+                    });
+                    console.error('Copy failed:', err);
+                });
+        }
+    
+        function submitReferral() {
+            const referralCode = document.getElementById('referralInput').value.trim();
+            
+            if (!referralCode) {
+                Swal.fire('Error!', 'Please enter a referral code', 'error');
+                return;
+            }
+
+            fetch('/user/apply-referral', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ referralCode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Success!', data.message || 'Referral applied successfully!', 'success')
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire('Error!', data.message || 'Invalid referral code', 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Something went wrong, please try again', 'error');
+            });
+        }
+    </script>
+
+<%- include("../../views/partials/user/footer") %>
+</body>
+</html>

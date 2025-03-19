@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Referral Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 285px;
+            background: #1a1a1a;
+            padding: 25px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 35px;
+            color: #00d4ff;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #b0b0b0;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .sidebar a:hover {
+            background: #00d4ff;
+            color: #1a1a1a;
+            transform: translateX(5px);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            font-size: 28px;
+            background: none;
+            border: none;
+            color: #00d4ff;
+            cursor: pointer;
+            padding: 10px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger:hover {
+            color: #00aaff;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            background: #333333;
+            color: #e0e0e0;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #00d4ff;
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Referral Table */
+        .referral-table {
+            width: 100%;
+            max-width: 800px;
+            background: #252525;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #e0e0e0;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        th {
+            background: #333333;
+            color: #00d4ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr {
+            border-bottom: 1px solid #444;
+            transition: background 0.3s ease;
+        }
+
+        tr:hover {
+            background: #333333;
+        }
+
+        td {
+            color: #b0b0b0;
+        }
+
+        /* Input and Buttons */
+        .amount-input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #333333;
+            color: #e0e0e0;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .amount-input:focus {
+            border-color: #00d4ff;
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #6b48ff;
+            color: #fff;
+            margin-left: 10px;
+        }
+
+        .edit-btn:hover {
+            background: #5636d9;
+            transform: scale(1.05);
+        }
+
+        /* Pagination */
+        #pagination-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        #pagination-form button {
+            background: #00d4ff;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        #pagination-form button:hover {
+            background: #00aaff;
+            transform: scale(1.05);
+        }
+
+        #pagination-form button:disabled {
+            background: #3a3a3a;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #page-number {
+            padding: 8px 15px;
+            background: #3a3a3a;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .referral-table {
+                padding: 15px;
+            }
+
+            th, td {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .amount-input {
+                width: 80px;
+            }
+
+            .search-input {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="hamburger">☰</button>
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/userManagement">Manage Users</a>
+        <a href="/admin/CategoryManagement">Category Management</a>
+        <a href="/admin/productManagement">Product Management</a>
+        <a href="/admin/ordermanagment">Order Management</a>
+        <a href="/admin/coupenMenagement">Coupon Management</a>
+        <a href="/admin/SalesReport">Sales Report</a>
+        <a href="/admin/AdminReturnRequest">Return Management</a>
+        <a href="/admin/referralManagement" class="active">Referral Management</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+
+    <div class="content">
+        <h1>Referral Management</h1>
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by username or referral code">
+        </div>
+        <div class="referral-table">
+            <table id="referralTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Referral Code</th>
+                        <th>Referrals</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="referralBody">
+                    <% referrals.forEach(referral => { %>
+                        <tr>
+                            <td><%= referral.username || 'Unknown' %></td>
+                            <td><%= referral.referalCode %></td>
+                            <td><%= referral.referralCount || 0 %></td>
+                            <td>
+                                <input type="number" class="amount-input" id="amount-<%= referral._id %>" placeholder="<%= referral.referalamount %>" min="0">
+                                <button class="action-btn edit-btn" onclick="addAmount('<%= referral._id %>')">Add Amount</button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                    <% if (referrals.length === 0) { %>
+                        <tr>
+                            <td colspan="4">No referrals found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+            <form id="pagination-form" method="get" action="/admin/referralManagement">
+                <button type="button" id="prev-btn" onclick="setPage(currentPage - 1)">Previous</button>
+                <span id="page-number">1</span>
+                <button type="button" id="next-btn" onclick="setPage(currentPage + 1)">Next</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Hamburger menu toggle
+        document.querySelector('.hamburger').addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const searchTerm = this.value.trim().toLowerCase();
+            const rows = document.querySelectorAll('#referralBody tr');
+
+            rows.forEach(row => {
+                const username = row.cells[0].textContent.toLowerCase();
+                const referralCode = row.cells[1].textContent.toLowerCase();
+
+                if (username.includes(searchTerm) || referralCode.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Pagination
+        let urlParams = new URLSearchParams(window.location.search);
+        let currentPage = parseInt(urlParams.get("page")) || 1;
+        let totalPages = <%= totalPages %>;
+
+        function setPage(page) {
+            if (page < 1 || page > totalPages) return;
+
+            currentPage = page;
+            document.getElementById("page-number").textContent = currentPage;
+
+            document.getElementById("prev-btn").disabled = currentPage === 1;
+            document.getElementById("next-btn").disabled = currentPage === totalPages;
+
+            window.location.href = `/admin/referralManagement?page=${currentPage}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            let urlParams = new URLSearchParams(window.location.search);
+            let currentPage = parseInt(urlParams.get("page")) || 1;
+
+            document.getElementById("page-number").textContent = currentPage;
+            document.getElementById("prev-btn").disabled = currentPage === 1;
+            document.getElementById("next-btn").disabled = currentPage === totalPages;
+        });
+
+        // Add Amount
+        function addAmount(id) {
+            const amountInput = document.getElementById(`amount-${id}`);
+            const amount = parseInt(amountInput.value.trim());
+
+            if (!amount || amount <= 0) {
+                Swal.fire('Error!', 'Please enter different amount', 'error');
+                return;
+            }
+
+            fetch(`/admin/referral-add-amount/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Success!', `₹${amount} added successfully!`, 'success')
+                    .then(() => {
+                        amountInput.value = '';
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error!', data.message || 'Failed to add amount', 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Something went wrong, please try again', 'error');
+                console.error('Fetch error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

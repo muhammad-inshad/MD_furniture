@@ -259,6 +259,78 @@ const deleteAddress = async (req, res) => {
     }
 };
 
+const referral = async (req, res) => {
+    try {
+        const userId = req.session.user.id;  // Get user ID from session
+        const finduser = await user.findById(userId);  // Correct usage of findById()
+
+        if (!finduser) {
+            return res.status(404).render("pageNotFound");  // Handle case if user is not found
+        }
+
+        res.render("referralCode", { finduser,isLogin: true});
+    } catch (error) {
+        console.error("Error in referral get:", error);
+        res.status(500).render("pageNotFound");
+    }
+};
+const applyreferral = async (req, res) => {
+    try {
+        const userId = req.session.user.id;  
+        const { referralCode } = req.body;   
+
+    
+        const findRef = await user.findOne({ referalCode: referralCode });
+
+        
+        if (!findRef) {
+            return res.status(404).json({ success: false, message: "Referral code not found" });
+        }
+
+     
+        if (userId === findRef._id.toString()) {  
+            return res.status(400).json({
+                success: false,
+                message: "You can't use your own referral code"
+            });
+        }
+
+        
+        const currentUser = await user.findById(userId);
+
+       
+        if (currentUser.referalCodeApplied) {
+            return res.status(400).json({
+                success: false,
+                message: "You have already used a referral code"
+            });
+        }
+
+        const referralBonus = findRef.referalamount;    
+        const userBonus = findRef.referalamount/2;        
+
+        currentUser.wallet += userBonus;
+        currentUser.referalCodeApplied = true;
+
+        findRef.referralCount+=1
+        findRef.wallet += referralBonus;
+
+        await currentUser.save();
+        await findRef.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Referral code applied successfully",
+            wallet: currentUser.wallet
+        });
+
+    } catch (error) {
+        console.error("Error in applyreferral post:", error);
+        res.status(500).render("pageNotFound");
+    }
+};
+
+
 module.exports={
     profile,
     address,
@@ -268,5 +340,7 @@ module.exports={
     edit_address,
     postedit_address,
     PostEditeprofile,
-    deleteAddress
+    deleteAddress,
+    referral,
+    applyreferral
 }

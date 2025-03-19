@@ -10,6 +10,8 @@ const Sharp=require("sharp");
 const { constants } = require('perf_hooks');
 const Address = require('../../models/addressSchema');
 const mongoose = require("mongoose");
+const user = require('../../models/userSchema');
+const { save } = require('pdfkit');
 
 
 const userManagement = async (req, res) => {
@@ -175,6 +177,48 @@ const showProduct=async (req,res)=>{
     }
 }
 
+const ReferralCodeM = async (req, res) => {
+    try {
+         let page = parseInt(req.query.page) || 1; // Get page number from URL, default to 1
+                let limit = 5; // Number of coupons per page
+                let skip = (page - 1) * limit; // Calculate how many documents to skip
+        
+                // Count total number of coupons in the database
+                const totalUsers = await user.countDocuments();
+                const totalPages = Math.ceil(totalUsers / limit); // Calculate total pages
+        const referrals = await user.find().skip(skip)  // Apply pagination
+        .limit(limit)
+        .sort({ _id: -1 }); 
+        res.render("ReferralCodeMangement", { referrals,page, totalPages });
+    } catch (error) {
+        console.error("Error in ReferralCodeM:", error);
+        res.status(500).json({ success: false, message: "Failed to fetch referrals" });
+    }
+};
+
+const referraladdamount = async (req, res) => {
+    try {
+        const { id } = req.params;            
+        const { amount } = req.body;             
+
+        const findUser = await user.findOne({ _id: id });  
+
+        if (!findUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        findUser.referalamount = amount;         
+        await findUser.save();     
+    
+
+        res.status(200).json({ success: true, user: findUser });
+
+    } catch (error) {
+        console.error("Error in referraladdamount:", error);
+        res.status(500).json({ success: false, message: "Failed to update referral amount" });
+    }
+};
+
 
 module.exports={
     userManagement,
@@ -183,5 +227,7 @@ module.exports={
     ordermanagment,
     orderupdate,
     userAddress,
-    showProduct
+    showProduct,
+    ReferralCodeM,
+    referraladdamount
 }

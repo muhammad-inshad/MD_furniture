@@ -59,7 +59,18 @@ const userSchema=new Schema({
         },
         referalCode:{
             type:String,
-           // required:true
+        },
+        referalCodeApplied:{
+         type:Boolean,
+         default:false
+        },
+        referalamount:{
+          type:Number,
+          default:100
+        },
+        referralCount:{
+            type:Number,
+            default:0
         },
         redeemed:{
             type:Boolean,

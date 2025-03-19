@@ -81,6 +81,8 @@ router.post("/edit_address",profileControler.postedit_address)
 router.get("/editeprofile",isLoginORnot,profileControler.editeprofile)
 router.post("/editeprofile/:id",profileControler.PostEditeprofile)
 router.post("/deleteAddress/:id",profileControler.deleteAddress)
+router.get("/referralCode",isLoginORnot,isUser,profileControler.referral)
+router.post("/apply-referral",profileControler.applyreferral)
 
 
 router.post("/cart",uploadFields,cartController.cart)

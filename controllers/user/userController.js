@@ -202,6 +202,24 @@ const verifyotp = async (req, res) => {
                 });
             }
 
+            const generateReferralCode = () => {
+                const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const lower = 'abcdefghijklmnopqrstuvwxyz';
+                const digits = '0123456789';
+            
+                const code = 
+                    upper[Math.floor(Math.random() * upper.length)] +    
+                    lower[Math.floor(Math.random() * lower.length)] +    
+                    upper[Math.floor(Math.random() * upper.length)] +   
+                    digits[Math.floor(Math.random() * digits.length)] +  
+                    digits[Math.floor(Math.random() * digits.length)] +  
+                    digits[Math.floor(Math.random() * digits.length)] +  
+                    lower[Math.floor(Math.random() * lower.length)];    
+                
+                return code;
+            };
+            
+           const Referral=generateReferralCode()
             // Hash the password
             const passwordHash = await securePassword(user.password);
 
@@ -211,6 +229,7 @@ const verifyotp = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 password: passwordHash,
+                referalCode:Referral,
             });
 
             await saveUserData.save();

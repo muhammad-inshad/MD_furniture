@@ -21,6 +21,8 @@ router.get("/logout",adminController.logoutPOst)
 router.get("/userManagement",customerController.userManagement)
 router.post("/blockUser/:id",customerController.blockUser)
 router.post("/search",customerController.searchUSer)
+router.get('/referralManagement',isAdmin,customerController.ReferralCodeM)
+router.post('/referral-add-amount/:id',customerController.referraladdamount)
 
 router.get("/CategoryManagement",categoryController.CategoryManagement)
 router.post("/updateCategory/:id",categoryController.updatecategory)
