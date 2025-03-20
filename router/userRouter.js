@@ -97,7 +97,7 @@ router.post("/buyagain/:productId/:orderId",checkoutController.buyagain)
 router.post("/buyagaincheckout",checkoutController.buyagaincheckout)
 router.get("/myorders",isLoginORnot,uploadFields,checkoutController.myorders)
 router.post("/DownloadPdf/:id",checkoutController.DownloadPdf)
-router.get("/orderCancel/:id",isLoginORnot,checkoutController.orderCancel)
+router.get("/orderCancel/:id/:qty/:pid",isLoginORnot,checkoutController.orderCancel)
 router.post("/orderCancel",checkoutController.postorderCancel)
 
 

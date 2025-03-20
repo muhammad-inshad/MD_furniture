@@ -326,7 +326,7 @@ body {
                                         
                                         <% if (order.status !== "Cancelled" && order.status!=="Delivered" && order.status!=="ReturnRequst" && order.status!=="Returned" && order.status!=="Rejected" &&order.status!=="failed") { %> 
                                         
-                                            <form action="/user/orderCancel/<%=order._id%>">
+                                            <form action="/user/orderCancel/<%=order._id%>/<%=order.orderedItems.quantity%>/<%= order.productDetails[0]?._id %>">
                                                 <div class="container">
                                                     <button class="btn btn-danger" id="cancelOrderButton">Cancel Order</button>
                                                 </div>

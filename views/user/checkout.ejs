@@ -47,9 +47,14 @@
                   <% totalAmount += (item.product.price * item.quantity); %>
               <% }) %>
               <tr>
-                  <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
-                  <td class="text-black">$<%= subtotal %></td>
-              </tr>
+                <td class="text-black font-weight-bold"><strong>coupon value</strong></td>
+                <td class="text-black">$<%= couponValue %></td>
+            </tr>
+            
+              <tr>
+                <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
+                <td class="text-black">$<%= subtotal %></td>
+            </tr>
               <tr>
                 <td class="text-black font-weight-bold"><strong>Delivery Charge</strong></td>
                   <td class="text-black">$100</td>
