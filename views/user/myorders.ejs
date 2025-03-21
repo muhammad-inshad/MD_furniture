@@ -1,96 +1,273 @@
-<%-include("../../views/partials/user/top")%>
+<%- include("../../views/partials/user/top") %>
 
-	
-    
-    <title>User Dashboard</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
-    <style>
-     /* General Body Styles */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
-}
+<title>User Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+    /* General Body Styles */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+    }
 
-/* Sidebar Styles */
-.sidebar {
-    width: 250px;
-    background-color: #d7dee5;
-    color: #282424;
-    padding: 20px;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
+    /* Sidebar Styles */
+    .sidebar {
+        width: 250px;
+        background-color: #d7dee5;
+        color: #282424;
+        padding: 20px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-.sidebar h2 {
-    margin: 0 0 20px;
-    text-align: center;
-    font-size: 24px;
-}
+    .sidebar h2 {
+        margin: 0 0 20px;
+        text-align: center;
+        font-size: 24px;
+    }
 
-.sidebar a {
-    display: block;
-    text-decoration: none;
-    color: #000000;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 5px;
-    transition: background-color 0.3s, padding-left 0.3s;
-}
+    .sidebar a {
+        display: block;
+        text-decoration: none;
+        color: #000000;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 5px;
+        transition: background-color 0.3s, padding-left 0.3s;
+    }
 
-.sidebar a:hover,
-.sidebar a.active {
-    background-color: #0056b3;
-    padding-left: 20px;
-}
+    .sidebar a:hover,
+    .sidebar a.active {
+        background-color: #0056b3;
+        padding-left: 20px;
+        color: #fff;
+    }
 
-/* Dashboard Layout */
-.dashboard {
-    display: flex;
-    min-height: 100vh;
-}
+    /* Dashboard Layout */
+    .dashboard {
+        display: flex;
+        min-height: 100vh;
+    }
 
-/* Content Area */
-.content {
-    flex: 1;
-    padding: 20px;
-    background-color: #fff;
-    border-left: 1px solid #ddd;
-}
+    /* Content Area */
+    .content {
+        flex: 1;
+        padding: 20px;
+        background-color: #fff;
+        border-left: 1px solid #ddd;
+    }
 
-/* Order Section Styles */
-.order-section {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 1143px;
-    margin: 20px auto;
-}
+    /* Order Section Styles */
+    .order-section {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        max-width: 1143px;
+        margin: 20px auto;
+    }
 
-.order-section h2 {
-    text-align: center;
-    color: #007BFF;
-    font-size: 26px;
-    margin-bottom: 25px;
-}
+    .order-section h2 {
+        text-align: center;
+        color: #007BFF;
+        font-size: 26px;
+        margin-bottom: 25px;
+    }
 
-.order-details {
-    background-color: #f9f9f9;
-    padding: 18px;
-    border-radius: 10px;
-}
+    .order-details {
+        background-color: #f9f9f9;
+        padding: 18px;
+        border-radius: 10px;
+    }
 
-/* Order Item Styles */
-.order-items {
-    list-style-type: none;
-    padding-left: 0;
-    margin-bottom: 19px;
-}
+    /* Order Item Styles */
+    .order-items {
+        list-style-type: none;
+        padding-left: 0;
+        margin-bottom: 19px;
+    }
 
+    .order-item {
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-image-container {
+        width: 150px; /* Fixed width for consistency */
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: #f3f3f3;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+
+    .product-image {
+        max-width: 100%;
+        max-height: 120px;
+        object-fit: cover;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .no-image {
+        color: #888;
+        font-size: 14px;
+        font-style: italic;
+    }
+
+    .order-item .product-name {
+        font-size: 18px;
+        color: #333;
+        max-width: 400px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Order Details Container */
+    .order-details-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 10px;
+    }
+
+    /* Order Summary Styles */
+    .order-summary {
+        font-size: 16px;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .order-summary p {
+        margin: 0;
+    }
+
+    .order-summary p strong {
+        color: #007BFF;
+    }
+
+    /* Buttons Container */
+    .buttons-container {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: #007BFF;
+        color: #fff;
+        border: none;
+    }
+
+    /* Rating Styles */
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .star {
+        font-size: 20px;
+        color: #dcdcdc;
+    }
+
+    .star.filled {
+        color: gold;
+    }
+
+    .rating input[type="radio"] {
+        display: none;
+    }
+
+    .rating label {
+        font-size: 20px;
+        color: #dcdcdc;
+        cursor: pointer;
+    }
+
+    .rating input[type="radio"]:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+        color: gold;
+    }
+
+    /* Order Status Styles */
+    .order-status {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .order-status.pending { color: orange; }
+    .order-status.processing { color: #007BFF; }
+    .order-status.shipped { color: green; }
+    .order-status.delivered { color: #28a745; }
+    .order-status.cancelled { color: red; }
+    .order-status.returned { color: purple; }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 200px;
+        }
+
+        .dashboard {
+            flex-direction: column;
+        }
+
+        .content {
+            padding: 15px;
+        }
+
+        .order-section {
+            padding: 20px;
+        }
+
+        .order-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .product-image-container {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+
+        .order-details-container {
+            width: 100%;
+        }
+
+        .buttons-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    /* Order Item Styles */
 .order-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     background-color: #fff;
     padding: 15px;
     margin-bottom: 15px;
@@ -98,333 +275,241 @@ body {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.product-image-container {
-    text-align: center;
-    padding: 12px;
-    border-radius: 8px;
-    background-color: #f3f3f3;
-    margin-right: 20px;
+.order-item-content {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
+    flex: 1;
+    gap: 20px;
+    align-items: flex-start;
 }
 
-.product-image {
-    max-width: 120px;
-    max-height: 120px;
-    object-fit: cover;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Shipping Address Container */
+.order-details-container.shipping-address {
+    width: 250px; /* Fixed width for consistency */
+    margin-right: 20px;
+    flex-shrink: 0; /* Prevents it from shrinking */
 }
 
-.no-image {
-    color: #888;
-    font-size: 14px;
-    font-style: italic;
+/* Main Details Container */
+.order-details-container.main-details {
+    flex: 1;
 }
 
-.order-item .product-name {
+/* User Address Box */
+.user-address-box {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.user-address-box h4 {
+    margin: 0 0 10px;
     font-size: 18px;
-    color: #333;
-    max-width: 400px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Order Summary Styles */
-.order-summary {
-    font-size: 16px;
-    color: #333;
-    margin-left: 120px;
-}
-
-.order-summary p {
-    margin-bottom: 10px;
-}
-
-.order-summary p strong {
     color: #007BFF;
 }
 
-/* Date and Status Styles */
-.order-summary p,
-.order-item span {
-    font-size: 16px;
+.address-info p {
+    margin: 5px 0;
+    font-size: 14px;
 }
 
-.order-summary p strong {
-    color: #007BFF;
-}
-
-.order-status {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.order-status.pending {
-    color: orange;
-}
-
-.order-status.processing {
-    color: #007BFF;
-}
-
-.order-status.shipped {
-    color: green;
-}
-
-.order-status.delivered {
-    color: #28a745;
-}
-
-.order-status.cancelled {
-    color: red;
-}
-
-.order-status.returned {
-    color: purple;
+.no-address {
+    color: #888;
+    font-style: italic;
+    margin-top: 10px;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
-
-    .dashboard {
-        flex-direction: column;
-    }
-
-    .content {
-        padding: 15px;
-    }
-
-    .order-section {
-        padding: 20px;
-    }
-
     .order-item {
         flex-direction: column;
-        align-items: flex-start;
     }
 
-    .order-summary {
-        margin-left: 0;
-    }
-
-    .order-item .product-name {
-        font-size: 14px;
-    }
-
-    .product-image-container {
+    .order-details-container.shipping-address {
+        width: 100%;
+        margin-right: 0;
         margin-bottom: 15px;
     }
-}
-.star {
-    font-size: 20px;
-    color: #dcdcdc;  /* Light gray for empty stars */
-}
 
-.star.filled {
-    color: gold;  /* Gold color for filled stars */
+    .order-item-content {
+        flex-direction: column;
+        width: 100%;
+    }
 }
-
-    </style>
+</style>
 </head>
 <body>
     <div class="dashboard">
         <div class="sidebar">
             <h2>PROFILE</h2>
             <a href="/user/profile">Profile</a>
-                <a href="/user/myorders" >My Orders</a>
-                <a href="/user/address" >Address</a>
-                <a href="/user/Wallet" >Wallet</a>
-                <a href="/user/showWishlist">wishlist</a>
-                <a href="/user/referralCode">Referral-Code</a>
-                <a href="/user/home">Back</a>
-            
+            <a href="/user/myorders">My Orders</a>
+            <a href="/user/address">Address</a>
+            <a href="/user/Wallet">Wallet</a>
+            <a href="/user/showWishlist">Wishlist</a>
+            <a href="/user/referralCode">Referral-Code</a>
+            <a href="/user/home">Back</a>
         </div>
         <div class="content">
-            <i class="bi bi-person-circle"></i>
             <div class="order-section">
                 <h2>My Orders</h2>
                 <div class="order-details">
                     <ul class="order-items">
                         <% if (orders && orders.length > 0) { %>
                             <% orders.forEach(order => { %>
-                               
                                 <li class="order-item">
-                                    <a href="/user/showDetailProduct/<%= order.productDetails[0]?._id %>">
-                                    <div class="product-image-container">
-                                     
-                                        <% if (order.productDetails[0]?.productImages && order.productDetails[0].productImages.length > 0) { %>
-                                            <img src="/uploads/<%= order.productDetails[0].productImages[0] %>" alt="Product Image" class="product-image">
-                                        <% } else { %>
-                                            <p class="no-image">No image available</p>
-                                        <% } %>
-        
-                                    
-                                    </div>
-                                </a>
-                                    <% if (order.status !== "Cancelled" ) { %> 
-                                        
-                                        <form action="/user/DownloadPdf/<%=order._id%>" method="post">
-                                            <div class="container">
-                                                <button class="btn btn-danger" id="cancelOrderButton">Download data</button>
-                                            </div>
-                                    </form>
- 
-                                    <% } %>
-                                    <% if (order.status == "failed" ) { %> 
-                                        
-                                        <form action="/user/buyagain/<%= order.productDetails[0]?._id %>/<%=order._id%>" method="post">
-
-                                            <div class="container">
-                                                <button class="btn btn-danger" id="buyagain">Retry payment</button>
-                                            </div>
-                                    </form>
- 
-                                    <% } %>
-                                    <div>
-                                        <span class="product-name"><strong>Product:</strong> <%= order.productDetails[0]?.productName %></span><br>
-                                        <span><strong>Quantity:</strong> <%= order?.orderedItems?.quantity %></span>
-                                    </div>
-                                    <div class="order-summary">
-                                       
-                                        <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
-                                        <p><strong>Final Amount:</strong> $<%= order.finalAmount %></p>
-                                        <p><strong>purchased Date:</strong> <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
-                                        <p><strong>Coupon Applied:</strong> <%= order.couponApplied ? 'Yes' : 'No' %></p>
-                                        <% if (order.status !== "Rejected") { %>
-                                            <p><strong>Status:</strong> <%= order.status %></p>
-                                        <% } else { %>
-                                            <p style="color: red; font-weight: bold;">Product return request rejected. Any queries? Call us.</p>
-                                        <% } %>
-                                        
-                                        <p><strong>Expected On:</strong> <%= order.orderExpectedDate ? order.orderExpectedDate.toISOString().slice(0, 10) : 'N/A' %></p>
-                                        <p><strong> Rating:</strong></p>
-                                      
-                                        
-                                        <% if ( order.productDetails[0]?.rating &&  order.productDetails[0]?.rating  !== undefined) { %>
-                                            <div class="rating">
-                                                <% for (let i = 1; i <= 5; i++) { %>
-                                                    <% if (i <=  order.productDetails[0]?.rating) { %>
-                                                        <span class="star filled">★</span> <!-- Filled star for rating -->
-                                                    <% } else { %>
-                                                        <span class="star">☆</span> <!-- Empty star for remaining rating -->
-                                                    <% } %>
+                                    <!-- Shipping Address on the Left -->
+                                    <div class="order-details-container shipping-address">
+                                        <div class="user-address-box">
+                                            <h4>Shipping Address</h4>
+                                            <div class="address-info">
+                                                <% if (order.addressDetails) { %>
+                                                    <p><strong>Name:</strong> <%= order.addressDetails.name || 'N/A' %></p>
+                                                    <p><strong>City:</strong> <%= order.addressDetails.City || 'N/A' %></p>
+                                                    <p><strong>Landmark:</strong> <%= order.addressDetails.landMark || 'N/A' %></p>
+                                                    <p><strong>State:</strong> <%= order.addressDetails.state || 'N/A' %></p>
+                                                    <p><strong>Pincode:</strong> <%= order.addressDetails.pincode || 'N/A' %></p>
+                                                    <p><strong>Phone:</strong> <%= order.addressDetails.phone || 'N/A' %></p>
+                                                <% } else { %>
+                                                    <p class="no-address">No address available</p>
                                                 <% } %>
-                                            
-                                        <% } else { %>
-                                            <p>No rating available</p>
-                                            <% console.log("Rating not available for this product."); %>
+                                            </div>
                                         </div>
-                                        <% } %>
-                                        
-                                        
-                                        <% if (order.status !== "Cancelled" && order.status!=="Delivered" && order.status!=="ReturnRequst" && order.status!=="Returned" && order.status!=="Rejected" &&order.status!=="failed") { %> 
-                                        
-                                            <form action="/user/orderCancel/<%=order._id%>/<%=order.orderedItems.quantity%>/<%= order.productDetails[0]?._id %>">
-                                                <div class="container">
-                                                    <button class="btn btn-danger" id="cancelOrderButton">Cancel Order</button>
-                                                </div>
-                                        </form>
-     
-                                        <% } %>
-<br>
-                                        <% if (order.status !== "Returned" && order.status=="Delivered" ) { %> 
-                                        
-                                            <form action="/user/ReturnRequest/<%=order._id%>">
-                                                <div class="container">
-                                                    <button class="btn btn-danger" id="cancelOrderButton">Return request</button>
-                                                </div>
-                                        </form>
-     
-                                        <% } %>
+                                    </div>
+                                
+                                    <!-- Product Image and Details -->
+                                    <div class="order-item-content">
+                                        <a href="/user/showDetailProduct/<%= order.productDetails[0]?._id %>">
+                                            <div class="product-image-container">
+                                                <% if (order.productDetails[0]?.productImages && order.productDetails[0].productImages.length > 0) { %>
+                                                    <img src="/uploads/<%= order.productDetails[0].productImages[0] %>" alt="Product Image" class="product-image">
+                                                <% } else { %>
+                                                    <p class="no-image">No image available</p>
+                                                <% } %>
+                                            </div>
+                                        </a>
+                                        <div class="order-details-container main-details">
+                                            <div>
+                                                <span class="product-name"><strong>Product:</strong> <%= order.productDetails[0]?.productName %></span><br>
+                                                <span><strong>Quantity:</strong> <%= order?.orderedItems?.quantity %></span>
+                                            </div>
+                                            <div class="order-summary">
+                                                <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
+                                                <p><strong>Final Amount:</strong> $<%= order.finalAmount %></p>
+                                                <p><strong>Purchased Date:</strong> <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
+                                                <p><strong>Coupon Applied:</strong> <%= order.couponApplied ? 'Yes' : 'No' %></p>
+                                                <% if (order.status !== "Rejected") { %>
+                                                    <p><strong>Status:</strong> <span class="order-status <%= order.status.toLowerCase() %>"><%= order.status %></span></p>
+                                                <% } else { %>
+                                                    <p style="color: red; font-weight: bold;">Product return request rejected. Any queries? Call us.</p>
+                                                <% } %>
+                                                <p><strong>Expected On:</strong> <%= order.orderExpectedDate ? order.orderExpectedDate.toISOString().slice(0, 10) : 'N/A' %></p>
+                                                <p><strong>Rating:</strong>
+                                                    <% if (order.productDetails[0]?.rating && order.productDetails[0]?.rating !== undefined) { %>
+                                                        <% for (let i = 1; i <= 5; i++) { %>
+                                                            <span class="star <%= i <= order.productDetails[0]?.rating ? 'filled' : '' %>">★</span>
+                                                        <% } %>
+                                                    <% } else { %>
+                                                        No rating available
+                                                    <% } %>
+                                                </p>
+                                            </div>
+                                            <div class="buttons-container">
+                                                <% if (order.status !== "Cancelled" && order.status !== "Delivered" && order.status !== "ReturnRequst" && order.status !== "Returned" && order.status !== "Rejected" && order.status !== "failed") { %>
+                                                    <form action="/user/orderCancel/<%= order._id %>/<%= order.orderedItems.quantity %>/<%= order.productDetails[0]?._id %>">
+                                                        <button class="btn btn-danger" id="cancelOrderButton">Cancel Order</button>
+                                                    </form>
+                                                <% } %>
+                                                <% if (order.status === "Delivered" && order.status !== "Returned") { %>
+                                                    <form action="/user/ReturnRequest/<%= order._id %>">
+                                                        <button class="btn btn-danger" id="cancelOrderButton">Return Request</button>
+                                                    </form>
+                                                <% } %>
+                                                <% if (order.status !== "Cancelled") { %>
+                                                    <form action="/user/DownloadPdf/<%= order._id %>" method="post">
+                                                        <button class="btn btn-danger" id="cancelOrderButton">Download Data</button>
+                                                    </form>
+                                                <% } %>
+                                                <% if (order.status === "failed") { %>
+                                                    <form action="/user/buyagain/<%= order.productDetails[0]?._id %>/<%= order._id %>" method="post">
+                                                        <button class="btn btn-danger" id="buyagain">Retry Payment</button>
+                                                    </form>
+                                                <% } %>
+                                            </div>
+                                            <% if (order.status === "Delivered" && !order.ratingGiven) { %>
+                                                <form id="rating-<%= order._id %>">
+                                                    <div class="rating">
+                                                        <input type="text" value="<%= order?.orderedItems?.product?._id %>" hidden>
+                                                        <label for="rating">Rate this product:</label>
+                                                        <input type="radio" name="rating" value="1" id="star1-<%= order._id %>"><label for="star1-<%= order._id %>">★</label>
+                                                        <input type="radio" name="rating" value="2" id="star2-<%= order._id %>"><label for="star2-<%= order._id %>">★</label>
+                                                        <input type="radio" name="rating" value="3" id="star3-<%= order._id %>"><label for="star3-<%= order._id %>">★</label>
+                                                        <input type="radio" name="rating" value="4" id="star4-<%= order._id %>"><label for="star4-<%= order._id %>">★</label>
+                                                        <input type="radio" name="rating" value="5" id="star5-<%= order._id %>"><label for="star5-<%= order._id %>">★</label>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                                </form>
+                                            <% } else if (order.ratingGiven) { %>
+                                                <p><strong>Your Rating:</strong> <%= order.rating %> ★</p>
+                                            <% } %>
+                                        </div>
                                     </div>
                                 </li>
-                                <div>
-                                    <% if (order.status === "Delivered" && !order.ratingGiven) { %> 
-                                        <form id="rating">
-                                          <div class="rating">
-                                            <input type="text" value="<%= order?.orderedItems?.product?._id %>" hidden>
-                                            <label for="rating">Rate this product:</label>
-                                            <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
-                                            <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
-                                            <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
-                                            <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
-                                            <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
-                                          </div>
-                                          <button type="submit" class="btn btn-primary">Submit Rating</button>
-                                        </form>
-                                      <% } else if (order.ratingGiven) { %>
-                                        <p><strong>Your Rating:</strong> <%= order.rating %> ★</p>
-                                      <% } %>
-            
-                                </div>
-                                
                             <% }); %>
                         <% } else { %>
                             <p>No orders found</p>
                         <% } %>
                     </ul>
-                  
+                   
                 </div>
             </div>
-            
         </div>
     </div>
-<!-- Add this to your HTML file in the <head> section -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.getElementById("rating").addEventListener("submit", function(event) {
-            event.preventDefault();  // Prevent form from submitting normally
-    
-            const selectedRating = document.querySelector('input[name="rating"]:checked');  // Get the checked radio button
-    
-            if (selectedRating) {
-                const ratingValue = selectedRating.value;  // Get the value of the selected radio button
-                const orderId = document.querySelector('input[type="text"]').value;  // Get the order ID from the hidden input
-    
-                fetch("/user/rating", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ rating: ratingValue, orderId: orderId }),  // Send both rating and order ID
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Rating submitted successfully!',
-                            text: 'Thank you for your feedback!',
-                            confirmButtonText: 'Okay',
-                        });
-                    } else {
+        document.querySelectorAll('[id^="rating-"]').forEach(form => {
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+                const selectedRating = form.querySelector('input[name="rating"]:checked');
+                if (selectedRating) {
+                    const ratingValue = selectedRating.value;
+                    const orderId = form.querySelector('input[type="text"]').value;
+                    fetch("/user/rating", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ rating: ratingValue, orderId: orderId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Rating submitted successfully!',
+                                text: 'Thank you for your feedback!',
+                                confirmButtonText: 'Okay'
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error submitting rating!',
+                                text: 'Something went wrong. Please try again later.',
+                                confirmButtonText: 'Okay'
+                            });
+                        }
+                    })
+                    .catch(error => {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error submitting rating!',
+                            title: 'Oops...',
                             text: 'Something went wrong. Please try again later.',
-                            confirmButtonText: 'Okay',
+                            confirmButtonText: 'Okay'
                         });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Something went wrong. Please try again later.',
-                        confirmButtonText: 'Okay',
                     });
-                });
-            }
+                }
+            });
         });
     </script>
-    
-    <%-include("../../views/partials/user/footer")%>
+
+    <%- include("../../views/partials/user/footer") %>
+</body>
+</html>

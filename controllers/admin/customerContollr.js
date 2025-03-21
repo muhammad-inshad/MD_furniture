@@ -135,21 +135,39 @@ const orderupdate = async (req, res) => {
 
 const userAddress = async (req, res) => {
     try {
-        const addressMainId = new mongoose.Types.ObjectId(req.params.id1);
 
-        // Fetch user document with the first address only
-        const addressData = await Address.findOne(
-            { userId: addressMainId },
-            { "address": { $slice: 1 } } // Retrieve only the first address
-        );
+        const userId = new mongoose.Types.ObjectId(req.params.id1); 
+        const addressId = new mongoose.Types.ObjectId(req.params.id2);
 
+        const addressData = await Address.aggregate([
+            {
+                $match: {
+                    userId: userId, 
+                    "address._id": addressId 
+                }
+            },
+            {
+                $project: {
+             
+                    address: {
+                        $arrayElemAt: [
+                            "$address",
+                            { $indexOfArray: ["$address._id", addressId] }
+                        ]
+                    }
+                }
+            }
+        ]);
 
-        if (!addressData || !addressData.address.length) {
+        // Check if addressData exists and has results
+        if (!addressData || addressData.length === 0) {
             return res.status(404).json({ success: false, message: "Address not found" });
         }
 
-        const address = addressData.address[0]; // Take the first address
+        // Take the extracted address sub-document
+        const address = addressData[0].address;
 
+        // Render the page with the specific address
         res.render("userAddresspage", { address });
 
     } catch (error) {
@@ -157,6 +175,7 @@ const userAddress = async (req, res) => {
         res.status(500).json({ success: false, message: "Error fetching user address" });
     }
 };
+
 
 
 const showProduct=async (req,res)=>{

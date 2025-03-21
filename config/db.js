@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 require("dotenv").config(); // No need to assign it to a variable
 

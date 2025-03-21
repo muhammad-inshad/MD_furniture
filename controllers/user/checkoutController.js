@@ -132,8 +132,8 @@ const postCkeckout = async (req, res) => {
                 if (!req.session || !req.session.user) {
                     return res.status(401).send("User not logged in");
                 }
-        
-                const { paymentMethod, total } = req.body;
+     
+                const { paymentMethod, total,address } = req.body;
                 const userId = req.session.user.id;
         
                 // Fetch the user's cart
@@ -208,14 +208,14 @@ const postCkeckout = async (req, res) => {
                         }],
                         totalPrice: itemSubtotal,
                         finalAmount: itemFinalAmount,
-                        address: findAddress._id,
+                        address: address,
                         invoiceDate: new Date(),
                         status: "pending",
                         couponApplied: !!req.session.coupon,
                         userId: userId,
                         paymentType: paymentMethod,
                     });
-        
+        console.log(newOrder)
                     // Set expected delivery date
                     const expectedDate = new Date();
                     expectedDate.setDate(expectedDate.getDate() + 5);
@@ -470,40 +470,80 @@ order.orderExpectedDate = new Date(currentDate.setDate(currentDate.getDate() + 5
         };
         
 
-const myorders = async (req, res) => {
-    try {
-        let userId = req.session.user.id;
-        if (userId) {
-            const userObjectId = new mongoose.Types.ObjectId(userId)
-            const orders = await Order.aggregate([
-                {
-                    $match: {
-                        userId: userObjectId // Match orders belonging to the logged-in user
-                    }
-                },
-                {
-                    $sort: { createdAt: -1 }  // Sort by most recent orders
-                },
-                {
-                    $unwind: "$orderedItems"  // Unwind orderedItems to separate each item
-                },
-                {
-                    $lookup: {
-                        from: "products",  // The collection name in MongoDB
-                        localField: "orderedItems.product",  // Field from Order model (product ID)
-                        foreignField: "_id",  // Field from Products collection (Product ID)
-                        as: "productDetails"  // The field to store the lookup result
-                    }
-                },
-            ]);
       
-            res.render("myorders", { orders, isLogin: true });
-        }
-    } catch (error) {
-        res.status(500).send("Error fetching orders");
-    }
-};
-
+        
+        const myorders = async (req, res) => {
+            try {
+                const userId = req.session.user?.id || req.user?.id;
+                if (!userId) {
+                    return res.status(401).send("User not authenticated");
+                }
+        
+                const userObjectId = new mongoose.Types.ObjectId(userId);
+        
+                const orders = await Order.aggregate([
+                    { $match: { userId: userObjectId } },
+                    { $sort: { createdAt: -1 } },
+                    { $unwind: "$orderedItems" },
+                    {
+                        $lookup: {
+                            from: "products",
+                            localField: "orderedItems.product",
+                            foreignField: "_id",
+                            as: "productDetails"
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "addresses",
+                            localField: "address",
+                            foreignField: "address._id", // Match sub-document _id in address array
+                            as: "addressDetails"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$addressDetails",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $project: {
+                            // Flatten addressDetails to match expected structure
+                            "addressDetails": {
+                                $arrayElemAt: [
+                                    "$addressDetails.address",
+                                    { $indexOfArray: ["$addressDetails.address._id", "$address"] }
+                                ]
+                            },
+                            // Include other fields
+                            "userId": 1,
+                            "orderedItems": 1,
+                            "totalPrice": 1,
+                            "discount": 1,
+                            "finalAmount": 1,
+                            "invoiceDate": 1,
+                            "status": 1,
+                            "couponApplied": 1,
+                            "orderId": 1,
+                            "orderExpectedDate": 1,
+                            "paymentType": 1,
+                            "createdAt": 1,
+                            "productDetails": 1
+                        }
+                    }
+                ]);
+        
+             
+                res.render("myorders", { orders, isLogin: true });
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+                res.status(500).send("Error fetching orders");
+            }
+        };
+        
+    
+        
 const DownloadPdf = async (req, res) => {
     try {
         const { id } = req.params;
