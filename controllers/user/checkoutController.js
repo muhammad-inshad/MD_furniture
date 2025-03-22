@@ -187,7 +187,7 @@ const checkout = async (req, res) => {
                 }
         
                 // Calculate total final amount once, including tax and discount
-                const totalFinalAmount = subtotal + tax - discountAmount;
+                const totalFinalAmount = total;
         
                 // Array to store all created orders
                 const orders = [];
@@ -239,7 +239,7 @@ const checkout = async (req, res) => {
                 if (paymentMethod === "onlinePayment") {
                     try {
                         const razorpayOrder = await razorpayInstance.orders.create({
-                            amount: total,// Use the pre-calculated totalFinalAmount
+                            amount:totalFinalAmount,// Use the pre-calculated totalFinalAmount
                             currency: "INR",
                             receipt: orders[0]._id.toString(),
                             notes: { info: "Multiple orders payment" },
