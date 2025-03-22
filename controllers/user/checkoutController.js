@@ -127,13 +127,13 @@ const checkout = async (req, res) => {
             key_secret: '9wZDRCYPwn0qXq3ze0GOFEq0'
         });
 
-const postCkeckout = async (req, res) => {
+        const postCkeckout = async (req, res) => {
             try {
                 if (!req.session || !req.session.user) {
                     return res.status(401).send("User not logged in");
                 }
-     
-                const { paymentMethod, total,address } = req.body;
+        
+                const { paymentMethod, total, address } = req.body;
                 const userId = req.session.user.id;
         
                 // Fetch the user's cart
@@ -171,7 +171,7 @@ const postCkeckout = async (req, res) => {
                     const price = item.product.salePrice || item.product.price;
                     return sum + price * item.quantity;
                 }, 0);
-                const tax = 0.1 * subtotal;
+                const tax = 0.1 * subtotal; // 10% tax on subtotal
         
                 const findAddress = await Address.findOne({ userId });
                 if (!findAddress) {
@@ -182,22 +182,24 @@ const postCkeckout = async (req, res) => {
                 if (req.session.coupon) {
                     const coupon = await Coupon.findOne({ name: req.session.coupon.name });
                     if (coupon) {
-                        discountAmount = coupon.discountValue; // Assuming discountValue is a fixed amount
+                        discountAmount = coupon.discountValue; // Fixed discount amount
                     }
                 }
         
-                // Calculate per-item discount proportionally (if applicable)
-                const totalItems = detailedCart.items.length;
-                const discountPerItem = totalItems > 0 ? discountAmount / totalItems : 0;
+                // Calculate total final amount once, including tax and discount
+                const totalFinalAmount = subtotal + tax - discountAmount;
         
                 // Array to store all created orders
                 const orders = [];
         
                 // Process each item as a separate order
+                const totalItems = detailedCart.items.length;
+                const discountPerItem = totalItems > 0 ? discountAmount / totalItems : 0;
+        
                 for (const item of detailedCart.items) {
                     const itemPrice = item.product.salePrice || item.product.price;
                     const itemSubtotal = itemPrice * item.quantity;
-                    const itemTax = 0.1 * itemSubtotal; // 10% tax per item
+                    const itemTax = 0.1 * itemSubtotal;
                     const itemFinalAmount = itemSubtotal + itemTax - discountPerItem;
         
                     const newOrder = new Order({
@@ -207,7 +209,7 @@ const postCkeckout = async (req, res) => {
                             price: itemPrice,
                         }],
                         totalPrice: itemSubtotal,
-                        finalAmount: itemFinalAmount,
+                        finalAmount: total,
                         address: address,
                         invoiceDate: new Date(),
                         status: "pending",
@@ -215,13 +217,13 @@ const postCkeckout = async (req, res) => {
                         userId: userId,
                         paymentType: paymentMethod,
                     });
-        console.log(newOrder)
+        
                     // Set expected delivery date
                     const expectedDate = new Date();
                     expectedDate.setDate(expectedDate.getDate() + 5);
                     newOrder.orderExpectedDate = expectedDate.toDateString();
         
-                    // Check stock for this item
+                    // Check stock
                     const currentProduct = await Product.findById(item.product._id);
                     if (!currentProduct || item.quantity > currentProduct.quantity) {
                         return res.status(400).send(`Item ${item.product.name} is out of stock.`);
@@ -234,14 +236,12 @@ const postCkeckout = async (req, res) => {
                 }
         
                 // Handle Payment Methods
-                const totalFinalAmount = orders.reduce((sum, order) => sum + order.finalAmount, 0);
-        
                 if (paymentMethod === "onlinePayment") {
                     try {
                         const razorpayOrder = await razorpayInstance.orders.create({
-                            amount: Math.round(totalFinalAmount * 100), // Total amount for all orders
+                            amount: total,// Use the pre-calculated totalFinalAmount
                             currency: "INR",
-                            receipt: orders[0]._id.toString(), // Use the first order ID as receipt
+                            receipt: orders[0]._id.toString(),
                             notes: { info: "Multiple orders payment" },
                         });
         
@@ -256,17 +256,17 @@ const postCkeckout = async (req, res) => {
                     }
                 } else if (paymentMethod === "wallet") {
                     try {
-                        let user = await User.findById(userId); // Assuming 'User' model is imported as 'user'
-                        if (!user) {
+                        let User = await user.findById(userId); // Assuming 'user' is your User model
+                        if (!User) {
                             return res.status(400).json({ success: false, message: "User not found" });
                         }
         
-                        if (user.wallet < totalFinalAmount) {
+                        if (User.wallet < total) {
                             return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
                         }
         
-                        user.wallet -= totalFinalAmount;
-                        await user.save();
+                        User.wallet -= total;
+                        await User.save();
                         await Promise.all(orders.map(order => order.save()));
                         await Cart.deleteOne({ userId });
         
@@ -289,7 +289,7 @@ const postCkeckout = async (req, res) => {
                     return res.json({
                         success: true,
                         message: "Orders placed successfully",
-                        formattedExpectedDate: orders[0].orderExpectedDate, // Return the first order's expected date
+                        formattedExpectedDate: orders[0].orderExpectedDate,
                     });
                 }
         
