@@ -234,12 +234,12 @@ const checkout = async (req, res) => {
         
                     orders.push(newOrder);
                 }
-        
+                let finalAmount = total;
                 // Handle Payment Methods
                 if (paymentMethod === "onlinePayment") {
                     try {
                         const razorpayOrder = await razorpayInstance.orders.create({
-                            amount:totalFinalAmount,// Use the pre-calculated totalFinalAmount
+                            amount:Math.round(Number(finalAmount) * 100),// Use the pre-calculated totalFinalAmount
                             currency: "INR",
                             receipt: orders[0]._id.toString(),
                             notes: { info: "Multiple orders payment" },
