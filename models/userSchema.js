@@ -72,6 +72,18 @@ const userSchema=new Schema({
             type:Number,
             default:0
         },
+        ReferralSignupBonus:{
+            type:Number,
+            default:0
+        },
+        RefundforCancelledOrder:{
+            type:Number,
+            default:0
+        },
+        Purchase:{
+            type:Number,
+            default:0
+        },
         redeemed:{
             type:Boolean,
            // default:false

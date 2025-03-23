@@ -122,7 +122,65 @@
     transform: scale(1.08);
     box-shadow: 0 8px 20px rgba(184, 134, 11, 0.5);
 }
+.transaction-history {
+    margin: 30px auto;
+    max-width: 800px;
+    width: 90%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
 
+.transaction-history h2 {
+    font-size: 24px;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+
+.transaction-table th, 
+.transaction-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-table th {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.transaction-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.transaction-table tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
+}
+
+.transaction-table td {
+    color: #333;
+}
+
+.transaction-table .status-success {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.transaction-table .status-failed {
+    color: #dc3545;
+    font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -150,10 +208,37 @@
     <button class="add-money-btn" onclick="addMoneyToWallet()">Proceed to Pay</button>
 </div>
                 </div>
+                <div class="transaction-history">
+                    <h2>Transaction History</h2>
+                    <table class="transaction-table" border="1" cellspacing="0" cellpadding="10">
+                        <thead>
+                            <tr>
+                                <th>Transaction Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transaction-body">
+                            <tr>
+                                <td>Referral Signup Bonus</td>
+                                <td style="color: green;">₹<%=findUser.ReferralSignupBonus%></td>
+                            </tr>
+                            <tr>
+                                <td>Refund for Cancelled Order</td>
+                                <td style="color: green;">₹<%=findUser.RefundforCancelledOrder%></td>
+                            </tr>
+                            <tr>
+                                <td>Purchase</td>
+                                <td style="color: red;">-₹<%=findUser.Purchase%></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
             </div>
         </div>
     </div>
-
+<br>
+<br>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 

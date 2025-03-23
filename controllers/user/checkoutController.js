@@ -264,7 +264,8 @@ const checkout = async (req, res) => {
                         if (User.wallet < total) {
                             return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
                         }
-        
+                        User.Purchase = (Number(User.Purchase) || 0) + Number(total);
+
                         User.wallet -= total;
                         await User.save();
                         await Promise.all(orders.map(order => order.save()));
@@ -434,6 +435,7 @@ order.orderExpectedDate = new Date(currentDate.setDate(currentDate.getDate() + 5
                         }
         
                         // Deduct from wallet and update order
+                        User.Purchase+=finalAmount;
                         User.wallet -= finalAmount;
                         order.status = "paid"; // Update order status
                         await User.save();
@@ -670,11 +672,19 @@ const postorderCancel = async (req, res) => {
         if (!order) {
             return res.status(404).send("Order not found");
         }
-
+        if (order.paymentType === "wallet") {
+            const findUser = await user.findById(userId);
+            if (findUser) {
+                findUser.wallet = (findUser.wallet || 0) + order.finalAmount;
+                findUser.RefundforCancelledOrder+=order.finalAmount
+                await findUser.save();
+            }
+        }
         if (order.paymentType === "onlinePayment") {
             const findUser = await user.findById(userId);
             if (findUser) {
                 findUser.wallet = (findUser.wallet || 0) + order.finalAmount;
+                findUser.RefundforCancelledOrder+=order.finalAmount
                 await findUser.save();
             }
         }
@@ -704,7 +714,7 @@ const Wallet=async (req,res)=>{
     try {
         let userId = req.session.user.id;
         let findUser= await user.findById(userId)
-        res.render("wallet",{findUser})
+        res.render("wallet",{findUser,isLogin:true})
     } catch (error) {
         console.error("Error in Wallet:", error);
         res.status(500).json({ message: "Internal Server Error" });

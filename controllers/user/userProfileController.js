@@ -310,10 +310,12 @@ const applyreferral = async (req, res) => {
         const userBonus = findRef.referalamount/2;        
 
         currentUser.wallet += userBonus;
+        currentUser.ReferralSignupBonus+=userBonus;
         currentUser.referalCodeApplied = true;
 
         findRef.referralCount+=1
         findRef.wallet += referralBonus;
+        findRef.ReferralSignupBonus+=referralBonus;
 
         await currentUser.save();
         await findRef.save();
