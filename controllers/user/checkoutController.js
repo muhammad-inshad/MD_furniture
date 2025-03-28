@@ -238,23 +238,30 @@ const checkout = async (req, res) => {
                 // Handle Payment Methods
                 if (paymentMethod === "onlinePayment") {
                     try {
+                        if (!orders?.length || !finalAmount) {
+                            return res.status(400).json({ error: "Invalid order data" });
+                        }
+                
                         const razorpayOrder = await razorpayInstance.orders.create({
-                            amount:Math.round(Number(finalAmount) * 100),// Use the pre-calculated totalFinalAmount
+                            amount: Math.round(Number(finalAmount) * 100),
                             currency: "INR",
                             receipt: orders[0]._id.toString(),
                             notes: { info: "Multiple orders payment" },
                         });
-        
-                        // Save all orders
+                
                         await Promise.all(orders.map(order => order.save()));
                         await Cart.deleteOne({ userId });
-        
+                
                         return res.json(razorpayOrder);
                     } catch (err) {
                         console.error("Order Creation Failed:", err);
-                        return res.status(500).json({ error: err });
+                        return res.status(500).json({ 
+                            error: "Failed to create order",
+                            details: err.message 
+                        });
                     }
-                } else if (paymentMethod === "wallet") {
+                }
+                 else if (paymentMethod === "wallet") {
                     try {
                         let User = await user.findById(userId); // Assuming 'user' is your User model
                         if (!User) {
