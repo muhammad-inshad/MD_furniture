@@ -306,9 +306,10 @@
     }
   </script>
   
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Ensure this is in your HTML head or before the script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-  <script>
+<script>
 async function makePayment() {
     Swal.fire({
         title: "Processing Payment...",
@@ -318,79 +319,86 @@ async function makePayment() {
         allowOutsideClick: false
     });
 
-    const value = document.getElementById("totalInput").value;
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-    const address = document.querySelector("input[name='address']:checked")?.value;
-
-    if (!value || Number(value) <= 0) {
-        Swal.fire({
-            icon: "warning",
-            title: "Invalid Amount",
-            text: "Please enter a valid amount.",
-        });
-        return;
-    }
-
-    if (!paymentMethod || !address) {
-        Swal.fire({
-            icon: "warning",
-            title: "Missing Details",
-            text: "Please select payment method and address.",
-        });
-        return;
-    }
-
     try {
-        console.log("Fetching /user/checkout...");
-        const response = await fetch("/user/checkout", {
+        console.log("Step 1: Collecting inputs");
+        const value = document.getElementById("totalInput").value;
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        const address = document.querySelector("input[name='address']:checked")?.value;
+
+        console.log("Inputs:", { value, paymentMethod, address });
+
+        if (!value || Number(value) < 1) {
+            Swal.fire({
+                title: "Invalid Amount",
+                text: "The amount must be greater than 1.",
+                icon: "error",
+                confirmButtonText: "OK",
+                allowOutsideClick: false
+            });
+            return; // Stop execution if invalid
+        }
+
+        if (!paymentMethod || !address) {
+            Swal.fire({
+                title: "Missing Details",
+                text: "Please select payment method and address.",
+                icon: "warning",
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+
+        console.log("Step 2: Fetching /user/checkout");
+        let response = await fetch("http://mdfurniture.zapto.org/user/checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 total: value,
                 paymentMethod,
                 address,
-                orders: [{ _id: "test_order_123" }], // Replace with real order data
-                userId: "user123" // Replace with real user ID
             }),
         });
 
-        const order = await response.json();
-        console.log("Checkout response:", order);
-
-        if (!order.amount) {
-            Swal.fire({
-                icon: "error",
-                title: "Payment Error",
-                text: "Invalid payment amount from server.",
-            });
-            return;
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Checkout failed: ${response.status} - ${errorText}`);
         }
 
-        const options = {
+        let order = await response.json();
+        console.log("Step 3: Order received:", order);
+
+        if (!order?.amount || !order?.id) {
+            throw new Error("Invalid order response: missing amount or id");
+        }
+
+        let options = {
             key: "rzp_test_dDhywmKqhJmLtU",
             amount: order.amount,
-            currency: "INR",
+            currency: order.currency || "INR", // Default to INR if missing
             name: "MD_FURNITURE",
-            description: "Order Payment",
+            description: "Test Transaction",
             order_id: order.id,
             handler: async function (response) {
-                const verifyResponse = await fetch("/user/verifyOrder", {
+                console.log("Payment Successful", response);
+                let verifyResponse = await fetch("http://mdfurniture.zapto.org/verifyOrder", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ...response, amount: order.amount })
+                    body: JSON.stringify({ ...response, orderId: order.receipt })
                 });
-                const result = await verifyResponse.json();
+                let verifyResult = await verifyResponse.json();
+                console.log("Verification result:", verifyResult);
                 Swal.fire({
-                    title: result.success ? "Payment Successful!" : "Payment Failed!",
-                    text: result.message,
-                    icon: result.success ? "success" : "error",
+                    title: verifyResult.success ? "Payment Verified!" : "Verification Failed!",
+                    text: verifyResult.message || "Payment processed",
+                    icon: verifyResult.success ? "success" : "error",
                     confirmButtonText: "OK"
                 }).then(() => {
-                    if (result.success) window.location.href = '/user/myorders';
+                    console.log("Redirecting to /user/myorders");
+                    window.location.href = '/user/myorders';
                 });
             },
             prefill: {
-                name: "Inshad",
+                name: "inshad",
                 email: "johndoe@example.com",
                 contact: "9999999999"
             },
@@ -398,25 +406,48 @@ async function makePayment() {
             retry: { enabled: false }
         };
 
-        const rzp = new Razorpay(options);
+        console.log("Step 4: Razorpay options:", options);
+        let rzp = new Razorpay(options);
+        console.log("Step 5: Opening Razorpay modal");
         rzp.open();
 
         rzp.on('payment.failed', function (response) {
+            console.log("Payment failed:", response);
             Swal.fire({
                 icon: "error",
                 title: "Payment Failed",
-                text: response.error.description,
+                text: response.error.description || "Your payment could not be processed.",
+                confirmButtonText: "OK"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("http://mdfurniture.zapto.org/user/paymentfailed", { // Fixed typo
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            error: response.error,
+                            order: order
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("Failure recorded:", data);
+                        window.location.href = "/user/myorders";
+                    })
+                    .catch(err => console.error("Error recording failure:", err));
+                }
             });
         });
     } catch (error) {
-        console.error("Checkout error:", error);
+        console.error("Payment process failed:", error);
         Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Failed to process payment. Please try again.",
+            text: error.message || "Failed to process payment. Please try again.",
+            confirmButtonText: "OK"
         });
     }
-}  </script>
+}
+</script>
 
 <br > <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/tiny-slider.js"></script>
