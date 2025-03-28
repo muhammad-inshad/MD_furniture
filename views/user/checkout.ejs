@@ -349,7 +349,7 @@ async function makePayment() {
         }
 
         console.log("Step 2: Fetching /user/checkout");
-        let response = await fetch("http://mdfurniture.zapto.org/user/checkout", {
+        let response = await fetch("/user/checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -380,7 +380,7 @@ async function makePayment() {
             order_id: order.id,
             handler: async function (response) {
                 console.log("Payment Successful", response);
-                let verifyResponse = await fetch("http://mdfurniture.zapto.org/verifyOrder", {
+                let verifyResponse = await fetch("/verifyOrder", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ ...response, orderId: order.receipt })
@@ -420,7 +420,7 @@ async function makePayment() {
                 confirmButtonText: "OK"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch("http://mdfurniture.zapto.org/user/paymentfailed", { // Fixed typo
+                    fetch("/user/paymentfailed", { // Fixed typo
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
