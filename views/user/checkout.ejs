@@ -335,7 +335,7 @@ async function makePayment() {
                 confirmButtonText: "OK",
                 allowOutsideClick: false
             });
-            return; // Stop execution if invalid
+            return;
         }
 
         if (!paymentMethod || !address) {
@@ -374,28 +374,48 @@ async function makePayment() {
         let options = {
             key: "rzp_test_dDhywmKqhJmLtU",
             amount: order.amount,
-            currency: order.currency || "INR", // Default to INR if missing
+            currency: order.currency || "INR",
             name: "MD_FURNITURE",
             description: "Test Transaction",
             order_id: order.id,
             handler: async function (response) {
                 console.log("Payment Successful", response);
-                let verifyResponse = await fetch("http://mdfurniture.zapto.org/verifyOrder", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ...response, orderId: order.receipt })
-                });
-                let verifyResult = await verifyResponse.json();
-                console.log("Verification result:", verifyResult);
-                Swal.fire({
-                    title: verifyResult.success ? "Payment Verified!" : "Verification Failed!",
-                    text: verifyResult.message || "Payment processed",
-                    icon: verifyResult.success ? "success" : "error",
-                    confirmButtonText: "OK"
-                }).then(() => {
-                    console.log("Redirecting to /user/myorders");
-                    window.location.href = '/user/myorders';
-                });
+                try {
+                    let verifyResponse = await fetch("http://mdfurniture.zapto.org/verifyOrder", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ...response, orderId: order.receipt })
+                    });
+                    if (!verifyResponse.ok) {
+                        throw new Error(`Verification failed with status: ${verifyResponse.status}`);
+                    }
+                    let verifyResult = await verifyResponse.json();
+                    console.log("Verification result:", verifyResult);
+
+                    if (verifyResult.success) {
+                        Swal.fire({
+                            title: "Payment Verified!",
+                            text: verifyResult.message || "Payment processed successfully",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                console.log("Redirecting to /user/myorders after confirmation");
+                                window.location.href = '/user/myorders';
+                            }
+                        });
+                    } else {
+                        throw new Error(verifyResult.message || "Verification failed");
+                    }
+                } catch (err) {
+                    console.error("Verification error:", err);
+                    Swal.fire({
+                        title: "Verification Failed",
+                        text: err.message || "Could not verify payment. Please contact support.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
             },
             prefill: {
                 name: "inshad",
@@ -411,29 +431,44 @@ async function makePayment() {
         console.log("Step 5: Opening Razorpay modal");
         rzp.open();
 
-        rzp.on('payment.failed', function (response) {
+        rzp.on('payment.failed', async function (response) {
             console.log("Payment failed:", response);
             Swal.fire({
                 icon: "error",
                 title: "Payment Failed",
                 text: response.error.description || "Your payment could not be processed.",
                 confirmButtonText: "OK"
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
-                    fetch("http://mdfurniture.zapto.org/user/paymentfailed", { // Fixed typo
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            error: response.error,
-                            order: order
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        console.log("Failure recorded:", data);
-                        window.location.href = "/user/myorders";
-                    })
-                    .catch(err => console.error("Error recording failure:", err));
+                    try {
+                        console.log("Recording failure at /user/paymentfailed");
+                        let failResponse = await fetch("http://mdfurniture.zapto.org/user/paymentfailed", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                error: response.error,
+                                order: order
+                            })
+                        });
+                        if (!failResponse.ok) {
+                            throw new Error(`Failed to record failure: ${failResponse.status}`);
+                        }
+                        let failResult = await failResponse.json();
+                        console.log("Failure recorded:", failResult);
+                        if (failResult.success) {
+                            window.location.href = "/user/myorders";
+                        } else {
+                            console.error("Failure update failed:", failResult);
+                        }
+                    } catch (err) {
+                        console.error("Error recording failure:", err);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Status Update Failed",
+                            text: "Could not update order status. Please contact support.",
+                            confirmButtonText: "OK"
+                        });
+                    }
                 }
             });
         });
