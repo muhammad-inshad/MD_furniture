@@ -81,14 +81,13 @@ const checkout = async (req, res) => {
                 return sum + price * item.quantity;
             }, 0);
 
-            const tax = 0.1 * subtotal; // 10% tax
 
             // Apply discount if a coupon is available in session
             if (req.session.coupon) {
                 discountAmount = (req.session.coupon.discountValue / 100) * subtotal; // Assuming discountValue is a percentage
-                total = subtotal - discountAmount + tax + 100;
+                total = subtotal - discountAmount  + 100;
             } else {
-                total = subtotal + tax +100;
+                total = subtotal  +100;
             }
         }
 

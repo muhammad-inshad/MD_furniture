@@ -112,9 +112,10 @@
                   </div>
                   <div class="row">
                     <div class="col-md-12">
-                      <label class="text-black h4" for="coupon">Coupon</label>
-                      <input type="hidden" id="totalPrice" value="<%= total%>" name="totalPrice">
-                      <p>Enter your coupon code if you have one.</p>
+                        <label class="text-black h4" for="coupon">Coupon</label>
+                        <input type="hidden" id="totalPrice" value="<%= total%>" name="totalPrice">
+                        <input type="hidden" id="originalSubtotal" value="<%= subtotal%>" name="originalSubtotal"> <!-- Add this -->
+                        <p>Enter your coupon code if you have one.</p>
                     </div>
                     <% if (cartData && cartData.length !== 0) { %>
                     <div class="col-md-8 mb-3 mb-md-0">
@@ -343,18 +344,20 @@ document.querySelectorAll("#removebtn").forEach(removeButton => {
 <script>
 async function ApplyCoupon(isRemoving) {
     const couponCode = document.getElementById("coupon").value.trim();
-    const totalPrice = parseFloat(document.getElementById("totalPrice").value);
+    const totalPriceElement = document.getElementById("totalPrice");
+    const originalSubtotalElement = document.getElementById("originalSubtotal"); // New element
+    const originalTotal = parseFloat(totalPriceElement.value); // Current total (e.g., 300 or 200)
+    const originalSubtotal = parseFloat(originalSubtotalElement.value); // Original subtotal (e.g., 200)
     const deliveryCharge = 100.00; // Fixed delivery charge
     const couponField = document.getElementById('couponField');
     const totalField = document.getElementById('totalField');
+    const subtotalElement = document.querySelector(".subtotal-amount");
     const couponapplyBtn = document.getElementById('couponapplyBtn');
 
     let bodyData = {};
 
     if (isRemoving) {
-        bodyData = {};
-        couponapplyBtn.innerHTML = `<button class="btn btn-black" id="Apply-Coupon" onclick="ApplyCoupon(false)">Apply Coupon</button>`;
-        couponField.textContent = '$0';
+        bodyData = { removeCoupon: true };
     } else {
         if (!couponCode) {
             Swal.fire({
@@ -364,7 +367,7 @@ async function ApplyCoupon(isRemoving) {
             });
             return;
         }
-        bodyData = { coupon: couponCode, totalPrice };
+        bodyData = { coupon: couponCode, totalPrice: originalTotal };
     }
 
     try {
@@ -387,19 +390,28 @@ async function ApplyCoupon(isRemoving) {
                 confirmButtonText: "OK",
             }).then(() => {
                 if (data.couponRemoved === false) {
-                    couponField.textContent = `-$${data.discountAmount}`;
-                    // Calculate new total with fixed delivery charge
-                    const subtotal = totalPrice - data.discountAmount;
-                    const finalTotal = subtotal + deliveryCharge;
-                    totalField.textContent = `$${finalTotal.toFixed(2)}`;
+                    // Coupon applied
+                    const discountAmount = parseFloat(data.discountAmount) || 0; // e.g., 100
+                    const newSubtotal = originalSubtotal - discountAmount; // e.g., 200 - 100 = 100
+                    const newTotal = newSubtotal + deliveryCharge; // e.g., 100 + 100 = 200
+
+                    couponField.textContent = `-$${discountAmount.toFixed(2)}`;
+                    subtotalElement.textContent = `$${newSubtotal.toFixed(2)}`;
+                    totalField.textContent = `$${newTotal.toFixed(2)}`;
+                    totalPriceElement.value = newTotal; // Update current total
                     couponapplyBtn.innerHTML = `<button class="btn btn-black" id="Remove-Coupon" onclick="ApplyCoupon(true)">Remove Coupon</button>`;
                 } else {
+                    // Coupon removed
+                    const newSubtotal = originalSubtotal; // Reset to original subtotal (e.g., 200)
+                    const newTotal = newSubtotal + deliveryCharge; // e.g., 200 + 100 = 300
+
                     couponField.textContent = `$0`;
-                    const finalTotal = totalPrice + deliveryCharge;
-                    totalField.textContent = `$${finalTotal.toFixed(2)}`;
+                    subtotalElement.textContent = `$${newSubtotal.toFixed(2)}`;
+                    totalField.textContent = `$${newTotal.toFixed(2)}`;
+                    totalPriceElement.value = newTotal; // Update current total
+                    couponapplyBtn.innerHTML = `<button class="btn btn-black" id="Apply-Coupon" onclick="ApplyCoupon(false)">Apply Coupon</button>`;
+                    document.getElementById("coupon").value = ""; // Clear coupon input
                 }
-                // Update subtotal display
-                document.querySelector(".subtotal-amount").textContent = `$${data.subtotal.toFixed(2)}`;
             });
         } else {
             Swal.fire({
@@ -419,6 +431,7 @@ async function ApplyCoupon(isRemoving) {
         });
     }
 }
+   
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
