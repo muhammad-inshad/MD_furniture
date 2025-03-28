@@ -305,7 +305,7 @@
       }
     }
   </script>
-  
+
   <script>
     async function makePayment() {
       Swal.fire({
@@ -332,8 +332,8 @@
 }
 
 
-  
-        let response = await fetch("http://mdfurniture.zapto.org/user/checkout", {
+
+        let response = await fetch("https://mdfurniture.zapto.org/user/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -356,7 +356,7 @@
           handler: async function (response) {
             console.log("Payment Successful", response);
   
-            let verifyResponse = await fetch("http://mdfurniture.zapto.org/verifyOrder", {
+            let verifyResponse = await fetch("https://mdfurniture.zapto.org/verifyOrder", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ ...response, orderId: order.receipt })
