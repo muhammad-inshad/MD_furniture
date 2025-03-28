@@ -127,20 +127,74 @@
             text-align: center;
         }
 
-        .product-details p {
+        /* Product Info Section */
+        .product-info {
+            margin-bottom: 30px;
+        }
+
+        .product-info p {
             font-size: 15px;
             margin-bottom: 15px;
             color: #b0b0b0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .product-details p strong {
+        .product-info p strong {
             color: #e0e0e0;
             font-weight: 600;
+            flex: 0 0 150px; /* Fixed width for labels */
+        }
+
+        .product-info p span {
+            flex: 1;
+            text-align: left;
         }
 
         .product-details p.cancel-reason {
             color: #ff6f61;
             font-weight: bold;
+        }
+
+        /* Address Section */
+        .profile-box {
+            background: #333333;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-box h3 {
+            color: #00d4ff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid #00d4ff;
+            padding-bottom: 5px;
+        }
+
+        .profile-box p {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #b0b0b0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-box p strong {
+            color: #e0e0e0;
+            font-weight: 600;
+            flex: 0 0 150px; /* Fixed width for labels */
+        }
+
+        .profile-box p span {
+            flex: 1;
+            text-align: left;
         }
 
         /* Image Container */
@@ -222,8 +276,14 @@
                 padding: 20px;
             }
 
-            .product-details p {
+            .product-info p,
+            .profile-box p {
                 font-size: 14px;
+            }
+
+            .product-info p strong,
+            .profile-box p strong {
+                flex: 0 0 120px; /* Adjust for smaller screens */
             }
 
             .image-container .product-image {
@@ -250,7 +310,7 @@
         <a href="/admin/coupenMenagement">Coupon Management</a>
         <a href="/admin/SalesReport">Sales Report</a>
         <a href="/admin/AdminReturnRequest">Return Management</a>
-        <a href="/admin/referralManagement" class="active">Referral Management</a>
+        <a href="/admin/referralManagement">Referral Management</a>
         <a href="/admin/logout">Logout</a>
     </div>
 
@@ -263,14 +323,26 @@
                     <img src="/uploads/<%= image %>" alt="<%= product.productName %> - Image <%= index + 1 %>" class="product-image">
                 <% }) %>
             </div>
-            <p><strong>Brand:</strong> <%= product.brand %></p>
-            <p><strong>Quantity:</strong> <%= product.quantity %></p>
-            <p><strong>Description:</strong> <%= product.description %></p>
-            <p><strong>Price:</strong> $<%= product.salePrice %></p>
-            <p><strong>Category:</strong> <%= product.category.name %></p>
-            <p><strong>Rating:</strong> <%= product.rating %>/5</p>
-            <% if (order && order.cancelReson) { %>
-                <p class="cancel-reason"><strong>Cancelled Reason:</strong> <%= order.cancelReson || "Not provided" %></p>
+            <div class="product-info">
+                <p><strong>Brand:</strong> <span><%= product.brand %></span></p>
+                <p><strong>Quantity:</strong> <span><%= product.quantity %></span></p>
+                <p><strong>Description:</strong> <span><%= product.description %></span></p>
+                <p><strong>Price:</strong> <span>$<%= product.salePrice %></span></p>
+                <p><strong>Category:</strong> <span><%= product.category.name %></span></p>
+                <p><strong>Rating:</strong> <span><%= product.rating %>/5</span></p>
+            </div>
+            <% if (address) { %>
+                <div class="profile-box">
+                    <h3>Delivery Address</h3>
+                    <p><strong>Name:</strong> <span><%= address.name %></span></p>
+                    <p><strong>City:</strong> <span><%= address.City %></span></p>
+                    <p><strong>Landmark:</strong> <span><%= address.landMark %></span></p>
+                    <p><strong>State:</strong> <span><%= address.state %></span></p>
+                    <p><strong>Phone:</strong> <span><%= address.phone %></span></p>
+                    <p><strong>Pincode:</strong> <span><%= address.pincode %></span></p>
+                </div>
+            <% } else { %>
+                <p>No address found.</p>
             <% } %>
             <a href="/admin/ordermanagment" class="back-button">Back to Order Management</a>
         </div>

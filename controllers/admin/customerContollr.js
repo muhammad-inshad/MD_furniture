@@ -1,12 +1,12 @@
 
-const User=require('../../models/userSchema')
-const Category=require('../../models/categorySchema')
+const User = require('../../models/userSchema')
+const Category = require('../../models/categorySchema')
 const Product = require('../../models/productSchema');
-const Order=require("../../models/orderSchema")
+const Order = require("../../models/orderSchema")
 const { search } = require('../../app');
-const fs=require("fs")
-const path=require("path")
-const Sharp=require("sharp");
+const fs = require("fs")
+const path = require("path")
+const Sharp = require("sharp");
 const { constants } = require('perf_hooks');
 const Address = require('../../models/addressSchema');
 const mongoose = require("mongoose");
@@ -16,21 +16,21 @@ const { save } = require('pdfkit');
 
 const userManagement = async (req, res) => {
     try {
-        let page = parseInt(req.query.page) || 1; 
-        let limit = 5; 
+        let page = parseInt(req.query.page) || 1;
+        let limit = 5;
         let skip = (page - 1) * limit;
 
         const totalUsers = await User.countDocuments();
         const totalPages = Math.ceil(totalUsers / limit);
 
         const userfind = await User.find()
-    .skip(skip)
-    .limit(limit)
-    .sort({ _id: -1 }); // Sort by newest users first
+            .skip(skip)
+            .limit(limit)
+            .sort({ _id: -1 }); // Sort by newest users first
 
 
         if (req.session.admin) {
-            res.render("userManagement", { userfind , page, totalPages });
+            res.render("userManagement", { userfind, page, totalPages });
         } else {
             res.redirect("/user/home");
         }
@@ -41,22 +41,22 @@ const userManagement = async (req, res) => {
 };
 
 
-const blockUser=async (req,res)=>{
-      try {
-            const {id}=req.params
-            const user= await User.findById(id)
-            user.isBlocked = !user.isBlocked;
-            await user.save();
-            res.json({success:true})
-      } catch (error) {
+const blockUser = async (req, res) => {
+    try {
+        const { id } = req.params
+        const user = await User.findById(id)
+        user.isBlocked = !user.isBlocked;
+        await user.save();
+        res.json({ success: true })
+    } catch (error) {
         console.log(error);
-      }
+    }
 }
 
 const searchUSer = async (req, res) => {
     try {
         const { searchKey } = req.body;
-    
+
         const result = await User.find({
             username: { $regex: searchKey, $options: "i" }
         });
@@ -100,12 +100,12 @@ const ordermanagment = async (req, res) => {
             { $skip: skip }, // Skip documents for pagination
             { $limit: limit }, // Limit the number of documents per page
         ]);
-       
-        
+
+
         const totalOrders = await Order.countDocuments();
         const totalPages = Math.ceil(totalOrders / limit); // Calculate total pages
-        res.render('ordermanagement', { orders, currentPage: page, totalPages});
-   
+        res.render('ordermanagement', { orders, currentPage: page, totalPages });
+
     } catch (error) {
         console.error('Error in order management:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch orders' });
@@ -133,22 +133,30 @@ const orderupdate = async (req, res) => {
     }
 };
 
-const userAddress = async (req, res) => {
+const showProduct = async (req, res) => {
     try {
+        const { id } = req.params
+        const cancelReason = req.body.cancelReason
+        const order = await Order.findById(cancelReason)
 
-        const userId = new mongoose.Types.ObjectId(req.params.id1); 
+        const product = await Product.findById(id).populate("category");;
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        const userId = new mongoose.Types.ObjectId(req.params.id1);
         const addressId = new mongoose.Types.ObjectId(req.params.id2);
 
         const addressData = await Address.aggregate([
             {
                 $match: {
-                    userId: userId, 
-                    "address._id": addressId 
+                    userId: userId,
+                    "address._id": addressId
                 }
             },
             {
                 $project: {
-             
+
                     address: {
                         $arrayElemAt: [
                             "$address",
@@ -167,29 +175,8 @@ const userAddress = async (req, res) => {
         // Take the extracted address sub-document
         const address = addressData[0].address;
 
-        // Render the page with the specific address
-        res.render("userAddresspage", { address });
 
-    } catch (error) {
-        console.error("Error fetching user address:", error);
-        res.status(500).json({ success: false, message: "Error fetching user address" });
-    }
-};
-
-
-
-const showProduct=async (req,res)=>{
-    try {
-        const {id}=req.params
-        const cancelReason=req.body.cancelReason
-         const order=await Order.findById(cancelReason)
-         
-        const product = await Product.findById(id).populate("category"); ;
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found" });
-        }
-       
-        res.render("showProduct", {product,order});
+        res.render("showProduct", { product, order, address });
     } catch (error) {
         console.error("showProduct from admin side", error);
         res.status(500).json({ success: false, message: "showProduct product address" });
@@ -198,17 +185,17 @@ const showProduct=async (req,res)=>{
 
 const ReferralCodeM = async (req, res) => {
     try {
-         let page = parseInt(req.query.page) || 1; // Get page number from URL, default to 1
-                let limit = 5; // Number of coupons per page
-                let skip = (page - 1) * limit; // Calculate how many documents to skip
-        
-                // Count total number of coupons in the database
-                const totalUsers = await user.countDocuments();
-                const totalPages = Math.ceil(totalUsers / limit); // Calculate total pages
+        let page = parseInt(req.query.page) || 1; // Get page number from URL, default to 1
+        let limit = 5; // Number of coupons per page
+        let skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Count total number of coupons in the database
+        const totalUsers = await user.countDocuments();
+        const totalPages = Math.ceil(totalUsers / limit); // Calculate total pages
         const referrals = await user.find().skip(skip)  // Apply pagination
-        .limit(limit)
-        .sort({ _id: -1 }); 
-        res.render("ReferralCodeMangement", { referrals,page, totalPages });
+            .limit(limit)
+            .sort({ _id: -1 });
+        res.render("ReferralCodeMangement", { referrals, page, totalPages });
     } catch (error) {
         console.error("Error in ReferralCodeM:", error);
         res.status(500).json({ success: false, message: "Failed to fetch referrals" });
@@ -217,18 +204,18 @@ const ReferralCodeM = async (req, res) => {
 
 const referraladdamount = async (req, res) => {
     try {
-        const { id } = req.params;            
-        const { amount } = req.body;             
+        const { id } = req.params;
+        const { amount } = req.body;
 
-        const findUser = await user.findOne({ _id: id });  
+        const findUser = await user.findOne({ _id: id });
 
         if (!findUser) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        findUser.referalamount = amount;         
-        await findUser.save();     
-    
+        findUser.referalamount = amount;
+        await findUser.save();
+
 
         res.status(200).json({ success: true, user: findUser });
 
@@ -239,13 +226,12 @@ const referraladdamount = async (req, res) => {
 };
 
 
-module.exports={
+module.exports = {
     userManagement,
     blockUser,
     searchUSer,
     ordermanagment,
     orderupdate,
-    userAddress,
     showProduct,
     ReferralCodeM,
     referraladdamount

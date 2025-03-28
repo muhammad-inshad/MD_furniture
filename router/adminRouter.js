@@ -45,9 +45,9 @@ router.post("/deleteProductImage/:productId/:imageName", productController.delet
 router.get("/ordermanagment",isAdmin,customerController.ordermanagment)
 router.post("/order/update/:id",customerController.orderupdate)
 
-router.post("/showProduct/:id",isAdmin,customerController.showProduct)
+router.post("/showProduct/:id/:id1/:id2",isAdmin,customerController.showProduct)
 
-router.get("/userAddress/:id1/:id2",isAdmin,customerController.userAddress)
+
 
 router.get("/coupenMenagement",isAdmin,adminController.coupenMenagement)
 router.get("/addcoupon",adminController.addcoupon)
