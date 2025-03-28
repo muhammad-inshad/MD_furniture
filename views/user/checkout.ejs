@@ -443,7 +443,7 @@ async function makePayment() {
               if (result.isConfirmed) {
                   try {
                       console.log("Step 7: Fetching /user/paymentfailed with:", { error: response.error, order });
-                      let failResponse = await fetch("http://mdfurniture.zapto.org/user/paymentfailed", {
+                      let failResponse = await fetch("http://mdfurniture.zapto.org/user/pymentfaield", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
